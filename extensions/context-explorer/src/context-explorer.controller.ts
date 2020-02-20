@@ -4,31 +4,26 @@
 // License text available at https://opensource.org/licenses/MIT
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {Constructor, Context, inject, JSONObject} from '@loopback/context';
+import {
+  config,
+  Constructor,
+  Context,
+  inject,
+  JSONObject,
+} from '@loopback/context';
 import {
   api,
   get,
+  HttpErrors,
   param,
   RequestContext,
   Response,
-  ResponseObject,
   RestBindings,
 } from '@loopback/rest';
 import {ContextGraph} from './context-graph';
+import {ContextExplorerBindings} from './keys';
+import {ContextExplorerConfig} from './types';
 import {renderGraph} from './visualizer';
-
-const INSPECT_RESPONSE: ResponseObject = {
-  description: 'Inspect Response',
-  content: {
-    'application/json': {
-      schema: {
-        type: 'object',
-        title: 'InspectResponse',
-        additionalProperties: true,
-      },
-    },
-  },
-};
 
 export function contextExplorerControllerFactory(
   basePath = '/context-explorer',
@@ -36,20 +31,26 @@ export function contextExplorerControllerFactory(
   @api({basePath, paths: {}})
   class ContextExplorerController {
     constructor(
+      @config({fromBinding: ContextExplorerBindings.COMPONENT})
+      private explorerConfig: ContextExplorerConfig = {
+        path: '/context-explorer',
+      },
       @inject(RestBindings.Http.CONTEXT) private ctx: RequestContext,
     ) {}
 
     // Map to `GET /inspect`
     @get('/inspect', {
-      responses: {
-        '200': INSPECT_RESPONSE,
-      },
+      'x-visibility': 'undocumented',
+      responses: {},
     })
     inspect(
       @param.query.boolean('includeInjections') includeInjections = true,
       @param.query.boolean('includeParent') includeParent = true,
       @param.query.boolean('includeGraph') includeGraph = true,
     ): JSONObject {
+      if (this.explorerConfig.enableInspection === false) {
+        throw new HttpErrors.NotFound();
+      }
       const result = this.ctx.inspect({includeInjections, includeParent});
       if (includeGraph) {
         const graph = new ContextGraph(result).render();
@@ -59,12 +60,15 @@ export function contextExplorerControllerFactory(
     }
 
     // Map to `GET /inspect`
-    @get('/graph')
+    @get('/graph', {'x-visibility': 'undocumented', responses: {}})
     async graph(
       @param.query.boolean('includeInjections') includeInjections = true,
       @param.query.boolean('includeParent') includeParent = true,
       @param.query.string('format') format = 'svg',
     ): Promise<Response> {
+      if (this.explorerConfig.enableSVG === false) {
+        throw new HttpErrors.NotFound();
+      }
       const result = this.ctx.inspect({includeInjections, includeParent});
       const graph = new ContextGraph(result).render();
 
@@ -78,10 +82,16 @@ export function contextExplorerControllerFactory(
     }
 
     /**
-     * Create an array of graphviz dot graphs for d3 animations
+     * Create an array of graphviz dot graphs for d3 animation
      */
-    @get('/dots')
+    @get('/dots', {
+      'x-visibility': 'undocumented',
+      responses: {},
+    })
     async dots() {
+      if (this.explorerConfig.enableD3Animation === false) {
+        throw new HttpErrors.NotFound();
+      }
       let ctx: Context | undefined = this.ctx;
       const dots: string[] = [];
       while (ctx != null) {

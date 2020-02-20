@@ -21,10 +21,12 @@ export class ContextExplorerComponent implements Component {
     @inject(CoreBindings.APPLICATION_INSTANCE)
     application: RestApplication,
     @config()
-    restExplorerConfig: ContextExplorerConfig = {},
+    explorerConfig: ContextExplorerConfig = {},
   ) {
-    const explorerPath = restExplorerConfig.path ?? '/context-explorer';
-    application.static(explorerPath, path.join(__dirname, '../public'));
+    const explorerPath = explorerConfig.path ?? '/context-explorer';
+    if (explorerConfig.enableD3Animation !== false) {
+      application.static(explorerPath, path.join(__dirname, '../public'));
+    }
 
     application.controller(contextExplorerControllerFactory(explorerPath));
   }

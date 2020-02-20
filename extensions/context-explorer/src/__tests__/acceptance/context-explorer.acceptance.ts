@@ -102,6 +102,31 @@ describe('Context Explorer (acceptance)', () => {
 
       await request.get('/context-explorer').expect(404);
     });
+
+    it('honors enableSVG = false', async () => {
+      await givenAppWithCustomExplorerConfig(undefined, {
+        enableSVG: false,
+      });
+
+      await request.get('/context-explorer/graph').expect(404);
+    });
+
+    it('honors enableD3Animation = false', async () => {
+      await givenAppWithCustomExplorerConfig(undefined, {
+        enableD3Animation: false,
+      });
+
+      await request.get('/context-explorer/dots').expect(404);
+      await request.get('/context-explorer').expect(404);
+    });
+
+    it('honors enableInspection = false', async () => {
+      await givenAppWithCustomExplorerConfig(undefined, {
+        enableInspection: false,
+      });
+
+      await request.get('/context-explorer/inspect').expect(404);
+    });
   });
 
   function givenRestApplication(config?: RestServerConfig) {

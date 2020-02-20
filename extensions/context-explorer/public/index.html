@@ -36,7 +36,7 @@
       }
 
       async function fetchDots() {
-        const res = await fetch('/dots');
+        const res = await fetch('./dots');
         dots = JSON.parse(await res.text());
       }
 
