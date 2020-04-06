@@ -42,6 +42,11 @@ exports.SANDBOX_FILES = [
   },
   {
     path: DATASOURCE_APP_PATH,
+    file: 'map-ds.datasource.ts',
+    content: DUMMY_CONTENT,
+  },
+  {
+    path: DATASOURCE_APP_PATH,
     file: 'myds.datasource.ts',
     content: DUMMY_CONTENT,
   },
