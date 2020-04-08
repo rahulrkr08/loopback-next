@@ -7,7 +7,6 @@ import {
   asAuthStrategy,
   AuthenticationStrategy,
   UserIdentityService,
-  AuthenticationBindings,
 } from '@loopback/authentication';
 import {StrategyAdapter} from '@loopback/authentication-passport';
 import {Profile} from 'passport';

@@ -1,15 +1,20 @@
 {
   "ids": {
-    "User": 2,
-    "UserIdentity": 100487451443373280000
+    "User": 3,
+    "UserIdentity": 1005,
+    "UserCredentials": 2
   },
   "models": {
     "User": {
-      "1": "{\"name\":\"Open Graph Test User\",\"username\":\"dplojbdiuc_1585460374@tfbnw.net\",\"email\":\"dplojbdiuc_1585460374@tfbnw.net\",\"id\":1}"
+      "1": "{\"name\":\"Test User\",\"username\":\"test@example.com\",\"email\":\"test@example.com\",\"id\":1}",
+      "2": "{\"name\":\"\\\"tinkerbell\\\"\",\"username\":\"usr1@lb.com\",\"email\":\"usr1@lb.com\",\"id\":2}"
     },
     "UserIdentity": {
-      "104566694532668": "{\"id\":\"104566694532668\",\"provider\":\"facebook\",\"profile\":{\"emails\":[{\"value\":\"dplojbdiuc_1585460374@tfbnw.net\"}]},\"authScheme\":\"facebook\",\"created\":\"2020-04-07T18:40:25.360Z\",\"userId\":1}",
-      "100487451443373281118": "{\"id\":\"100487451443373281118\",\"provider\":\"google\",\"profile\":{\"emails\":[{\"value\":\"deepak.r.kris@gmail.com\",\"type\":\"account\"}]},\"authScheme\":\"google\",\"created\":\"2020-04-07T18:40:52.941Z\",\"userId\":1}"
+      "1001": "{\"id\":\"1001\",\"provider\":\"custom-oauth2\",\"profile\":{\"emails\":[{\"value\":\"usr1@lb.com\"}]},\"authScheme\":\"custom-oauth2\",\"created\":\"2020-04-11T01:20:01.740Z\",\"userId\":2}",
+      "1003": "{\"id\":\"1003\",\"provider\":\"custom-oauth2\",\"profile\":{\"emails\":[{\"value\":\"test@example.com\"}]},\"authScheme\":\"custom-oauth2\",\"created\":\"2020-04-11T01:20:01.565Z\",\"userId\":1}"
+    },
+    "UserCredentials": {
+      "test@example.com": "{\"id\":\"test@example.com\",\"password\":\"password\",\"userId\":1}"
     }
   }
 }
