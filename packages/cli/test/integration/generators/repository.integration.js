@@ -519,7 +519,7 @@ describe('lb4 repository', function () {
   });
 
   describe('legacy JSON-based configuration', () => {
-    it('loads config from `{name}.datasource.config.json', async () => {
+    it('loads config from `{name}.datasource.config.json`', async () => {
       const additionalFiles = [
         ...SANDBOX_FILES,
         {

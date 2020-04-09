@@ -149,7 +149,7 @@ exports.getDataSourceConfig = function (fileContent) {
     ast,
     // It must be a top-level declaration, not inside a function
     'SourceFile>VariableStatement>VariableDeclarationList>' +
-      // The declaration should be for property called `config`
+      // The declaration should be for a variable called exactly `config`
       'VariableDeclaration:has([name="config"])',
   );
   if (!configVarDecl || configVarDecl.length < 1) {
