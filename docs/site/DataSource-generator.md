@@ -115,8 +115,8 @@ style.
    For example:
 
    ```diff
-   export class DsDataSource extends juggler.DataSource {
-     static dataSourceName = 'ds';
+   export class DbDataSource extends juggler.DataSource {
+     static dataSourceName = 'db';
    +  static readonly defaultConfig = config;
 
      constructor(
@@ -124,6 +124,10 @@ style.
 
 4. Modify the tests importing the default datasource configuration from the JSON
    file, get the default configuration via the new static property instead.
+
+   This is typically needed by tests for service proxies, which are are working
+   with a datasource connected to a web service. Datasources connected to a
+   database usually don't need different configuration for tests.
 
    For example:
 
