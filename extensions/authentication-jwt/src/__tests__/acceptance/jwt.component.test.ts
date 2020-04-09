@@ -11,8 +11,9 @@ import {
 } from '@loopback/testlab';
 import {genSalt, hash} from 'bcryptjs';
 import * as _ from 'lodash';
-import {TestApplication} from '../fixtures/application';
+import {UserServiceBindings} from '../..';
 import {UserRepository} from '../../repositories';
+import {TestApplication} from '../fixtures/application';
 
 describe('jwt authentication', () => {
   let app: TestApplication;
@@ -54,7 +55,7 @@ describe('jwt authentication', () => {
     });
 
     await app.boot();
-    userRepo = await app.get('repositories.UserRepository');
+    userRepo = await app.get(UserServiceBindings.USER_REPOSITORY_NAME);
     await createUsers();
     await app.start();
   }

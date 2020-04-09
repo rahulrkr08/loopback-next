@@ -25,4 +25,7 @@ export namespace UserServiceBindings {
     'services.user.service',
   );
   export const DATASOURCE_NAME = 'jwtdb';
+  export const USER_REPOSITORY_NAME = 'repositories.UserRepository';
+  export const USER_CREDENTIALS_REPOSITORY_NAME =
+    'repositories.UserCredentialsRepository';
 }

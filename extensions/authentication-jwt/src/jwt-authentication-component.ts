@@ -29,8 +29,10 @@ export class JWTAuthenticationComponent implements Component {
 
     // user bindings
     Binding.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService),
-    Binding.bind('repositories.UserRepository').toClass(UserRepository),
-    Binding.bind('repositories.UserCredentialsRepository').toClass(
+    Binding.bind(UserServiceBindings.USER_REPOSITORY_NAME).toClass(
+      UserRepository,
+    ),
+    Binding.bind(UserServiceBindings.USER_CREDENTIALS_REPOSITORY_NAME).toClass(
       UserCredentialsRepository,
     ),
   ];
