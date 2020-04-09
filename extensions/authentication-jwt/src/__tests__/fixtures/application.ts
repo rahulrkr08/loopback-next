@@ -35,7 +35,10 @@ export class TestApplication extends BootMixin(
     // Mount jwt component
     this.component(JWTAuthenticationComponent);
     // Bind datasource
-    this.bind(UserServiceBindings.DATASOURCE).toClass(DbDataSource);
+    // (FIXME) is it possible to bind a custom binding key for
+    // datasource like the code below?
+    // this.bind(UserServiceBindings.DATASOURCE).toClass(DbDataSource);
+    this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.component(RestExplorerComponent);
     this.projectRoot = __dirname;

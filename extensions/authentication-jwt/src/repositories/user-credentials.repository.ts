@@ -13,7 +13,7 @@ export class UserCredentialsRepository extends DefaultCrudRepository<
   typeof UserCredentials.prototype.id,
   UserCredentialsRelations
   > {
-  constructor(@inject(UserServiceBindings.DATASOURCE) dataSource: juggler.DataSource) {
+  constructor(@inject(`datasources.${UserServiceBindings.DATASOURCE_NAME}`) dataSource: juggler.DataSource) {
     super(UserCredentials, dataSource);
   }
 }

@@ -20,7 +20,7 @@ export class UserRepository extends DefaultCrudRepository<
   >;
 
   constructor(
-    @inject(UserServiceBindings.DATASOURCE) dataSource: juggler.DataSource,
+    @inject(`datasources.${UserServiceBindings.DATASOURCE_NAME}`) dataSource: juggler.DataSource,
     @repository.getter('UserCredentialsRepository')
     protected userCredentialsRepositoryGetter: Getter<
       UserCredentialsRepository
