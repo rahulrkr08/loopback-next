@@ -70,13 +70,13 @@ app.start = function() {
   ...
 ``` -->
 
-## Node API
+## Node.js API
 
 {% include content/angular-methods-caveat.html lang=page.lang %}
 
 ### Where clause for queries
 
-For query methods such as `find()`,` findOrCreate()`, or `findOne()`, use the first form below to test equivalence, that is, whether _property_ equals _value_.
+For query methods such as `find()` or `findOne()`, use the first form below to test equivalence, that is, whether _property_ equals _value_.
 Use the second form below for all other conditions.
 
 ```ts
@@ -93,15 +93,15 @@ Where:
 * _value_ is a literal value. 
 * _op_ is one of the [operators](#operators) listed below.
 
+{% include code-caption.html content="Node.js API" %}
+
 ```ts
 await productRepository.find({where: {size:'large'}});
 ```
 
-The equivalent REST query would be:
+{% include code-caption.html content="REST" %}
 
-```
-/api/products?filter[where][size]=large
-```
+`/products?filter[where][size]=large`
 
 {% include tip.html content="The above where clause syntax is for queries, and not for [`count()`](https://loopback.io/doc/en/lb4/apidocs.repository.defaultcrudrepository.count.html).
 For all other methods, including `count()`, omit the `{ where : ... }` wrapper; see [Where clause for other methods](#where-clause-for-other-methods) below.
@@ -109,17 +109,17 @@ For all other methods, including `count()`, omit the `{ where : ... }` wrapper; 
 
 ### Where clause for other methods
 
-{% include important.html content="When you call the Node APIs _for methods other than queries_, that is for methods that update and delete
+{% include important.html content="When you call the Node.js APIs _for methods other than queries_, that is for methods that update and delete
 (and [`count()`](https://loopback.io/doc/en/lb4/apidocs.repository.defaultcrudrepository.count.html)), don't wrap the where clause in a `{ where : ... }` object, simply use the condition as the argument as shown below. See examples below.
 " %}
 
 In the first form below, the condition is equivalence, that is, it tests whether _property_ equals _value_. The second form is for all other conditions.
 
-```javascript
+```ts
 {property: value}
 ```
 
-```javascript
+```ts
 {property: {op: value}}
 ```
 
@@ -145,7 +145,7 @@ await orderRepository.deleteAll( { customerId: 99 });
 To delete all records where the cost property is greater than 100:
 
 ```ts
-await productRepositor.deleteAll({cost: {gt: 100}});
+await productRepositor.deleteAll( {cost: {gt: 100} });
 ```
 
 ### Default scope with where filters
@@ -180,16 +180,15 @@ This table describes the operators available in "where" filters. See [Examples]
 
 Use the AND and OR operators to create compound logical filters based on simple where filter conditions, using the following syntax.
 
-{% include code-caption.html content="Node API" %}
-```javascript
+{% include code-caption.html content="Node.js API" %}
+
+```ts
 {where: {<and|or>: [condition1, condition2, ...]}}
 ```
 
-**REST**
+{% include code-caption.html content="REST" %}
 
-```
-[where][<and|or>][0]condition1&[where][<and|or>]condition2...
-```
+`[where][<and|or>][0]condition1&[where][<and|or>]condition2...`
 
 Where _condition1_ and _condition2_ are a filter conditions.
 
@@ -204,9 +203,9 @@ Essentially, `regexp` is just like an operator in which you provide a regular 
 {% include tip.html content="A regular expression value can also include one or more [flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Advanced_searching_with_flags).  For example, append `/i` to the regular expression to perform a case-insensitive match.
 " %}
 
-{% include code-caption.html content="Node API" %}
+{% include code-caption.html content="Node.js API" %}
 
-```javascript
+```ts
 {where: {property: {regexp: <expression>}}}
 ```
 
@@ -218,7 +217,7 @@ Where `<expression>` can be a:
 
 Or, in a simpler format:
 
-```javascript
+```ts
 {where: {property: <expression>}}}
 ```
 
@@ -247,11 +246,9 @@ Or, using the simplified form:
 await productRepository.find({where: {category: /^T/}});
 ```
 
-**REST**
+{% include code-caption.html content="REST" %}
 
-```
-filter[where][property][regexp]=expression
-```
+`filter[where][property][regexp]=expression`
 
 Where:
 
@@ -287,7 +284,7 @@ Note that since the regular expression includes a flag, it is preceded by a slas
 
 Weapons with name M1911:
 
-**REST**
+{% include code-caption.html content="REST" %}
 
 ```
 /weapons?filter[where][name]=M1911
@@ -301,9 +298,9 @@ Products where size is "large":
 /api/products?filter[where][size]=large
 ```
 
-Equivalently, in Node:
+{% include code-caption.html content="Node.js API" %}
 
-```javascript
+```ts
 await productRepository.find({ where: {size:'large'} });
 ```
 
@@ -321,13 +318,11 @@ await transactionRepository.find({
 
 For example, the following query returns all instances of the order using a _where_ filter that specifies a date property after (greater than) the specified date: 
 
-```
-/orders?filter[where][date][gt]=2014-04-01T18:30:00.000Z
-```
+`/orders?filter[where][date][gt]=2014-04-01T18:30:00.000Z`
 
-The same query using the Node API:
+{% include code-caption.html content="Node.js API" %}
 
-```javascript
+```ts
 orderRepository.find({
   where: { 
     date: {gt: new Date('2014-04-01T18:30:00.000Z')}
@@ -335,33 +330,33 @@ orderRepository.find({
 });
 ```
 
+{% include code-caption.html content="REST" %}
+
 The top three weapons with a range over 900 meters:
 
-```
-/weapons?filter[where][effectiveRange][gt]=900&filter[limit]=3
-```
+`/weapons?filter[where][effectiveRange][gt]=900&filter[limit]=3`
 
 Weapons with audibleRange less than 10:
 
-```
-/weapons?filter[where][audibleRange][lt]=10
-```
+`/weapons?filter[where][audibleRange][lt]=10`
 
 ### and / or
 
 The following code is an example of using the **"and"** operator to find reviews where the title is "My Post" and content is "Hello".
 
+{% include code-caption.html content="Node.js API" %}
+
 ```ts
 await reviewRepository.find({where: {and: [{title: 'My Post'}, {content: 'Hello'}]}});
 ```
 
-Equivalent in REST:
+{% include code-caption.html content="REST" %}
 
-```
-?filter[where][and][0][title]=My%20Post&filter[where][and][1][content]=Hello
-```
+`?filter[where][and][0][title]=My%20Post&filter[where][and][1][content]=Hello`
 
 Example using the **"or"** operator to finds reviews that either have title of "My Review" or content of "Hello".
+
+{% include code-caption.html content="Node.js API" %}
 
 ```ts
 await reviewRepository.find({where: {or: [{title: 'My Review'}, {content: 'Hello'}]}});
@@ -369,7 +364,7 @@ await reviewRepository.find({where: {or: [{title: 'My Review'}, {content: 'Hello
 
 More complex example. The following expresses `(field1= foo and field2=bar) OR field1=morefoo`:
 
-```javascript
+```ts
 {
    or: [
      { and: [{ field1: 'foo' }, { field2: 'bar' }] },
@@ -382,13 +377,13 @@ More complex example. The following expresses `(field1= foo and field2=bar) OR 
 
 Example of between operator:
 
-```
-filter[where][price][between][0]=0&filter[where][price][between][1]=7
-```
+{% include code-caption.html content="REST" %}
 
-In Node API:
+`filter[where][price][between][0]=0&filter[where][price][between][1]=7`
 
-```javascript
+{% include code-caption.html content="Node.js API" %}
+
+```ts
 await shirtsRepository.find({where: {size: {between: [0,7]}}});
 ```
 
@@ -406,7 +401,7 @@ For example:
 
 GeoPoints can be expressed in any of the following ways:
 
-```javascript
+```ts
 location = new GeoPoint({lat: 42.266271, lng: -72.6700016}); // GeoPoint
 location = '42.266271,-72.6700016';                          // String
 location = [42.266271, -72.6700016];                         // Array
@@ -444,12 +439,12 @@ const results = await hotelRepository.find({
 
 To change the units of measurement, specify `unit` property to one of the following:
 
-* `kilometers`
-* `meters`
-* `miles`
-* `feet`
-* `radians`
-* `degrees`
+- `kilometers`
+- `meters`
+- `miles`
+- `feet`
+- `radians`
+- `degrees`
 
 For example, to change the query above to use kilometers instead of miles:
 
@@ -526,7 +521,7 @@ await userRepository.find({where: {name: {ilike: '%st%'}}});
 await userRepository.find({where: {name: {nilike: 's%xy'}}});
 ```
 
-When using the Postgresql connector:
+When using the [PostgreSQL connector](https://loopback.io/doc/en/lb4/PostgreSQL-connector.html):
 
 ```ts
 await userRepository.find({where: {name: {ilike: 'john%'}}});
@@ -536,7 +531,7 @@ await userRepository.find({where: {name: {ilike: 'john%'}}});
 
 The inq operator checks whether the value of the specified property matches any of the values provided in an array. The general syntax is:
 
-```javascript
+```ts
 {where: { property: { inq: [val1, val2, ...]}}}
 ```
 
@@ -547,18 +542,65 @@ Where:
 
 Example of inq operator:
 
+{% include code-caption.html content="Node.js API" %}
+
 ```ts
 await postRepository.find({where: {id: {inq: [123, 234]}}});
 ```  
 
-REST:
+{% include code-caption.html content="REST" %}
 
-```
-/medias?filter[where][keywords][inq]=foo&filter[where][keywords][inq]=bar
-```
+`/medias?filter[where][keywords][inq]=foo&filter[where][keywords][inq]=bar`
 
 Or 
 
+`?filter={"where": {"keywords": {"inq": ["foo", "bar"]}}}`
+
+## WhereBuilder
+
+You can use the [`WhereBuilder`](https://loopback.io/doc/en/lb4/apidocs.repository.wherebuilder.html) to build and/or combine `where` clauses. You can build `where` clause with operators such as `and/or`, `gt`, etc.
+
+For example,
+
+```ts
+import WhereBuilder from '@loopback/repository';
+...
+const whereBuilder = new WhereBuilder();
+const where = whereBuilder
+  .between('price', 99, 299)
+  .and({brand: 'LoopBack'}, {discount: {lt: 20}})
+  .or({instock: true})
+  .build();
+  ```
+
+the filter will be built as
+
+```ts
+{
+  price: {between: [99, 299]},
+  and: [
+    {and: [{brand: 'LoopBack'}, {discount: {lt: 20}]},
+  ],
+  or: [
+    {instock: true},
+  ]
+}
 ```
-?filter={"where": {"keywords": {"inq": ["foo", "bar"]}}}
+
+Another common usage is to combine `where` clauses with [`WhereBuilder.impose`](https://loopback.io/doc/en/lb4/apidocs.repository.wherebuilder.impose.html). It adds a `where` object to the existing `where` filter by using the `and` operator. For example,
+
+```ts
+import WhereBuilder from '@loopback/repository';
+...
+const builder = new WhereBuilder<AnyObject>({brand: 'Toyota'});
+const where = builder.impose({model: 'Prius', instock: true}).build();
+```
+
+the filter will be built as
+```ts
+{ 
+  and: [
+  { brand: 'Toyota' }, { model: 'Prius', instock: true }
+  ],
+}
 ```
