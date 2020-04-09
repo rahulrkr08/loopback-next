@@ -8,19 +8,7 @@ permalink: /doc/en/lb4/Fields-filter.html
 
 A _fields_ filter specifies properties (fields) to include or exclude from the results.
 
-### REST API
-
-
-**The <true|false> does not work for url as the boolean is being concerted to string, which is always trru**
-<pre>
-filter[fields][<i>propertyName</i>]=<true>&filter[fields][<i>propertyName</i>]=<true>...
-</pre>
-
-Note that to include more than one field in REST, use multiple filters.
-
-You can also use [stringified JSON format](Querying-data.html#using-stringified-json-in-rest-queries) in a REST query.
-
-### Node API
+### Node.js API
 
 {% include content/angular-methods-caveat.html lang=page.lang %}
 
@@ -36,22 +24,35 @@ Where:
 By default, queries return all model properties in results. However, if you specify at least one fields filter with a value of `true`,
 then by default the query will include **only** those you specifically include with filters.
 
+### REST API
+
+{% include warning.html content="
+As a known bug, the option `<false>` does not work for url for now. Please include the properties you need to meet your requirement. The bug is tracked in the GH issue [#4992](https://github.com/strongloop/loopback-next/issues/4992" %}
+
+<pre>
+filter[fields][<i>propertyName</i>]=<true>&filter[fields][<i>propertyName</i>]=<true>...
+</pre>
+
+Note that to include more than one field in REST, use multiple filters.
+
+You can also use [stringified JSON format](Querying-data.html#using-stringified-json-in-rest-queries) in a REST query.
+
 ### Examples
 
 Return customer information only with `name` and `address`, and hide their `id`:
 
-**REST**
+{% include code-caption.html content="Node.js API" %}
 
-**<false> does not wort in url for now as it is converted to string**
-should be:
-`/customers?filter[fields][id]=false&filter[fields][name]=true&filter[fields][address]=true`
-But now is:
-`/customers?filter[fields][name]=true&filter[fields][address]=true`
-
-{% include code-caption.html content="Node API" %}
 ```ts
 await customerRepository.find({fields: {id: false, name: true, address: true}});
 ```
+
+{% include code-caption.html content="REST" %}
+
+{% include warning.html content="
+As a known bug, the option `<false>` does not work for url for now. Please include the properties you need to meet your requirement. The bug is tracked in the GH issue [#4992](https://github.com/strongloop/loopback-next/issues/4992" %}
+
+`/customers?filter[fields][name]=true&filter[fields][address]=true`
 
 Returns:
 
@@ -69,16 +70,16 @@ Returns:
 ]
 ```
 
-Exclude the `vin` property:
+Exclude the `password` property:
 
-**REST**
-
-**Does not work for url for now**
-// `/user?filter[fields][password]=false`
-
-{% include code-caption.html content="Node API" %}
+{% include code-caption.html content="Node.js API" %}
 ```ts
 await UserRepository.find({fields: {password: false}});
 ```
+
+{% include code-caption.html content="REST" %}
+
+Include all properties except `password` as the workaround:
+`/users?filter[fields][name]=true&filter[fields][email]=true&filter[fields][id]=true...`
 
 Notice that `fields` clause is to include/exclude the result from the **database**, e.g if you would like to check `password` for users, the above example would fail as `password` is undefined. If you need the property and also want to hide it from the response, set the [hidden properties](Model.md#hidden-properties) in the model definition might help.
