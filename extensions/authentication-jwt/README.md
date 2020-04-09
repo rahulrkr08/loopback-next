@@ -84,7 +84,7 @@ export class TestApplication extends BootMixin(
     this.static('/', path.join(__dirname, '../public'));
 
     // - enable jwt auth -
-    // Add security spec (To be done: refactor it to an enhancer)
+    // Add security spec (Future work: refactor it to an enhancer)
     this.addSecuritySpec();
     // Mount authentication system
     this.component(AuthenticationComponent);
@@ -103,7 +103,7 @@ export class TestApplication extends BootMixin(
   // Currently there is an extra function to
   // merge the security spec into the application.
   // This will be improved with a coming enhancer.
-  // See section [To Be Done](#to-be-done)
+  // See section [Future Work](#future-work)
   addSecuritySpec(): void {
     this.api({
       openapi: '3.0.0',
@@ -184,7 +184,7 @@ The code snippet for whoAmI function:
 The complete file is in
 [user.controller.ts](https://github.com/strongloop/loopback-next/tree/master/extensions/authentication-jwt/src/__tests__/fixtures/controllers/user.controller.ts)
 
-## To Be Done
+## Future Work
 
 The security specification is currently manually added in the application file.
 The next step is to create an enhancer in the component to automatically bind
