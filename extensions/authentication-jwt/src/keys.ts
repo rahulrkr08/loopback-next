@@ -1,5 +1,7 @@
-import {TokenService} from '@loopback/authentication';
+import {TokenService, UserService} from '@loopback/authentication';
 import {BindingKey} from '@loopback/core';
+import {User} from './models';
+import {Credentials} from './services/user.service';
 
 export namespace TokenServiceConstants {
   export const TOKEN_SECRET_VALUE = 'myjwts3cr3t';
@@ -16,4 +18,12 @@ export namespace TokenServiceBindings {
   export const TOKEN_SERVICE = BindingKey.create<TokenService>(
     'services.authentication.jwt.tokenservice',
   );
+}
+
+export namespace UserServiceBindings {
+  export const USER_SERVICE = BindingKey.create<UserService<User, Credentials>>(
+    'services.user.service',
+  );
+  // export const DATASOURCE = BindingKey.create<juggler.DataSource>('jwt.component.datasource');
+  export const DATASOURCE = 'jwt.component.db';
 }

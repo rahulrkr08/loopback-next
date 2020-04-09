@@ -6,7 +6,13 @@ import {
   CoreBindings,
   inject,
 } from '@loopback/core';
-import {TokenServiceBindings, TokenServiceConstants} from './keys';
+import {
+  TokenServiceBindings,
+  TokenServiceConstants,
+  UserServiceBindings,
+} from './keys';
+import {UserCredentialsRepository, UserRepository} from './repositories';
+import {MyUserService} from './services';
 import {JWTAuthenticationStrategy} from './services/jwt.auth.strategy';
 import {JWTService} from './services/jwt.service';
 
@@ -21,8 +27,12 @@ export class JWTAuthenticationComponent implements Component {
     ),
     Binding.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService),
 
-    // // user bindings
-    // Binding.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService)
+    // user bindings
+    Binding.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService),
+    Binding.bind('repositories.UserRepository').toClass(UserRepository),
+    Binding.bind('repositories.UserCredentialsRepository').toClass(
+      UserCredentialsRepository,
+    ),
   ];
   constructor(@inject(CoreBindings.APPLICATION_INSTANCE) app: Application) {
     registerAuthenticationStrategy(app, JWTAuthenticationStrategy);

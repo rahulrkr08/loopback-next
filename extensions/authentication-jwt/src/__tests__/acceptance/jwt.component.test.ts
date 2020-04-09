@@ -12,7 +12,7 @@ import {
 import {genSalt, hash} from 'bcryptjs';
 import * as _ from 'lodash';
 import {TestApplication} from '../fixtures/application';
-import {UserRepository} from '../fixtures/repositories';
+import {UserRepository} from '../../repositories';
 
 describe('jwt authentication', () => {
   let app: TestApplication;
