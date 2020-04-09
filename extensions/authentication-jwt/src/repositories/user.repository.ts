@@ -4,12 +4,8 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Getter, inject} from '@loopback/core';
-import {
-  DefaultCrudRepository,
-  HasOneRepositoryFactory,
-  juggler,
-  repository,
-} from '@loopback/repository';
+import {DefaultCrudRepository, HasOneRepositoryFactory, juggler, repository} from '@loopback/repository';
+import {UserServiceBindings} from '../keys';
 import {User, UserCredentials, UserRelations} from '../models';
 import {UserCredentialsRepository} from './user-credentials.repository';
 
@@ -17,14 +13,14 @@ export class UserRepository extends DefaultCrudRepository<
   User,
   typeof User.prototype.id,
   UserRelations
-> {
+  > {
   public readonly userCredentials: HasOneRepositoryFactory<
     UserCredentials,
     typeof User.prototype.id
   >;
 
   constructor(
-    @inject('datasources.db') dataSource: juggler.DataSource,
+    @inject(UserServiceBindings.DATASOURCE) dataSource: juggler.DataSource,
     @repository.getter('UserCredentialsRepository')
     protected userCredentialsRepositoryGetter: Getter<
       UserCredentialsRepository
