@@ -11,7 +11,11 @@ import {RestApplication} from '@loopback/rest';
 import {RestExplorerComponent} from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
-import {JWTAuthenticationComponent, SECURITY_SCHEME_SPEC, UserServiceBindings} from '../../';
+import {
+  JWTAuthenticationComponent,
+  SECURITY_SCHEME_SPEC,
+  UserServiceBindings,
+} from '../../';
 import {DbDataSource} from './datasources/db.datasource';
 import {MySequence} from './sequence';
 
@@ -35,9 +39,6 @@ export class TestApplication extends BootMixin(
     // Mount jwt component
     this.component(JWTAuthenticationComponent);
     // Bind datasource
-    // (FIXME) is it possible to bind a custom binding key for
-    // datasource like the code below?
-    // this.bind(UserServiceBindings.DATASOURCE).toClass(DbDataSource);
     this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.component(RestExplorerComponent);

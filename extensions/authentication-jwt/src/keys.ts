@@ -24,8 +24,5 @@ export namespace UserServiceBindings {
   export const USER_SERVICE = BindingKey.create<UserService<User, Credentials>>(
     'services.user.service',
   );
-  // (FIXME) is it possible to create a custom binding key for
-  // datasource like the code below?
-  // export const DATASOURCE = BindingKey.create<juggler.DataSource>('jwt.component.datasource');
   export const DATASOURCE_NAME = 'jwtdb';
 }
