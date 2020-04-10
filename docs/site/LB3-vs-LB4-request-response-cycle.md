@@ -23,8 +23,10 @@ LoopBack 3, it is an instance of an Express app; in LoopBack 4, it is not.
 Although LoopBack 4 uses Express as the HTTP server, it is not directly exposed
 anymore.
 
-Let's take a look at how the means of adding request/response infrastructure
-have changed in LoopBack 4.
+In LoopBack 3, Express middleware and routers, models, components, boot scripts,
+and remote methods are the ways endpoints can be created on the app. Let's take
+a look at how they have changed and how their functionality can be migrated in
+LoopBack 4.
 
 #### Express middleware and routers
 
@@ -253,10 +255,6 @@ is now replaced by a
 that sits infront of a
 [routing table](https://loopback.io/doc/en/lb4/apidocs.rest.routingtable.html).
 
-#### LoopBack 3
-
-![LoopBack 3 request/response components](./imgs/lb3-req-res.png)
-
 In LoopBack 3, middleware are added using Express APIs and via phases in
 `middleware.json` or using
 [app.middleware()](https://apidocs.loopback.io/loopback/#app-middleware).
@@ -290,44 +288,161 @@ Request to the app passes through the middleware chain in the following order.
 Any middleware higher up in the chain may terminate the request by sending a
 response back to the client.
 
-REST API middleware is added in the `routes` phase and error handlers in the
+![LoopBack 3 request/response components](./imgs/lb3-req-res.png)
+
+The REST API middleware is added in the `routes` phase and error handlers in the
 `final` and `final:after` phases.
 
 The REST API middleware is responsible for creating REST API endpoints out of
 the models in the app. It then uses the configured datasource for connecting
 and querying the undelying database for the corresponding REST requests.
 
-##### Access to the request/response object
-
-Since LoopBack 3 uses the Express middleware pattern, the request and response
-objects can always be accessed in middleware functions.
-
-##### User-submitted data
-
-- How can users access client submitted data?
-- What is responsible for validating the data?
-- What is responsible for formatting the data?
-- What is responsible for parsing filters?
-- Where can users access validated and formatted data?
-
-#### LoopBack 4
+In LoopBack 4, the [sequence](https://loopback.io/doc/en/lb4/Sequence.html) is
+the gatekeeper of all requests to the app. Every request to the app must pass
+through the sequence. It identifies the responsible handler for the requested
+endpoint and passes on the request to the handler.
 
 ![LoopBack 4 request/response components](./imgs/lb4-req-res.png)
 
-- Describe the sequence handler-based architecture in LB4 briefly
-- Link to LB4 res-res doc
+Unlike LoopBack 3, models in LoopBack 4 do not create REST endpoints. Use the
+`lb4 controller` command to quickly generate the REST endpoints for a model.
 
-##### Access to request/response object
+For more details, refer to the LoopBack 4
+[request/response cycle](https://loopback.io/doc/en/lb4/Request-response-cycle.html)
+doc.
 
-- Where are the points where req-res objects can be accessed?
-- How do we make req-res objects available to various components of LB4?
-- What is the remote methods equivalent in LB4?
-- What is the operation hooks in LB4?
+#### Access to the request/response object
 
-##### User-submitted data
+Since LoopBack 3 uses the Express middleware pattern, the request and response
+objects can always be accessed in all the middleware functions.
 
-- How can users access client submitted data?
-- What is responsible for formatting the data?
-- What is responsible for validating the data?
-- What is responsible for parsing filters?
-- Where can users access validated and formatted data?
+In LoopBack 4, the request and response objects can be accessed in
+routers loaded using the
+[app.mountExpressRouter() ](https://loopback.io/doc/en/lb4/apidocs.rest.restapplication.mountexpressrouter.html)
+method, using the familiar Express middleware signature.
+
+Controllers, services, and repositories are LoopBack 4 components that
+participate in the request/response cycle. The request and response objects can
+be made available to them via
+[dependency injection](https://loopback.io/doc/en/lb4/Dependency-injection.html)
+.
+
+Example of accesssing the request and response object in a Controller:
+
+```ts
+import {inject} from '@loopback/context';
+import {Request, Response, RestBindings, get} from '@loopback/rest';
+
+export class ExampleController {
+  constructor(
+    @inject(RestBindings.Http.REQUEST) private req: Request,
+    @inject(RestBindings.Http.RESPONSE) private res: Response
+    ) {}
+
+  @get('/headers')
+  headers() {
+    // Sends back the request headers
+    this.res.send(this.req.headers);
+  }
+}
+```
+
+Similarly, the request and response objects can be injected into services
+and respositories along with other objects from the
+[context](https://loopback.io/doc/en/lb4/Context.html).
+
+{% include tip.html content="It may be tempting to use an Express router
+(because of familiarity) instead of a controller to add custom endpoints to the
+app, but bear it in mind that controllers are way more powerful and capable than
+Express routers because of their support for dependency injection and access to
+the application context." %}
+
+#### Data validation
+
+LoopBack 3 models come with
+[validation methods](https://loopback.io/doc/en/lb3/Validating-model-data.html)
+. The validation rules are derived from the model definition files or are
+applied by calling the validation methods in the model's JavaScript file.
+
+In LoopBack 4, models are defined as classes whose properties decorated with the
+[@property()](https://loopback.io/doc/en/lb4/Model.html#property-decorator)
+decorator become the model's properties. Request body to an endpoint is
+validated against the attributes specified in the `@property()` decorator of the
+corresponding model.
+
+Model validation methods like `validatesLengthOf()`,
+`validatesLengthOf()`, etc., from LoopBack 3 can be implemented in LoopBack 4
+by specifying the `jsonSchema` property in a model's property definition.
+
+Here is an example of enforcing the string length of a model property in
+LoopBack 4:
+
+```ts
+export class Book extends Entity {
+  ...
+  @property({
+    type: 'string',
+    jsonSchema: {
+      'minLength': 5,
+      'maxLength': 25
+    }
+  })
+  title: string;
+  ...
+}
+```
+
+If the length of `title` is less than 5 characters, or is more than 25
+characters a 422 error will be thrown by the server.
+
+{% include tip.html content="Our use of
+[ajv](https://www.npmjs.com/package/ajv)
+makes the validation process
+a lot more powerful in LoopBack 4. Refer to the
+[ajv documentation](https://github.com/epoberezkin/ajv#validation-keywords)
+for all the possible validations for different data types." %}
+
+In LoopBack 3, the `before save`
+[operation hook](https://loopback.io/doc/en/lb3/Operation-hooks.html)
+enable users to access the model data before it is written to the
+database. A similar functionality can be achieved in LoopBack 4 by overriding
+the `create()` method of the
+[default CRUD repository](https://loopback.io/doc/en/lb4/apidocs.repository.defaultcrudrepository.html)
+in the repository of the model.
+
+Example of accessing model data before saving in LoopBack 3, using the
+`before save` operation hook:
+
+```js
+Book.observe('before save', async (ctx) => {
+  if (!ctx.instance.author) {
+    ctx.instance.author = 'Anonymous';
+  }
+});
+```
+
+Example of accessing model data before saving in LoopBack 4, by overriding the
+`create()` method of the model's repository.
+
+```ts
+async create(book: Book, options?: Options): Promise<Book> {
+  if (!book.author) {
+    book.author = 'Anonymous';
+  }
+  return super.create(book, options);
+}
+```
+
+Similarly, various other repository methods in LoopBack 4 can be overriden to
+access the model data in the context of their operation.
+
+{% include tip.html content="
+[Interceptors](https://loopback.io/doc/en/lb4/Interceptors.html)
+may also be used to access the user submitted data in some cases." %}
+
+## Summary
+
+The phase-based middleware chain of LoopBack 3 is replaced by the sequence class
+in LoopBack 4. Controllers, services, and respositories are part of the
+request/response cycle in LoopBack 4; they provide interfaces and points of
+access to the request object, the response object, and the model data.
