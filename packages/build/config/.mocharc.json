@@ -3,7 +3,7 @@
   "recursive": true,
   "exit": true,
   "reporter": "dot",
-  "timeout": 5000,
+  "timeout": 2000,
   "parallel": true
 }
 
