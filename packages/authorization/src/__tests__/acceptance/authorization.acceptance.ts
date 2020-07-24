@@ -3,8 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Context, invokeMethod, Provider} from '@loopback/context';
-import {Application} from '@loopback/core';
+import {Context, invokeMethod, Provider, Application} from '@loopback/core';
 import {SecurityBindings, securityId} from '@loopback/security';
 import {expect} from '@loopback/testlab';
 import {
@@ -44,7 +43,10 @@ describe('Authorization', () => {
     const result = invokeMethod(controller, 'cancelOrder', reqCtx, [
       'order-01',
     ]);
-    await expect(result).to.be.rejectedWith('Access denied');
+    await expect(result).to.be.rejectedWith({
+      statusCode: 403,
+      message: 'Access denied',
+    });
     expect(events).to.eql(['OrderController.prototype.cancelOrder']);
   });
 

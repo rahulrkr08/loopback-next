@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.4](https://github.com/strongloop/loopback-next/compare/@loopback/sandbox-example@2.0.3...@loopback/sandbox-example@2.0.4) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [2.0.3](https://github.com/strongloop/loopback-next/compare/@loopback/sandbox-example@2.0.2...@loopback/sandbox-example@2.0.3) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/sandbox-example
+
+
+
+
+
+## [2.0.2](https://github.com/strongloop/loopback-next/compare/@loopback/sandbox-example@2.0.1...@loopback/sandbox-example@2.0.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/sandbox-example
+
+
+
+
+
 ## [2.0.1](https://github.com/strongloop/loopback-next/compare/@loopback/sandbox-example@2.0.0...@loopback/sandbox-example@2.0.1) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/sandbox-example

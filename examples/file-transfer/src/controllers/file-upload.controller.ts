@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {inject} from '@loopback/context';
+import {inject} from '@loopback/core';
 import {
   post,
   Request,
@@ -45,7 +45,7 @@ export class FileUploadController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<object> {
     return new Promise<object>((resolve, reject) => {
-      this.handler(request, response, err => {
+      this.handler(request, response, (err: unknown) => {
         if (err) reject(err);
         else {
           resolve(FileUploadController.getFilesAndFields(request));

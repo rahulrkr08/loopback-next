@@ -3,6 +3,240 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.11.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.10.0...@loopback/cli@2.11.0) (2020-07-20)
+
+
+### Bug Fixes
+
+* fix ([852e7d8](https://github.com/strongloop/loopback-next/commit/852e7d8c9fab34a71a5232001a01db779cf7bfe9))
+* globalize artifacts creation result ([dfdad08](https://github.com/strongloop/loopback-next/commit/dfdad088eb8d82cdff63ec801c4a0ac3e3af8573))
+* globalize help options ([44ac989](https://github.com/strongloop/loopback-next/commit/44ac9894ff0679f4a48d867e5c515923c6754ef2))
+* globalize strings for repository generator ([2cbe048](https://github.com/strongloop/loopback-next/commit/2cbe04844bc8065e0c1f127a96967a9a70940fe3))
+* globlize strings for model generator ([67729f9](https://github.com/strongloop/loopback-next/commit/67729f918572a0144cc67fab6cfaa2ad389e9d33))
+
+
+### Features
+
+* **cli:** honor `required` flag for parameters ([5debaa9](https://github.com/strongloop/loopback-next/commit/5debaa9d0f856b6a5df88cdd54e2a8253c9a0b5b))
+* **cli:** remove openapi-v3 from project template dependencies ([e992c15](https://github.com/strongloop/loopback-next/commit/e992c1551fe4a398b7add572c335c6c5309cae5b))
+* **cli:** update translation messages ([c28acef](https://github.com/strongloop/loopback-next/commit/c28acefd2bcb0af4c4eff59f04ed4058a6eef603))
+
+
+
+
+
+# [2.10.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.9.1...@loopback/cli@2.10.0) (2020-06-30)
+
+
+### Bug Fixes
+
+* **cli:** set processDestinationPath option for backward-compatibility ([b1de0d5](https://github.com/strongloop/loopback-next/commit/b1de0d5922a894155a805418d1826537706232ef))
+
+
+### Features
+
+* **cli:** improve snapshot matcher to be compatible with parallel testing ([862072b](https://github.com/strongloop/loopback-next/commit/862072b82ad88ec4b248e0b243dda58b53640f94))
+
+
+
+
+
+## [2.9.1](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.9.0...@loopback/cli@2.9.1) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+# [2.9.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.8.0...@loopback/cli@2.9.0) (2020-06-11)
+
+
+### Features
+
+* **cli:** allow custom copyright/license lines ([f4ef6b6](https://github.com/strongloop/loopback-next/commit/f4ef6b64305812922a1a61ba837111e5c8509fdc))
+
+
+
+
+
+# [2.8.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.7.1...@loopback/cli@2.8.0) (2020-05-28)
+
+
+### Bug Fixes
+
+* **cli:** group union/intersection types for array ([5172b5f](https://github.com/strongloop/loopback-next/commit/5172b5ffac629c6b875e9416f587db0eaa986634))
+* **docs:** add todo-jwt to example list ([7024e8e](https://github.com/strongloop/loopback-next/commit/7024e8e969684e6a5f0ecbcf08b98e6c940024c4))
+* use correct relation name in belongsTo template ([826120c](https://github.com/strongloop/loopback-next/commit/826120c10a881c80232e4963a6e0148790ba6518))
+
+
+### Features
+
+* **cli:** print out a url for `lb4 update` to open changelogs ([ccd7531](https://github.com/strongloop/loopback-next/commit/ccd7531abeb5e45a97fc7f1b9bb4817727c08cbe))
+* **cli:** update application template to generate openapi-spec.ts ([3b58292](https://github.com/strongloop/loopback-next/commit/3b582929714915fb21487228f5f56c2562626ef3))
+
+
+
+
+
+## [2.7.1](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.7.0...@loopback/cli@2.7.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/cli
+
+
+
+
+
+# [2.7.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.6.0...@loopback/cli@2.7.0) (2020-05-19)
+
+
+### Bug Fixes
+
+* **cli:** add yeoman-environment as a dependency ([065ff27](https://github.com/strongloop/loopback-next/commit/065ff273d60264e1d3fe87ab249bfaa139149010))
+
+
+### Features
+
+* upgrade to TypeScript 3.9.x ([3300e45](https://github.com/strongloop/loopback-next/commit/3300e4569ab8410bb1285f7a54d326e9d976476d))
+* **cli:** remove `node_modules` before run `npm install` for `lb4 update` ([54ff104](https://github.com/strongloop/loopback-next/commit/54ff10429b91355adb6363847de3c0cc2bf28da1))
+* **cli:** update dependencies to be compatible with ESLint 7.x ([d05d357](https://github.com/strongloop/loopback-next/commit/d05d3575312f987155542ce0222e2da86d3dfbe9))
+
+
+
+
+
+# [2.6.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.5.0...@loopback/cli@2.6.0) (2020-05-07)
+
+
+### Bug Fixes
+
+* **cli:** add passport-login to example cli ([221bd6b](https://github.com/strongloop/loopback-next/commit/221bd6b958763e3bf0a8f6fa5dc7c1be090d82d1))
+* **cli:** ignoring default when require is true ([44fd3bc](https://github.com/strongloop/loopback-next/commit/44fd3bcd03c6c4c0f8e6467466a23ad14f35120b))
+* **cli:** make yarn related tests conditional on the yarn availablity ([3c579f6](https://github.com/strongloop/loopback-next/commit/3c579f66da2ed47d0e44d733dcba63ed5403ff1d))
+
+
+### Features
+
+* **cli:** add `baseModel` option for `lb4 openapi` command ([53f819d](https://github.com/strongloop/loopback-next/commit/53f819dfc372ea48b90a04fd2e59f1a62233e9dc))
+* **cli:** add bash-completion using tabtab package ([a0dd2c9](https://github.com/strongloop/loopback-next/commit/a0dd2c9a20bcd36b8fac85a07aa0a3bbff56694f))
+* **cli:** add middleware support in sequence.ts template ([b2df4e6](https://github.com/strongloop/loopback-next/commit/b2df4e641aa973eddf0b4df25cc23c88bf22981e))
+* **cli:** add yarn support for generated projects ([320aab9](https://github.com/strongloop/loopback-next/commit/320aab9eddadf38a001f8aea690d108dfa5b5dfa))
+
+
+
+
+
+# [2.5.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.4.4...@loopback/cli@2.5.0) (2020-04-29)
+
+
+### Bug Fixes
+
+* **authentication-jwt:** fix package.json and rename the package ([0973d18](https://github.com/strongloop/loopback-next/commit/0973d18ee4e94391367ee3510a9f0bc2eebaf4b7))
+* **cli:** clean up datasource/service code generation ([818121f](https://github.com/strongloop/loopback-next/commit/818121f69e78cf4d0e5d747b90ef6cfe32b68f4e))
+* **cli:** extract body from response object returned by openapi connector ([2895ad9](https://github.com/strongloop/loopback-next/commit/2895ad9d0c3a16af24f5335b055693900fdf1b16))
+* **cli:** fix eslint violation as `fs.exists` returns `void` ([c70839b](https://github.com/strongloop/loopback-next/commit/c70839b1a0f90a570eff4ac63dac3c64b01dae60))
+* **cli:** fix schema conversion with array types ([12718bf](https://github.com/strongloop/loopback-next/commit/12718bfd075de165586a92194b4650093c48c211))
+* **cli:** mitigate json schema to be draft 7 compatible ([0f6816a](https://github.com/strongloop/loopback-next/commit/0f6816af26267c6573e374b7ad7a90d43e2055f0))
+* **cli:** skip datasource selection with `--url` or non-matched `--datasource` ([352bf34](https://github.com/strongloop/loopback-next/commit/352bf34359b75efbbb77f9890db178391e908121))
+
+
+### Features
+
+* **cli:** update opencli templates to match the openapi connector ([a9965a3](https://github.com/strongloop/loopback-next/commit/a9965a39ba82b9297f2a0d98b47846eea4a69516))
+* remove hand-written datasource `stop()` method ([df4ee09](https://github.com/strongloop/loopback-next/commit/df4ee09482fa67522629c381a0de595ce12d9a1b))
+* **cli:** add translation for 10 languages ([c93735f](https://github.com/strongloop/loopback-next/commit/c93735fdc60fa959fc93ecc1c6251d654f673e8c))
+* **cli:** add translation for 4 left languages ([a2a9270](https://github.com/strongloop/loopback-next/commit/a2a9270401dc9818aafa2e040bc9180aad146afc))
+* **cli:** convert OpenAPI schema to JSON schema for model/property ([d0785dd](https://github.com/strongloop/loopback-next/commit/d0785ddd38c836d7495199f9a563f24931b0ec11))
+* **cli:** improve `lb4 openapi --client` to handle method name mapping ([c2f7ebd](https://github.com/strongloop/loopback-next/commit/c2f7ebd9bd4a734e66299fd7858bdfd737d35140))
+* **cli:** use forward-slash characters in spec URL on Windows ([89fc25f](https://github.com/strongloop/loopback-next/commit/89fc25fbc9ef3523a9306abcb39ce2054f7d2da7))
+* **cli:** uses `HttpErrors` for openapi service proxies ([0aa5e23](https://github.com/strongloop/loopback-next/commit/0aa5e237691e75b2959827b922f0432bc522391a))
+* move datasource config from JSON to TS files ([6105456](https://github.com/strongloop/loopback-next/commit/6105456deb6d7acadc3e46867558311dce2d005c))
+
+
+
+
+
+## [2.4.4](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.4.3...@loopback/cli@2.4.4) (2020-04-23)
+
+
+### Bug Fixes
+
+* **cli:** fix the `lb4 app --apiconnect` code generation ([ca5135a](https://github.com/strongloop/loopback-next/commit/ca5135a539301633298a39b9738e308f2fce6c1b))
+* **cli:** remove project references from examples ([6359ed6](https://github.com/strongloop/loopback-next/commit/6359ed6f33b3ed4c5ce0c87aa077c02225cc7651)), closes [strongloop/loopback-next#5155](https://github.com/strongloop/loopback-next/issues/5155)
+
+
+
+
+
+## [2.4.3](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.4.2...@loopback/cli@2.4.3) (2020-04-22)
+
+
+### Bug Fixes
+
+* **cli:** examples now use tsconfig.json instead of tsconfig.build.json ([f01b4e9](https://github.com/strongloop/loopback-next/commit/f01b4e915a00266bca02ac519e12026e774e0c98))
+
+
+
+
+
+## [2.4.2](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.4.1...@loopback/cli@2.4.2) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/cli
+
+
+
+
+
+## [2.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.4.0...@loopback/cli@2.4.1) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/cli
+
+
+
+
+
+# [2.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.3.1...@loopback/cli@2.4.0) (2020-04-22)
+
+
+### Bug Fixes
+
+* add global strings from controller generator ([c87bd07](https://github.com/strongloop/loopback-next/commit/c87bd07c833e02831a1d7c92d3d8e730f540159c))
+* fixes help menu undefined options ([25baa8f](https://github.com/strongloop/loopback-next/commit/25baa8f0870a48e5c1b2bd6dede64aee6bc18d11))
+* globalize app generator strings ([45e0172](https://github.com/strongloop/loopback-next/commit/45e0172863b3787e039ffbf588b925c60ac984e5))
+* globalize messages from artiface generator ([5d54b55](https://github.com/strongloop/loopback-next/commit/5d54b551fec4ded1737e3e29384ab4b694d65b65))
+* **cli:** check if the object is `null` for OpenAPI spec cloning ([ee13e9c](https://github.com/strongloop/loopback-next/commit/ee13e9c37fdcb7464477bcd969d0d82741a8d0cb))
+* globalize lb4 example strings ([98fe611](https://github.com/strongloop/loopback-next/commit/98fe6118a3fcfde906bccdabac176785bfa50d44))
+* overwrite generator options from yeoman ([ecfedee](https://github.com/strongloop/loopback-next/commit/ecfedeec7ab0ad7bbf739bb3d8d93f8946f72207))
+* **cli:** exclude `**/node_modules/**/*` from copyright header searching ([9d989bd](https://github.com/strongloop/loopback-next/commit/9d989bd7f7baadf2d8c8e0548d4702184e350054))
+* **cli:** fix property schema mapping for openapi specs ([b851aed](https://github.com/strongloop/loopback-next/commit/b851aed4886be50d03aefc022bd7d9c9089523ef))
+
+
+### Features
+
+* **cli:** add --client option for `lb4 openapi` to generate service proxies ([63a18c8](https://github.com/strongloop/loopback-next/commit/63a18c8cae03c18954653cee36d1043833c03e54))
+* **cli:** add `--apiconnect` option to enable ApiConnectComponent ([c2931d6](https://github.com/strongloop/loopback-next/commit/c2931d6cb8d5f4077c3e680885eee0eee929bd6d))
+* **cli:** allow generator fs to be used for updating index.ts ([3c7ca41](https://github.com/strongloop/loopback-next/commit/3c7ca41115948afc70a67a9f0d471949af8308f9))
+* **cli:** populate OpenAPI spec objects into generated code ([ae620d4](https://github.com/strongloop/loopback-next/commit/ae620d4ad5e2be4bf8dcaac9b4842166b9b76215))
+
+
+
+
+
+## [2.3.1](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.3.0...@loopback/cli@2.3.1) (2020-04-11)
+
+
+### Bug Fixes
+
+* **cli:** make the StatusConflicter compatible with the base Conflicter ([b6a1af9](https://github.com/strongloop/loopback-next/commit/b6a1af98ccb0705ee3a802df68bb590ec74473f5))
+* **cli:** remove unused imports from the crud controller template ([848272d](https://github.com/strongloop/loopback-next/commit/848272d980e94bc9f0878e678de12a336c0d8b8a))
+
+
+
+
+
 # [2.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/cli@2.2.1...@loopback/cli@2.3.0) (2020-04-08)
 
 

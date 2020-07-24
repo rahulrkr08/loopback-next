@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Authorization'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Authorization
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Loopback-component-authorization.html
 ---
@@ -264,7 +264,7 @@ class MyAuthorizationProvider implements Provider<Authorizer> {
 > `AuthorizationTags.AUTHORIZER` as below.
 
 ```ts
-import AuthorizationTags from '@loopback/authorization';
+import {AuthorizationTags} from '@loopback/authorization';
 let app = new Application();
 app
   .bind('authorizationProviders.my-provider')

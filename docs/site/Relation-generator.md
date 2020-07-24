@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Relation generator'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Model Relation
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Relation-generator.html
 ---
@@ -9,7 +9,7 @@ permalink: /doc/en/lb4/Relation-generator.html
 ### Prerequisites
 
 Important: Before running this generator, make sure the models, datasource, and
-repositories involved in this relation exist. Then, inside your LoopBack
+repositories involved in this relation exist. Then, inside your LoopBack 4
 application, run the command from the root directory.
 
 {% include content/generator-create-app.html lang=page.lang %}
@@ -32,9 +32,14 @@ lb4 relation [options]
 - `--relationType`: Relation type.
 - `--sourceModel`: Source model.
 - `--destinationModel`: Destination model.
+- `--throughModel`: Through model. For HasManyThrough relation only.
 - `--foreignKeyName`: Destination/Source model foreign key name for
   HasMany,HasOne/BelongsTo relation, respectively.
 - `--relationName`: Relation name.
+- `--sourceKeyOnThrough`: Foreign key that references the source model on the
+  through model. For HasManyThrough relation only.
+- `--targetKeyOnThrough`: Foreign key that references the target model on the
+  through model. For HasManyThrough relation only.
 - `-c`, `--config`: JSON file name or value to configure options.
 - `-y`, `--yes`: Skip all confirmation prompts with default or provided value.
 - `--format`: Format generated code using `npm run lint:fix`.
@@ -72,39 +77,79 @@ Check the site [Relations](HasMany-relation.md) and the
 [Querying Related Models](HasMany-relation.md#querying-related-models) section
 in each relation for more use cases.
 
+#### HasManyThrough
+
+Defining a HasManyThrough relation via the CLI is a bit different from defining
+HasMany, HasOne, or BelongsTo relations.
+
+```sh
+lb4 relation --sourceModel=<sourceModel>
+--destinationModel=<destinationModel> --throughModel=<throughModel>
+--relationType=<hasManyThrough> [--relationName=<relationName>]
+[--sourceKeyOnThrough=<sourceKeyOnThrough>] [--targetKeyOnThrough<targetKeyOnThrough>]
+```
+
+- `<throughModel>` - Name of the model to reference the source model and target
+  model.
+
+- `<sourceKeyOnThrough>` - Property on the through model that references the
+  primary key property of the source model.
+
+- `<targetKeyOnThrough>` - Property on the through model that references the
+  primary key property of the target model.
+
+Notice that the inclusion resolver is not supported in HasManyThrough relation
+yet. See
+[GitHub issue #5946](https://github.com/strongloop/loopback-next/issues/5946).
+
 ### Interactive Prompts
 
 The tool will prompt you for:
 
-- **Relation `type` between models.** _(relationBaseClass)_ Prompts a list of
+- Relation type between models (`relationBaseClass`). Prompts a list of
   available relations to choose from as the type of the relation between the
   source model and the target model. Supported relation types:
 
   - [HasMany](HasMany-relation.md)
+  - [HasManyThrough](HasManyThrough-relation.md)
   - [HasOne](HasOne-relation.md)
   - [BelongsTo](BelongsTo-relation.md)
 
-- **Name of the `source` model.** _(sourceModel)_ Prompts a list of available
-  models to choose from as the source model of the relation.
+- Name of the source model (`sourceModel`). Prompts a list of available models
+  to choose from as the source model of the relation.
 
-- **Name of the `target` model.** _(targetModel)_ Prompts a list of available
-  models to choose from as the target model of the relation.
+- Name of the target model (`targetModel`). Prompts a list of available models
+  to choose from as the target model of the relation.
 
-- **Name of the `foreign key`.** _(relationName)_ Prompts a property name that
+- Name of the through model (`targetModel`). Prompts a list of available models
+  to choose from as the through model of the relation. For HasManyThrough
+  relation only.
+
+- Name of the foreign key (`foreignKeyName`). Prompts a property name that
   references the primary key property of the another model. Note: Leave blank to
-  use the default.
+  use the default. For HasMany/BelongsTo/HasOne relations.
 
-  Default values: `<foreignKeyName>` + `Id` in camelCase, e.g `categoryId`
+  Default values: `<sourceModel>` + `Id` in camelCase, e.g `categoryId`
 
-- **Name of the `relation`.** _(relationName)_ Prompts for the Source property
-  name. Note: Leave blank to use the default.
+- Name of the source key (`sourceKeyOnThrough`). Prompts a property name that
+  references the source model to define on the through model. For HasManyThrough
+  relation only. Default value: `<sourceModel>` + `Id` in camelCase, e.g
+  `doctorId`.
 
-  Default values:
+- Name of the target key (`targetKeyOnThrough`). Prompts a property name that
+  references the target model to define on the through model. For HasManyThrough
+  relation only. Default value: `<targetModel>` + `Id` in camelCase, e.g
+  `patientId`.
 
-  - plural form of `<targetModel>` for `hasMany` relations, e.g. `products`
-  - Based on the foreign key for `belongsTo` relations, e.g. when the foreign
-    key is the default name, e.g `categoryId`, the default relation name is
-    `category`.
+- Name of the relation (`relationName`). Prompts for the Source property name.
+  Note: Leave blank to use the default. Default values:
+
+  - plural form of `<targetModel>` for `hasMany` and `hasManyThrough` relations,
+    e.g. `products`
+  - singular form of `<targetModel>` for `hasOne` relations, e.g. `address`
+  - for `belongsTo` relations, the default name is based on the foreign key of
+    the `belongsTo` relation. E.g. when the foreign key is the default name,
+    `categoryId` for example, the default relation name is `category`.
 
 {% include warning.html content="Based on your input, the default foreign key name might be the same as the default relation name, especially for belongsTo relation. Please name them differently to avoid a known issue [Navigational Property Error](https://github.com/strongloop/loopback-next/issues/4392)
 " lang=page.lang %}

@@ -3,14 +3,14 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {bind, Context, createBindingFromClass} from '@loopback/context';
+import {bind, Context, createBindingFromClass} from '@loopback/core';
 import {
   asSpecEnhancer,
   OASEnhancer,
   OASEnhancerBindings,
   OpenApiSpec,
-} from '@loopback/openapi-v3';
-import {Request} from '@loopback/rest';
+  Request,
+} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {expect} from '@loopback/testlab';
 import {

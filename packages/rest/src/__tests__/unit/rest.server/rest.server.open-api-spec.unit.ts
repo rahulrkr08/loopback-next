@@ -14,6 +14,7 @@ import {
   RestServer,
 } from '../../..';
 import {RestTags} from '../../../keys';
+import {ConsolidationEnhancer} from '../../../spec-enhancers/consolidate.spec-enhancer';
 import {TestInfoSpecEnhancer} from './fixtures/info.spec.extension';
 
 describe('RestServer.getApiSpec()', () => {
@@ -279,9 +280,10 @@ describe('RestServer.getApiSpec()', () => {
     app.controller(MyController);
 
     const spec = await server.getApiSpec();
-    expect(spec.components && spec.components.schemas).to.deepEqual({
+    expect(spec.components?.schemas).to.deepEqual({
       MyModel: {
         title: 'MyModel',
+        type: 'object',
         properties: {
           bar: {
             type: 'string',
@@ -319,6 +321,11 @@ describe('RestServer.getApiSpec()', () => {
         },
       },
     });
+  });
+
+  it('registers consolidate enhancer', async () => {
+    const enhancer = await server.OASEnhancer.getEnhancerByName('consolidate');
+    expect(enhancer).to.be.instanceOf(ConsolidationEnhancer);
   });
 
   it('invokes registered oas enhancers', async () => {

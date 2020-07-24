@@ -3,6 +3,133 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/build@6.1.0...@loopback/build@6.1.1) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/build
+
+
+
+
+
+# [6.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@6.0.0...@loopback/build@6.1.0) (2020-06-30)
+
+
+### Features
+
+* **build:** add a helper to merge mocha config objects ([3ce9eef](https://github.com/strongloop/loopback-next/commit/3ce9eefdb3a286f2d2b2690ec471f00d8124efb9))
+
+
+
+
+
+# [6.0.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.4.3...@loopback/build@6.0.0) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+### Features
+
+* **build:** upgrade to mocha 8.x ([c83270d](https://github.com/strongloop/loopback-next/commit/c83270dbdbe42e1e17fabc7b81c345df45e869d8))
+
+
+### BREAKING CHANGES
+
+* **build:** After have upgraded to `mocha` version 8, which no longer
+supports `--opts` and `test/mocha.opts`. It may break your application
+if it depends on earlier version of `@loopback/build` for `npm test`.
+
+See a list of breaking changes of mocha 8.x at:
+https://github.com/mochajs/mocha/releases/tag/v8.0.0
+
+
+
+
+
+## [5.4.3](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.4.2...@loopback/build@5.4.3) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/build
+
+
+
+
+
+## [5.4.2](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.4.1...@loopback/build@5.4.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/build
+
+
+
+
+
+## [5.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.4.0...@loopback/build@5.4.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/build
+
+
+
+
+
+# [5.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.3.1...@loopback/build@5.4.0) (2020-05-19)
+
+
+### Bug Fixes
+
+* **build:** recognize `lb-tsc` bool options with a value ([015df04](https://github.com/strongloop/loopback-next/commit/015df04cf2df3455b5eb8582e6097406ee00e58a))
+
+
+### Features
+
+* upgrade to TypeScript 3.9.x ([3300e45](https://github.com/strongloop/loopback-next/commit/3300e4569ab8410bb1285f7a54d326e9d976476d))
+
+
+
+
+
+## [5.3.1](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.3.0...@loopback/build@5.3.1) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/build
+
+
+
+
+
+# [5.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.2.0...@loopback/build@5.3.0) (2020-04-29)
+
+
+### Features
+
+* **build:** don't flag console logs when tests failed ([048e87e](https://github.com/strongloop/loopback-next/commit/048e87ec6bc705f73418adfed425b4db03c38aa8))
+
+
+
+
+
+# [5.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.1.0...@loopback/build@5.2.0) (2020-04-23)
+
+
+### Features
+
+* **build:** change the default compilation target to ES2018 (Node.js 10.x) ([a9df717](https://github.com/strongloop/loopback-next/commit/a9df717a86871c5dd220fa842dda31bd08b00cae))
+* **build:** enable all ES2020 features in TypeScript `lib` config ([be6f31d](https://github.com/strongloop/loopback-next/commit/be6f31d10bb4b0ede27805c4ed08f752a675efd1))
+
+
+
+
+
+# [5.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.0.1...@loopback/build@5.1.0) (2020-04-22)
+
+
+### Features
+
+* **build:** update lb-tsc to support `-b` or `--build` ([d39b8d9](https://github.com/strongloop/loopback-next/commit/d39b8d9abdc3092ad99fc2885e7068816be27668))
+
+
+
+
+
 ## [5.0.1](https://github.com/strongloop/loopback-next/compare/@loopback/build@5.0.0...@loopback/build@5.0.1) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/build

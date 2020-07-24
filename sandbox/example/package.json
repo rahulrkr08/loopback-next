@@ -1,6 +1,6 @@
 {
   "name": "@loopback/sandbox-example",
-  "version": "2.0.1",
+  "version": "2.0.4",
   "description": "Sample project for sandbox",
   "main": "index.js",
   "private": true,
@@ -8,7 +8,7 @@
     "test": "echo \"This is an example for sandbox\""
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "author": "IBM Corp.",
   "copyright.owner": "IBM Corp.",

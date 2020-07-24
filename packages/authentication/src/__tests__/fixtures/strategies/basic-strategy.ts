@@ -3,14 +3,15 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {bind, inject} from '@loopback/context';
+import {bind, inject} from '@loopback/core';
 import {
   asSpecEnhancer,
+  HttpErrors,
   mergeSecuritySchemeToSpec,
   OASEnhancer,
   OpenApiSpec,
-} from '@loopback/openapi-v3';
-import {HttpErrors, Request} from '@loopback/rest';
+  Request,
+} from '@loopback/rest';
 import {UserProfile} from '@loopback/security';
 import {asAuthStrategy, AuthenticationStrategy} from '../../../types';
 import {BasicAuthenticationStrategyBindings} from '../keys';

@@ -6,7 +6,9 @@
 import {DecoratorFactory} from '@loopback/metadata';
 import debugModule from 'debug';
 import {Binding} from './binding';
-import {Injection} from './inject';
+import {BindingSelector} from './binding-filter';
+import {Context} from './context';
+import {Injection, InjectionMetadata} from './inject';
 import {BoundValue, tryWithFinally, ValueOrPromise} from './value-promise';
 
 const debugSession = debugModule('loopback:context:resolver:session');
@@ -33,6 +35,12 @@ export interface BindingElement {
 export interface InjectionElement {
   type: 'injection';
   value: Readonly<Injection>;
+}
+
+export interface InjectionDescriptor {
+  targetName: string;
+  bindingSelector: BindingSelector;
+  metadata: InjectionMetadata;
 }
 
 /**
@@ -155,7 +163,9 @@ export class ResolutionSession {
    * Describe the injection for debugging purpose
    * @param injection - Injection object
    */
-  static describeInjection(injection: Readonly<Injection>) {
+  static describeInjection(
+    injection: Readonly<Injection>,
+  ): InjectionDescriptor {
     const name = getTargetName(
       injection.target,
       injection.member,
@@ -365,4 +375,70 @@ export function asResolutionOptions(
     return {session: optionsOrSession};
   }
   return optionsOrSession ?? {};
+}
+
+/**
+ * Contextual metadata for resolution
+ */
+export interface ResolutionContext<T = unknown> {
+  /**
+   * The context for resolution
+   */
+  readonly context: Context;
+  /**
+   * The binding to be resolved
+   */
+  readonly binding: Readonly<Binding<T>>;
+  /**
+   * The options used for resolution
+   */
+  readonly options: ResolutionOptions;
+}
+
+/**
+ * Error for context binding resolutions and dependency injections
+ */
+export class ResolutionError extends Error {
+  constructor(
+    message: string,
+    readonly resolutionCtx: Partial<ResolutionContext>,
+  ) {
+    super(ResolutionError.buildMessage(message, resolutionCtx));
+    this.name = ResolutionError.name;
+  }
+
+  private static buildDetails(resolutionCtx: Partial<ResolutionContext>) {
+    return {
+      context: resolutionCtx.context?.name ?? '',
+      binding: resolutionCtx.binding?.key ?? '',
+      resolutionPath: resolutionCtx.options?.session?.getResolutionPath() ?? '',
+    };
+  }
+
+  /**
+   * Build the error message for the resolution to include more contextual data
+   * @param reason - Cause of the error
+   * @param resolutionCtx - Resolution context
+   */
+  private static buildMessage(
+    reason: string,
+    resolutionCtx: Partial<ResolutionContext>,
+  ) {
+    const info = this.describeResolutionContext(resolutionCtx);
+    const message = `${reason} (${info})`;
+    return message;
+  }
+
+  private static describeResolutionContext(
+    resolutionCtx: Partial<ResolutionContext>,
+  ) {
+    const details = ResolutionError.buildDetails(resolutionCtx);
+    const items: string[] = [];
+    for (const [name, val] of Object.entries(details)) {
+      if (val !== '') {
+        items.push(`${name}: ${val}`);
+      }
+    }
+    return items.join(', ');
+  }
 }

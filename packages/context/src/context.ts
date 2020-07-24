@@ -5,7 +5,6 @@
 
 import debugFactory, {Debugger} from 'debug';
 import {EventEmitter} from 'events';
-import {v4 as uuidv4} from 'uuid';
 import {Binding, BindingInspectOptions, BindingTag} from './binding';
 import {
   ConfigurationResolver,
@@ -19,7 +18,7 @@ import {
 } from './binding-filter';
 import {BindingAddress, BindingKey} from './binding-key';
 import {BindingComparator} from './binding-sorter';
-import {ContextEvent} from './context-event';
+import {ContextEvent, ContextEventListener} from './context-event';
 import {ContextEventObserver, ContextObserver} from './context-observer';
 import {ContextSubscriptionManager, Subscription} from './context-subscription';
 import {ContextTagIndexer} from './context-tag-indexer';
@@ -28,15 +27,18 @@ import {JSONObject} from './json-types';
 import {ContextBindings} from './keys';
 import {
   asResolutionOptions,
+  ResolutionError,
   ResolutionOptions,
   ResolutionOptionsOrSession,
   ResolutionSession,
 } from './resolution-session';
+import {generateUniqueId} from './unique-id';
 import {
   BoundValue,
   Constructor,
   getDeepProperty,
   isPromiseLike,
+  transformValueOrPromise,
   ValueOrPromise,
 } from './value-promise';
 
@@ -108,8 +110,8 @@ export class Context extends EventEmitter {
    * const reqCtx = new Context(appCtx, 'request');
    * ```
    * @param _parent - The optional parent context
-   * @param name - Name of the context, if not provided, a `uuid` will be
-   * generated as the name
+   * @param name - Name of the context. If not provided, a unique identifier
+   * will be generated as the name.
    */
   constructor(_parent?: Context | string, name?: string) {
     super();
@@ -151,7 +153,7 @@ export class Context extends EventEmitter {
   }
 
   private generateName() {
-    const id = uuidv4();
+    const id = generateUniqueId();
     if (this.constructor === Context) return id;
     return `${this.constructor.name}-${id}`;
   }
@@ -415,6 +417,9 @@ export class Context extends EventEmitter {
     this.debug('Closing context...');
     this.subscriptionManager.close();
     this.tagIndexer.close();
+    // Destroy instance level `debug` to avoid memory leak
+    // https://github.com/strongloop/loopback-next/issues/5943
+    this._debug.destroy();
   }
 
   /**
@@ -502,7 +507,7 @@ export class Context extends EventEmitter {
       if (filter(b)) bindings.push(b);
     }
 
-    const parentBindings = this._parent && this._parent.find(filter);
+    const parentBindings = this._parent?.find(filter);
     return this._mergeWithParent(bindings, parentBindings);
   }
 
@@ -534,7 +539,7 @@ export class Context extends EventEmitter {
     tag: BindingTag | RegExp,
   ): Readonly<Binding<ValueType>>[] {
     const currentBindings = this.tagIndexer.findByTagIndex(tag);
-    const parentBindings = this._parent && this._parent?._findByTagIndex(tag);
+    const parentBindings = this._parent?._findByTagIndex(tag);
     return this._mergeWithParent(currentBindings, parentBindings);
   }
 
@@ -797,21 +802,27 @@ export class Context extends EventEmitter {
   ): ValueOrPromise<ValueType | undefined> {
     const {key, propertyPath} = BindingKey.parseKeyWithPath(keyWithPath);
 
-    optionsOrSession = asResolutionOptions(optionsOrSession);
+    const options = asResolutionOptions(optionsOrSession);
 
-    const binding = this.getBinding<ValueType>(key, optionsOrSession);
-    if (binding == null) return undefined;
-
-    const boundValue = binding.getValue(this, optionsOrSession);
-    if (propertyPath === undefined || propertyPath === '') {
-      return boundValue;
+    const binding = this.getBinding<ValueType>(key, {optional: true});
+    if (binding == null) {
+      if (options.optional) return undefined;
+      throw new ResolutionError(
+        `The key '${key}' is not bound to any value in context ${this.name}`,
+        {
+          context: this,
+          binding: Binding.bind(key),
+          options,
+        },
+      );
     }
 
-    if (isPromiseLike(boundValue)) {
-      return boundValue.then(v => getDeepProperty<ValueType>(v, propertyPath));
-    }
-
-    return getDeepProperty<ValueType>(boundValue, propertyPath);
+    const boundValue = binding.getValue(this, options);
+    return propertyPath == null || propertyPath === ''
+      ? boundValue
+      : transformValueOrPromise(boundValue, v =>
+          getDeepProperty<ValueType>(v, propertyPath),
+        );
   }
 
   /**
@@ -877,6 +888,42 @@ export class Context extends EventEmitter {
       json.parent = this._parent._inspect(options, visitedClasses);
     }
     return json;
+  }
+
+  /**
+   * The "bind" event is emitted when a new binding is added to the context.
+   * The "unbind" event is emitted when an existing binding is removed.
+   *
+   * @param eventName The name of the event - always `bind` or `unbind`.
+   * @param listener The listener function to call when the event is emitted.
+   */
+  on(eventName: 'bind' | 'unbind', listener: ContextEventListener): this;
+
+  // The generic variant inherited from EventEmitter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string | symbol, listener: (...args: any[]) => void): this {
+    return super.on(event, listener);
+  }
+
+  /**
+   * The "bind" event is emitted when a new binding is added to the context.
+   * The "unbind" event is emitted when an existing binding is removed.
+   *
+   * @param eventName The name of the event - always `bind` or `unbind`.
+   * @param listener The listener function to call when the event is emitted.
+   */
+  once(eventName: 'bind' | 'unbind', listener: ContextEventListener): this;
+
+  // The generic variant inherited from EventEmitter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  once(event: string | symbol, listener: (...args: any[]) => void): this {
+    return super.once(event, listener);
   }
 }
 

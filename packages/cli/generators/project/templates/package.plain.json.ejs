@@ -6,9 +6,10 @@
     "loopback-<%= project.projectType -%>",
     "loopback"
   ],
-  "main": "index.js",
+  "main": "dist/index.js",
+  "main": "types/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "tsc",
@@ -51,6 +52,7 @@
     "docker:run": "docker run -p 3000:3000 -d <%= project.name -%>",
   <%_ } -%>
     "migrate": "node ./dist/migrate",
+    "openapi-spec": "node ./dist/openapi-spec",
     "start": "npm run build && node -r source-map-support/register .",
 <% } -%>
     "prepare": "npm run build"
@@ -65,23 +67,20 @@
   "license": "",
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"
   ],
   "dependencies": {
     "@loopback/boot": "<%= project.dependencies['@loopback/boot'] -%>",
-    "@loopback/context": "<%= project.dependencies['@loopback/context'] -%>",
-<% if (project.projectType === 'application') { -%>
     "@loopback/core": "<%= project.dependencies['@loopback/core'] -%>",
-    "@loopback/openapi-v3": "<%= project.dependencies['@loopback/openapi-v3'] -%>",
+<% if (project.projectType === 'application') { -%>
     "@loopback/repository": "<%= project.dependencies['@loopback/repository'] -%>",
+<% if (project.apiconnect) { -%>
+    "@loopback/apiconnect": "<%= project.dependencies['@loopback/apiconnect'] -%>",
+<% } -%>
     "@loopback/rest": "<%= project.dependencies['@loopback/rest'] -%>",
     "@loopback/rest-explorer": "<%= project.dependencies['@loopback/rest-explorer'] -%>",
-<% } else { -%>
-    "@loopback/core": "<%= project.dependencies['@loopback/core'] -%>",
 <% } -%>
     "tslib": "<%= project.dependencies['tslib'] -%>"
   },
@@ -103,13 +102,8 @@
     "source-map-support": "<%= project.dependencies['source-map-support'] -%>",
 <% } -%>
 <% if (project.eslint) { -%>
-    "@typescript-eslint/parser": "<%= project.dependencies['@typescript-eslint/parser'] -%>",
-    "@typescript-eslint/eslint-plugin": "<%= project.dependencies['@typescript-eslint/eslint-plugin'] -%>",
     "@loopback/eslint-config": "<%= project.dependencies['@loopback/eslint-config'] -%>",
     "eslint": "<%= project.dependencies['eslint'] -%>",
-    "eslint-config-prettier": "<%= project.dependencies['eslint-config-prettier'] -%>",
-    "eslint-plugin-eslint-plugin": "<%= project.dependencies['eslint-plugin-eslint-plugin'] -%>",
-    "eslint-plugin-mocha": "<%= project.dependencies['eslint-plugin-mocha'] -%>",
 <% } -%>
     "typescript": "<%= project.dependencies['typescript'] -%>"
   }

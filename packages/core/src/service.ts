@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/core
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -6,6 +6,7 @@
 import {
   Binding,
   BindingFilter,
+  BindingFromClassOptions,
   BindingTemplate,
   bindingTemplateFor,
   Constructor,
@@ -31,10 +32,9 @@ export type ServiceInterface = string | symbol | Function;
 /**
  * Options to register a service binding
  */
-export type ServiceOptions = {
-  name?: string;
+export interface ServiceOptions extends BindingFromClassOptions {
   interface?: ServiceInterface;
-};
+}
 
 /**
  * `@service` injects a service instance that matches the class or interface.
@@ -142,7 +142,7 @@ export function filterByServiceInterface(
  * @param options - Service options
  */
 export function createServiceBinding<S>(
-  cls: Constructor<S> | Constructor<Provider<S>>,
+  cls: Constructor<S | Provider<S>>,
   options: ServiceOptions = {},
 ): Binding<S> {
   let name = options.name;
@@ -162,6 +162,7 @@ export function createServiceBinding<S>(
   const binding = createBindingFromClass(cls, {
     name,
     type: CoreTags.SERVICE,
+    ...options,
   }).apply(asService(options.interface ?? cls));
   return binding;
 }

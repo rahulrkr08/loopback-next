@@ -1,7 +1,7 @@
 ---
 lang: en
 title: "Add TodoList and TodoList's Todo Controller"
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Tutorial
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/todo-list-tutorial-controller.html
 summary:
@@ -108,7 +108,6 @@ Let's also update it in the `TodoController`:
       },
     },
   },
-})
 })
 async findTodos(/*...*/) {/*...*/}
 

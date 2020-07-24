@@ -1,13 +1,18 @@
-// Copyright IBM Corp. 2018,2019. All Rights Reserved.
+// Copyright IBM Corp. 2018,2020. All Rights Reserved.
 // Node module: @loopback/example-rpc-server
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Context, inject} from '@loopback/context';
-import {Application, CoreBindings, Server} from '@loopback/core';
+import {
+  Application,
+  Context,
+  CoreBindings,
+  inject,
+  Server,
+} from '@loopback/core';
+import {once} from 'events';
 import express from 'express';
 import http from 'http';
-import pEvent from 'p-event';
 import {rpcRouter} from './rpc.router';
 
 export class RPCServer extends Context implements Server {
@@ -30,16 +35,14 @@ export class RPCServer extends Context implements Server {
   }
 
   async start(): Promise<void> {
-    this._server = this.expressServer.listen(
-      (this.config && this.config.port) || 3000,
-    );
+    this._server = this.expressServer.listen(this.config?.port ?? 3000);
     this._listening = true;
-    return pEvent(this._server, 'listening');
+    await once(this._server, 'listening');
   }
   async stop(): Promise<void> {
     this._server.close();
     this._listening = false;
-    return pEvent(this._server, 'close');
+    await once(this._server, 'close');
   }
 }
 

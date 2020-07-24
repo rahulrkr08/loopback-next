@@ -11,6 +11,7 @@ import {
 } from '@loopback/core';
 import {expect} from '@loopback/testlab';
 import {sendAt} from 'cron';
+import {EventEmitter, once} from 'events';
 import {promisify} from 'util';
 import {
   asCronJob,
@@ -28,26 +29,28 @@ describe('Cron (acceptance)', () => {
   let app: Application;
   let component: CronComponent;
 
-  before(givenAppWithCron);
+  beforeEach(givenAppWithCron);
 
-  after(async () => {
+  afterEach(async () => {
     if (app) await app.stop();
     (app as unknown) = undefined;
   });
 
   it('allows cron jobs to be bound as constant', async () => {
+    const emitter = new EventEmitter();
     let count = 0;
     const job = new CronJob({
       cronTime: '*/1 * * * * *', // Every second
       onTick: () => {
         count++;
+        emitter.emit('run');
       },
       runOnInit: true,
       start: true,
     });
     app.bind('cron.jobs.job1').to(job).apply(asCronJob);
     // The context event notification can happen before `await component.getJobs()`
-    await sleep(1);
+    await once(emitter, 'run');
     const jobs = await component.getJobs();
     expect(jobs).to.eql([job]);
     expect(count).to.be.greaterThan(0);
@@ -65,10 +68,12 @@ describe('Cron (acceptance)', () => {
 
     const jobBinding = createBindingFromClass(MyCronJob);
     app.add(jobBinding);
+    const emitter = new EventEmitter();
     const jobConfig: CronJobConfig = {
       name: 'job-B',
       onTick: () => {
         count++;
+        emitter.emit('run');
       },
       cronTime: startIn(50),
       start: false,
@@ -77,15 +82,16 @@ describe('Cron (acceptance)', () => {
     // The context event notification can happen before `await component.getJobs()`
     await sleep(1);
     const jobs = await component.getJobs();
-    expect(jobs.length).to.eql(2);
+    expect(jobs.length).to.eql(1);
     expect(count).to.be.eql(0);
     await component.start();
-    await sleep(100);
+    await once(emitter, 'run');
     expect(count).to.be.greaterThan(0);
   });
 
   it('allows cron jobs to be bound as provider class', async () => {
     let count = 0;
+    const emitter = new EventEmitter();
 
     @cronJob()
     class CronJobProvider implements Provider<CronJob> {
@@ -95,6 +101,7 @@ describe('Cron (acceptance)', () => {
           cronTime: '* 1 * * * *', // Every min
           onTick: () => {
             count++;
+            emitter.emit('run');
           },
           start: true,
           ...this.jobConfig,
@@ -114,10 +121,10 @@ describe('Cron (acceptance)', () => {
     // The context event notification can happen before `await component.getJobs()`
     await sleep(1);
     const jobs = await component.getJobs();
-    expect(jobs.length).to.eql(3);
+    expect(jobs.length).to.eql(1);
     expect(count).to.be.eql(0);
     await component.start();
-    await sleep(100);
+    await once(emitter, 'run');
     expect(count).to.be.greaterThan(0);
   });
 
@@ -125,6 +132,7 @@ describe('Cron (acceptance)', () => {
     const job = new CronJob({
       cronTime: startIn(10),
       onTick: () => {
+        job.emitter.emit('run');
         throw new Error('Something wrong in the job');
       },
       start: true,
@@ -134,7 +142,7 @@ describe('Cron (acceptance)', () => {
       errCaught = err;
     });
     app.bind('cron.jobs.job1').to(job).apply(asCronJob);
-    await sleep(100);
+    await once(job.emitter, 'run');
     expect((errCaught as Error).message).to.eql('Something wrong in the job');
   });
 

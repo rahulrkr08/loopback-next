@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/rest
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -104,7 +104,7 @@ class MultipartFormDataBodyParser implements BodyParser {
     const upload = multer({storage});
     return new Promise<RequestBody>((resolve, reject) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      upload.any()(request, {} as any, err => {
+      upload.any()(request, {} as any, (err: unknown) => {
         if (err) reject(err);
         else {
           resolve({

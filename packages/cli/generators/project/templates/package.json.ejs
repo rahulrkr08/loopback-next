@@ -6,9 +6,10 @@
     "loopback-<%= project.projectType -%>",
     "loopback"
   ],
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "lb-tsc",
@@ -50,6 +51,7 @@
     "docker:run": "docker run -p 3000:3000 -d <%= project.name -%>",
   <%_ } -%>
     "migrate": "node ./dist/migrate",
+    "openapi-spec": "node ./dist/openapi-spec",
     "prestart": "npm run build",
     "start": "node -r source-map-support/register .",
 <% } -%>
@@ -65,20 +67,19 @@
   "license": "",
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"
   ],
   "dependencies": {
     "@loopback/boot": "<%= project.dependencies['@loopback/boot'] -%>",
-    "@loopback/context": "<%= project.dependencies['@loopback/context'] -%>",
-<% if (project.projectType === 'application') { -%>
     "@loopback/core": "<%= project.dependencies['@loopback/core'] -%>",
-    "@loopback/openapi-v3": "<%= project.dependencies['@loopback/openapi-v3'] -%>",
+<% if (project.projectType === 'application') { -%>
 <% if (project.repositories) { -%>
     "@loopback/repository": "<%= project.dependencies['@loopback/repository'] -%>",
+<% } -%>
+<% if (project.apiconnect) { -%>
+    "@loopback/apiconnect": "<%= project.dependencies['@loopback/apiconnect'] -%>",
 <% } -%>
     "@loopback/rest": "<%= project.dependencies['@loopback/rest'] -%>",
 <% if (project.services) { -%>
@@ -87,8 +88,6 @@
 <% } else { -%>
     "@loopback/rest-explorer": "<%= project.dependencies['@loopback/rest-explorer'] -%>",
 <% } -%>
-<% } else { /* NOT AN APPLICATION */-%>
-    "@loopback/core": "<%= project.dependencies['@loopback/core'] -%>",
 <% } -%>
     "tslib": "<%= project.dependencies['tslib'] -%>"
   },
@@ -98,13 +97,8 @@
     "@loopback/testlab": "<%= project.dependencies['@loopback/testlab'] -%>",
     "@types/node": "<%= project.dependencies['@types/node'] -%>",
 <% if (project.eslint) { -%>
-    "@typescript-eslint/parser": "<%= project.dependencies['@typescript-eslint/parser'] -%>",
-    "@typescript-eslint/eslint-plugin": "<%= project.dependencies['@typescript-eslint/eslint-plugin'] -%>",
     "@loopback/eslint-config": "<%= project.dependencies['@loopback/eslint-config'] -%>",
     "eslint": "<%= project.dependencies['eslint'] -%>",
-    "eslint-config-prettier": "<%= project.dependencies['eslint-config-prettier'] -%>",
-    "eslint-plugin-eslint-plugin": "<%= project.dependencies['eslint-plugin-eslint-plugin'] -%>",
-    "eslint-plugin-mocha": "<%= project.dependencies['eslint-plugin-mocha'] -%>",
 <% } -%>
     "typescript": "<%= project.dependencies['typescript'] -%>"
   }

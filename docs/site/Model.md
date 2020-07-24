@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Model'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Model.html
 ---
@@ -96,6 +96,67 @@ export class Customer {
   cart: ShoppingCart;
 }
 ```
+
+The `@model` decorator can take `jsonSchema` to customize the JSON schema
+inferred for the model class. For example,
+
+```ts
+@model({
+  jsonSchema: {
+    title: 'Customer',
+    required: ['email'],
+  },
+})
+export class Customer {
+  // ...
+}
+```
+
+## Defining a Model at runtime
+
+Models can be created at runtime using the `defineModelClass()` helper function
+from the `@loopback/repository` class. It expects a base model to extend
+(typically `Model` or `Entity`), followed by a `ModelDefinition` object as shown
+in the example below.
+
+```ts
+const bookDef = new ModelDefinition('Book')
+  .addProperty('id', {type: 'number', id: true})
+  .addProperty('title', {type: 'string'});
+const BookModel = defineModelClass<typeof Entity, {id: number; title?: string}>(
+  Entity, // Base model
+  bookDef, // ModelDefinition
+);
+```
+
+You will notice that we are specifying generic parameters for the
+`defineModelClass()` function. The first parameter is the base model, the second
+one is an interface providing the TypeScript description for the properties of
+the model we are defining. If the interface is not specified, the generated
+class will have only members inherited from the base model class, which
+typically means no properties.
+
+In case you need to use an existing Model as the base class, specify the Model
+as the base class instead of `Entity`.
+
+```ts
+// Assuming User is a pre-existing Model class in the app
+import {User} from './user.model';
+import DynamicModelCtor from '@loopback/repository';
+const StudentModel = defineModelClass<
+  typeof User,
+  // id being provided by the base class User
+  {university?: string}
+>(User, studentDef);
+```
+
+If you want make this new Model available from other parts of the app, you can
+call `app.model(StudentModel)` to create a binding for it.
+
+{% include note.html content="
+The `app.model()` method is available only on application classes with
+`RepositoryMixin` applied.
+" %}
 
 ## Model Discovery
 
@@ -464,7 +525,7 @@ Here are general attributes for property definitions:
       <th>Description</th>
     </tr>
   </thead>
-  <tbody>    
+  <tbody>
     <tr>
       <td><code>default</code></td>
       <td>No</td>
@@ -585,7 +646,7 @@ id property settings that can be used for auto-migration / auto-update:
       <th>Description</th>
     </tr>
   </thead>
-  <tbody>   
+  <tbody>
     <tr>
       <td><code>generated</code></td>
       <td>No</td>
@@ -631,8 +692,8 @@ the database:
       <th width="100">Type</th>
       <th width="540">Description</th>
     </tr>
-  </thead>    
-  <tbody>    
+  </thead>
+  <tbody>
     <tr>
       <td><code>[connector name].schema</code></td>
       <td>String</td>
@@ -656,8 +717,8 @@ columns in the database:
       <th width="100">Type</th>
       <th width="540">Description</th>
     </tr>
-  </thead>    
-  <tbody>    
+  </thead>
+  <tbody>
     <tr>
       <td><code>columnName</code></td>
       <td>String</td>
@@ -758,7 +819,7 @@ corresponding database column name (`testId`) can be different if needed.
           </tr>
         </tbody>
       </table>
-    </div>
+</div>
 
 ### Array Property Decorator
 
@@ -836,10 +897,33 @@ class TestModel {
 }
 ```
 
-### Validation Rules
+To define a nested array property, you must provide the `jsonSchema` field to
+describe the sub-array property. For example:
 
-You can also specify the validation rules in the field `jsonSchema`. For
-example:
+```ts
+@model()
+class TestModel {
+  // alternatively use @property.array('array')
+  @property.array(Array, {
+    jsonSchema: {
+      type: 'array',
+      items: {type: 'string'},
+    },
+  })
+  nestedArr: Array<Array<string>>;
+}
+```
+
+If the `jsonSchema` field is missing, you will get an error saying
+
+> You must provide the "jsonSchema" field when define a nested array property'
+
+### Custom Validation Rules and Error Messages
+
+You can also specify the validation rules in the `jsonSchema` field of the
+property option and configure them with custom error messages.
+
+The validation rules and custom error messages are configured this way.
 
 ```ts
 @model()
@@ -848,15 +932,29 @@ class Product extends Entity {
     name: 'name',
     description: "The product's common name.",
     type: 'string',
-    // Specify the JSON validation rules here
+    // JSON validation rules
     jsonSchema: {
-      maxLength: 30,
       minLength: 10,
-      errorMessage:
-        'name must be at least 10 characters and maximum 30 characters',
+      maxLength: 30,
+      errorMessage: 'Name should be between 10 and 30 characters.',
     },
   })
   public name: string;
+}
+```
+
+In case you want to send an error message specific to the validation rule that
+did not pass, you can configure `errorMessage` this way.
+
+```ts
+jsonSchema: {
+  minLength: 10,
+  maxLength: 30,
+  errorMessage: {
+    // Corresponding error messages
+    minLength: 'Name should be at least 10 characters.',
+    maxLength: 'Name should not exceed 30 characters.',
+  }
 }
 ```
 
@@ -906,9 +1004,37 @@ class Product extends Entity {
 }
 ```
 
+### ENUM Property
+
+{% include note.html content="
+Currently, the `enum` type is not supported; this is tracked in [GitHub issue #3033](https://github.com/strongloop/loopback-next/issues/3033). Below, we present a workaround for to allow you to use this type.
+" %}
+
+The `@property` decorator can take in `jsonSchema` to customize the JSON schema
+inferred for the model property. For `enum` type, it can be used as follows:
+
+```ts
+enum QueryLanguage {
+  JSON = 'json',
+  SQL = 'sql',
+  MONGO = 'mongo'
+}
+
+// ...
+
+@property({
+  type: 'string',
+  required: true,
+  jsonSchema: {
+    enum: Object.values(QueryLanguage),
+  },
+})
+queryLanguage: QueryLanguage;
+```
+
 ## JSON Schema Inference
 
-Use the `@loopback/repository-json-schema module` to build a JSON schema from a
+Use the `@loopback/repository-json-schema` module to build a JSON schema from a
 decorated model. Type information is inferred from the `@model` and `@property`
 decorators. The `@loopback/repository-json-schema` module contains the
 `getJsonSchema` function to access the metadata stored by the decorators to
@@ -998,7 +1124,3 @@ However, this also means that the provided schema decorators will serve no
 purpose for these ORMs/ODMs. Some of these frameworks may also provide
 decorators with conflicting names (e.g. another `@model` decorator), which might
 warrant avoiding the provided juggler decorators.
-
-## FAQ
-
-Feel overwhelmed? Here are some examples of setting up models:

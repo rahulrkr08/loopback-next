@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Frequently-asked questions'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/FAQ.html
 summary: LoopBack 4 is a completely new framework, also known as LoopBack-Next.
@@ -79,8 +79,8 @@ statements.
 ### LoopBack 3 vs LoopBack 4
 
 We recommend that current users migrate to LoopBack 4, which can be done through
-following the [migration guide](migration-overview.html) and new users start
-with LoopBack 4. See
+following the [migration guide](migration/overview.md) and new users start with
+LoopBack 4. See
 [Differences between LoopBack v3 and v4](Understanding-the-differences.md) if
 you're interested in the differences between the two versions.
 
@@ -91,7 +91,7 @@ LoopBack provides a self-hosted and a redirect to an
 
 Documentation to disable both API Explorers:
 
-- [Disable redirect to API Explorer](https://loopback.io/doc/en/lb4/Self-hosted-rest-api-explorer.html#disable-self-hosted-api-explorer)
+- [Disable redirect to API Explorer](https://loopback.io/doc/en/lb4/Server.html#disable-redirect-to-api-explorer)
 - [Disable Self-Hosted API Explorer](https://loopback.io/doc/en/lb4/Self-hosted-rest-api-explorer.html#disable-self-hosted-api-explorer)
 
 ### How do I send a custom response?
@@ -135,7 +135,7 @@ headers). This can be accomplished by injecting the `Response` object into the
 controller:
 
 ```ts
-import {inject} from '@loopback/context';
+import {inject} from '@loopback/core';
 import {get, Response, RestBindings} from '@loopback/rest';
 
 export class PingController {
@@ -179,7 +179,7 @@ This will result in a custom response body and a new header, `x-secret-sauce`.
 ### Where do I find the default binding keys?
 
 Binding keys used by `@loopback/*` packages are consolidated under
-[Reserved binding keys](https://loopback.io/doc/en/lb4/Reserved-binding-keys.html).
+[Reserved binding keys](Reserved-binding-keys.md).
 
 ### What is the difference between general and configuration bindings?
 
@@ -190,10 +190,8 @@ create a completely separate key. See
 
 ### Can I attach an Express router?
 
-Yes. See
-[Mounting an Express router](https://loopback.io/doc/en/lb4/Routes.html#mounting-an-express-router)
+Yes. See [Mounting an Express Router](Routes.md#mounting-an-express-router).
 
 ### Can I mount an Express middleware?
 
-LoopBack 4 doesn't have first-class support for Express middleware. However,
-[there are workarounds](https://github.com/strongloop/loopback-next/issues/1293).
+Yes. See [Using Express Middleware](Express-middleware.md).

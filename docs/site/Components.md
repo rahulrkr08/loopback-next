@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Components'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Concepts
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Components.html
 ---
@@ -23,12 +23,14 @@ properties:
 - `controllers` - An array of [controller](Controllers.md) classes.
 - `providers` - A map of providers to be bound to the application
   [context](Context.md).
-- `classes` - A map of TypeScipt classes to be bound to the application context.
+- `classes` - A map of TypeScript classes to be bound to the application
+  context.
 - `servers` - A map of name/class pairs for [servers](Server.md).
 - `lifeCycleObservers` - An array of [life cycle observers](Life-cycle.md).
-- `bindings` - An array of [bindings](Bindings.md) to be added to the
-  application context. A good example of using bindings to extend the
-  functionality of a LoopBack 4 app is
+- `services` - An array of [service](Services.md) classes or providers.
+- `bindings` - An array of [bindings](Binding.md) to be added to the application
+  context. A good example of using bindings to extend the functionality of a
+  LoopBack 4 app is
   [contributing an additional body parser](Extending-request-body-parsing.html#contribute-a-body-parser-from-a-component).
 
 These properties contribute to the application to add additional features and
@@ -54,5 +56,31 @@ trouble of having to do so manually. Again it's best to check the documentation
 for the given Component/Mixin.
 " %}
 
-See [Using components](Using-components.md) and
-[Creating components](Creating-components.md) for more information.
+## Using components
+
+Components can be added to your application using the `app.component()` method.
+
+The following is an example of installing and using a component.
+
+Install the following dependencies:
+
+```sh
+npm install --save @loopback/authentication
+```
+
+To load the component in your application:
+
+```ts
+import {RestApplication} from '@loopback/rest';
+import {AuthenticationComponent} from '@loopback/authentication';
+
+const app = new RestApplication();
+// Add component to Application, which provides bindings used to resolve
+// authenticated requests in a Sequence.
+app.component(AuthenticationComponent);
+```
+
+## Creating components
+
+Please refer to [Creating components](Creating-components.md) for more
+information.

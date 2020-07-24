@@ -17,10 +17,10 @@ import {
   jsonToSchemaObject,
   post,
   requestBody,
-  RequestBodyValidationOptions,
   RestApplication,
   RestBindings,
   SchemaObject,
+  ValidationOptions,
 } from '../../..';
 import {aBodySpec} from '../../helpers';
 
@@ -133,6 +133,14 @@ describe('Validation at REST level', () => {
 
     it('rejects requests with empty json body', async () => {
       await client.post('/products').type('json').send('{}').expect(422);
+    });
+
+    it('rejects requests with empty string body', async () => {
+      await client.post('/products').type('json').send('""').expect(422);
+    });
+
+    it('rejects requests with string body', async () => {
+      await client.post('/products').type('json').send('"pencils"').expect(422);
     });
 
     it('rejects requests with null body', async () => {
@@ -591,6 +599,52 @@ describe('Validation at REST level', () => {
     });
   });
 
+  context(
+    'for request body specified via model definition with strict false',
+    () => {
+      @model({settings: {strict: false}})
+      class ProductNotStrict {
+        @property()
+        id: number;
+
+        @property({required: true})
+        name: string;
+
+        constructor(data: Partial<ProductNotStrict>) {
+          Object.assign(this, data);
+        }
+      }
+
+      class ProductController {
+        @post('products')
+        async create(
+          @requestBody({required: true}) data: ProductNotStrict,
+        ): Promise<ProductNotStrict> {
+          return new ProductNotStrict(data);
+        }
+      }
+
+      before(() => givenAnAppAndAClient(ProductController));
+      after(() => app.stop());
+
+      it('rejects requests with empty string body', async () => {
+        await client.post('/products').type('json').send('""').expect(422);
+      });
+
+      it('rejects requests with string body', async () => {
+        await client
+          .post('/products')
+          .type('json')
+          .send('"pencil"')
+          .expect(422);
+      });
+
+      it('rejects requests with null body', async () => {
+        await client.post('/products').type('json').send('null').expect(400);
+      });
+    },
+  );
+
   // A request body schema can be provided explicitly by the user
   // as an inlined content[type].schema property.
   context('for fully-specified request body', () => {
@@ -734,7 +788,7 @@ describe('Validation at REST level', () => {
 
   async function givenAnAppAndAClient(
     controller: ControllerClass,
-    validationOptions?: RequestBodyValidationOptions,
+    validationOptions?: ValidationOptions,
   ) {
     app = new RestApplication({rest: givenHttpServerConfig()});
     if (validationOptions)

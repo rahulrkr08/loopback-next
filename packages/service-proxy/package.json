@@ -1,43 +1,41 @@
 {
   "name": "@loopback/service-proxy",
-  "version": "2.0.3",
-  "description": "Service integration for LoopBack 4",
+  "version": "2.3.5",
+  "description": "A common set of interfaces for interacting with service oriented backends such as REST APIs, SOAP Web Services, and gRPC microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
-  "main": "index",
   "scripts": {
     "acceptance": "lb-mocha \"dist/__tests__/acceptance/**/*.js\"",
     "build": "lb-tsc",
-    "clean": "lb-clean loopback-service-proxy*.tgz dist tsconfig.build.tsbuildinfo package",
+    "clean": "lb-clean loopback-service-proxy*.tgz dist *.tsbuildinfo package",
     "integration": "lb-mocha \"dist/__tests__/integration/**/*.js\"",
     "pretest": "npm run build",
     "test": "lb-mocha \"dist/__tests__/**/*.js\"",
     "unit": "lb-mocha \"dist/__tests__/unit/**/*.js\"",
     "verify": "npm pack && tar xf loopback-service-proxy*.tgz && tree package && npm run clean"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "author": "IBM Corp.",
   "copyright.owner": "IBM Corp.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
-    "@loopback/build": "^5.0.1",
-    "@loopback/eslint-config": "^6.0.3",
-    "@loopback/testlab": "^3.0.0",
-    "@types/node": "^10.17.19"
+    "@loopback/build": "^6.1.1",
+    "@loopback/eslint-config": "^8.0.4",
+    "@loopback/testlab": "^3.2.1",
+    "@types/node": "^10.17.28"
   },
   "dependencies": {
-    "@loopback/context": "^3.3.0",
-    "@loopback/core": "^2.2.1",
-    "loopback-datasource-juggler": "^4.19.2",
-    "tslib": "^1.11.1"
+    "@loopback/core": "^2.9.2",
+    "loopback-datasource-juggler": "^4.21.2",
+    "tslib": "^2.0.0"
   },
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"

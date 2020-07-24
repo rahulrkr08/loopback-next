@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Exposing GraphQL APIs'
-keywords: LoopBack 4.0, LoopBack 4, GraphQL
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, GraphQL
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/exposing-graphql-apis.html
 ---
@@ -45,7 +45,7 @@ todo-application as the parameter, start up the server by running the following
 command:
 
 ```sh
-npx openapi-to-graphql --port=3001 http://localhost:3000/openapi.json
+npx openapi-to-graphql-cli --port=3001 http://localhost:3000/openapi.json
 ```
 
 _Haven't heard about `npx` yet? It's a cool helper provided by `npm` and

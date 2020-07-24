@@ -21,7 +21,7 @@ declare type ResponseMap = Map<
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isModel<T extends Model>(c: any): c is T {
-  return c && c.prototype instanceof Model;
+  return c?.prototype instanceof Model;
 }
 
 /**
@@ -118,10 +118,8 @@ function buildMapsFromMetadata(
       const codeRef = responseRef?.content;
 
       if (codeRef?.has(r.contentType)) {
-        // eslint-disable-next-line no-unused-expressions
         codeRef.get(r.contentType)?.push(r.responseModelOrSpec);
       } else {
-        // eslint-disable-next-line no-unused-expressions
         codeRef?.set(r.contentType, [r.responseModelOrSpec]);
       }
     } else {

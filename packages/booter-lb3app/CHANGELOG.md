@@ -3,6 +3,115 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.2.6](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.5...@loopback/booter-lb3app@2.2.6) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+## [2.2.5](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.4...@loopback/booter-lb3app@2.2.5) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+## [2.2.4](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.3...@loopback/booter-lb3app@2.2.4) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [2.2.3](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.2...@loopback/booter-lb3app@2.2.3) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+## [2.2.2](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.1...@loopback/booter-lb3app@2.2.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+## [2.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.2.0...@loopback/booter-lb3app@2.2.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+# [2.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.1.3...@loopback/booter-lb3app@2.2.0) (2020-05-19)
+
+
+### Features
+
+* **booter-lb3app:** bind lb3 models ([914234e](https://github.com/strongloop/loopback-next/commit/914234e3a8cb2664b149bb2d6627815cc20a72f1))
+* **example-lb3-application:** add lb3 tests to mocha ([92ea098](https://github.com/strongloop/loopback-next/commit/92ea098ad964886be5e8a846af3f5a097c793e53))
+
+
+
+
+
+## [2.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.1.2...@loopback/booter-lb3app@2.1.3) (2020-05-07)
+
+
+### Bug Fixes
+
+* **booter-lb3app:** rename ds binding key ([2140def](https://github.com/strongloop/loopback-next/commit/2140def7953f1b39f2da63c7860740570ea21cc7))
+
+
+
+
+
+## [2.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.1.1...@loopback/booter-lb3app@2.1.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+## [2.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.1.0...@loopback/booter-lb3app@2.1.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
+# [2.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.0.4...@loopback/booter-lb3app@2.1.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [2.0.4](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.0.3...@loopback/booter-lb3app@2.0.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/booter-lb3app
+
+
+
+
+
 ## [2.0.3](https://github.com/strongloop/loopback-next/compare/@loopback/booter-lb3app@2.0.2...@loopback/booter-lb3app@2.0.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/booter-lb3app

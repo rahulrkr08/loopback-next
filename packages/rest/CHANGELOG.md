@@ -3,6 +3,156 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.2.0...@loopback/rest@5.2.1) (2020-07-20)
+
+
+### Bug Fixes
+
+* ensure delete only applies to optional properties ([89cd43f](https://github.com/strongloop/loopback-next/commit/89cd43f1a455983f120d9bb9c869eac36adc7ad7))
+* nested scope filter ([b29d6d7](https://github.com/strongloop/loopback-next/commit/b29d6d7938b0d07e927b0939745b76cfff91272b))
+* **repository-json-schema:** added type 'object' to model json schema ([5c5f9ef](https://github.com/strongloop/loopback-next/commit/5c5f9efcfdea7788503d74610e7ce64f31abc7cd)), closes [#3804](https://github.com/strongloop/loopback-next/issues/3804)
+
+
+
+
+
+# [5.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.1.2...@loopback/rest@5.2.0) (2020-06-30)
+
+
+### Bug Fixes
+
+* **rest:** fix typing to be compatible with latest @types/js-yaml ([5ac39e4](https://github.com/strongloop/loopback-next/commit/5ac39e44827ef74c9d2bccb1797a9da125c249e3))
+
+
+### Features
+
+* coerce query object with schema ([ccea25f](https://github.com/strongloop/loopback-next/commit/ccea25fc382457f9436adfc0d8f6ce3a2d029c5e))
+* **rest:** expose types from strong-error-handler ([b6f5595](https://github.com/strongloop/loopback-next/commit/b6f559549518c839a2898f1b968fc6a7901a6c6b))
+
+
+
+
+
+## [5.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.1.1...@loopback/rest@5.1.2) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [5.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.1.0...@loopback/rest@5.1.1) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/rest
+
+
+
+
+
+# [5.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.0.1...@loopback/rest@5.1.0) (2020-05-28)
+
+
+### Features
+
+* **rest:** add `exportOpenAPISpec` to export the OpenAPI spec to a file ([6e669f6](https://github.com/strongloop/loopback-next/commit/6e669f62ec6b87d3e857f57787bc694cc7af47ac))
+
+
+
+
+
+## [5.0.1](https://github.com/strongloop/loopback-next/compare/@loopback/rest@5.0.0...@loopback/rest@5.0.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/rest
+
+
+
+
+
+# [5.0.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@4.0.0...@loopback/rest@5.0.0) (2020-05-19)
+
+
+### Bug Fixes
+
+* **rest:** check if the middleware chain has already produce a response ([be290dc](https://github.com/strongloop/loopback-next/commit/be290dc7088eddeecd79288ccb6c70f4da9956fd))
+* use unknown type for err argument for Express hander ([b13b338](https://github.com/strongloop/loopback-next/commit/b13b3386a06332b71b33a64f5bc2ab9b4544cc8a))
+
+
+### Features
+
+* **openapi-v3:** relax `[@api](https://github.com/api)` to make `paths` optional with `{}` as the default ([ef3c415](https://github.com/strongloop/loopback-next/commit/ef3c4151efb2c88daa2b5abb37c6086b91860c92))
+* **rest:** remove bindElement and getFromContext ([d6d830f](https://github.com/strongloop/loopback-next/commit/d6d830f8161fbb408f75df69402144dc2ca7cc48))
+
+
+### BREAKING CHANGES
+
+* **rest:** usage of `BindElement` and `GetFromContext` should be
+replaced with `@inject.setter`, `@inject.binding`, and `@inject.getter`.
+
+See https://loopback.io/doc/en/lb4/Decorators_inject.html
+
+
+
+
+
+# [4.0.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.3.2...@loopback/rest@4.0.0) (2020-05-07)
+
+
+### Features
+
+* **rest:** use @loopback/express for sequence, cors, and OpenAPI spec ([19e2510](https://github.com/strongloop/loopback-next/commit/19e25107da7eaadcdf29a04b2bb295d51555a050))
+
+
+### BREAKING CHANGES
+
+* **rest:** `basePath` now also applies to endpoints that serve OpenAPI
+specs. For example, the OpenAPI specs are available at `/api/openapi.json`
+or `/api/openapi.yaml` if the base path is set to `/api`.
+
+
+
+
+
+## [3.3.2](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.3.1...@loopback/rest@3.3.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/rest
+
+
+
+
+
+## [3.3.1](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.3.0...@loopback/rest@3.3.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/rest
+
+
+
+
+
+# [3.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.2.1...@loopback/rest@3.3.0) (2020-04-22)
+
+
+### Features
+
+* **rest:** ensure OpenAPI spec components are merged ([2efa27b](https://github.com/strongloop/loopback-next/commit/2efa27b283d86258fe705914c557536abaf2c435))
+* migrate loopback-example-passport repo as lb4 example ([dd3c328](https://github.com/strongloop/loopback-next/commit/dd3c328a138621bb3f6ae770b4db83ba21ecc2d6))
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+* **rest:** add openapi schema consolidation ([6a039ed](https://github.com/strongloop/loopback-next/commit/6a039edd4e056089bca8cf2acd4ed7ddab55d55e))
+
+
+
+
+
+## [3.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.2.0...@loopback/rest@3.2.1) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/rest
+
+
+
+
+
 # [3.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/rest@3.1.0...@loopback/rest@3.2.0) (2020-04-08)
 
 

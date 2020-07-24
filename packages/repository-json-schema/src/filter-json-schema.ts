@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {getModelRelations, Model, model} from '@loopback/repository';
-import {JSONSchema6 as JsonSchema, JSONSchema6Definition} from 'json-schema';
+import {JSONSchema7 as JsonSchema, JSONSchema7Definition} from 'json-schema';
 
 export interface FilterSchemaOptions {
   /**
@@ -20,6 +20,15 @@ export interface FilterSchemaOptions {
    */
   exclude?: string[] | string;
 }
+
+export const AnyScopeFilterSchema: JsonSchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {},
+    additionalProperties: true,
+  },
+};
 
 /**
  * Build a JSON schema describing the format of the "scope" object
@@ -38,12 +47,17 @@ export function getScopeFilterJsonSchemaFor(
   class EmptyModel extends Model {}
 
   const schema: JsonSchema = {
-    ...getFilterJsonSchemaFor(EmptyModel, {setTitle: false}),
+    ...getFilterJsonSchemaFor(EmptyModel, {
+      setTitle: false,
+    }),
     ...(options.setTitle !== false && {
       title: `${modelCtor.modelName}.ScopeFilter`,
     }),
   };
 
+  // To include nested models, we need to hard-code the inclusion
+  // filter schema for EmptyModel to allow any object query.
+  schema.properties!.include = {...AnyScopeFilterSchema};
   return schema;
 }
 
@@ -67,7 +81,7 @@ export function getFilterJsonSchemaFor(
   } else {
     excluded = options.exclude ?? [];
   }
-  const properties: Record<string, JSONSchema6Definition> = {
+  const properties: Record<string, JSONSchema7Definition> = {
     offset: {
       type: 'integer',
       minimum: 0,
@@ -115,7 +129,7 @@ export function getFilterJsonSchemaFor(
   const modelRelations = getModelRelations(modelCtor);
   const hasRelations = Object.keys(modelRelations).length > 0;
 
-  if (hasRelations) {
+  if (hasRelations && !excluded.includes('include')) {
     schema.properties!.include = {
       ...(options.setTitle !== false && {
         title: `${modelCtor.modelName}.IncludeFilter`,

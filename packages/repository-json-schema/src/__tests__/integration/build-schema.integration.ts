@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {MetadataInspector} from '@loopback/context';
+import {MetadataInspector} from '@loopback/core';
 import {
   belongsTo,
   Entity,
@@ -23,7 +23,7 @@ import {expectValidJsonSchema} from '../helpers/expect-valid-json-schema';
 describe('build-schema', () => {
   describe('modelToJsonSchema', () => {
     context('properties conversion', () => {
-      it('does not convert null or undefined property', () => {
+      it('reports error for null or undefined property', () => {
         @model()
         class TestModel {
           @property()
@@ -32,8 +32,25 @@ describe('build-schema', () => {
           undef: undefined;
         }
 
+        expect(() => modelToJsonSchema(TestModel)).to.throw(
+          /Property TestModel.nul does not have "type" in its definition/,
+        );
+      });
+
+      it('allows property of null type', () => {
+        @model()
+        class TestModel {
+          @property({type: 'null'})
+          nul: null;
+        }
+
         const jsonSchema = modelToJsonSchema(TestModel);
-        expect(jsonSchema.properties).to.not.have.keys(['nul', 'undef']);
+        expect(jsonSchema).to.eql({
+          title: 'TestModel',
+          type: 'object',
+          properties: {nul: {type: 'null'}},
+          additionalProperties: false,
+        });
         expectValidJsonSchema(jsonSchema);
       });
 
@@ -235,6 +252,62 @@ describe('build-schema', () => {
         expectValidJsonSchema(jsonSchema);
       });
 
+      it('properly converts nested array property when json schema provided', () => {
+        @model()
+        class TestModel {
+          // alternatively use @property.array('array')
+          @property.array(Array, {
+            jsonSchema: {
+              type: 'array',
+              items: {type: 'string'},
+            },
+          })
+          nestedArr: Array<Array<string>>;
+        }
+
+        const jsonSchema = modelToJsonSchema(TestModel);
+        expect(jsonSchema.properties).to.deepEqual({
+          nestedArr: {
+            type: 'array',
+            items: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+            },
+          },
+        });
+        expectValidJsonSchema(jsonSchema);
+      });
+
+      it('properly converts properties with enum in json schema', () => {
+        enum QueryLanguage {
+          JSON = 'json',
+          SQL = 'sql',
+          MONGO = 'mongo',
+        }
+
+        @model()
+        class TestModel {
+          @property({
+            type: 'string',
+            required: true,
+            jsonSchema: {
+              enum: Object.values(QueryLanguage),
+            },
+          })
+          queryLanguage: QueryLanguage;
+        }
+
+        const jsonSchema = modelToJsonSchema(TestModel);
+        expect(jsonSchema.properties).to.eql({
+          queryLanguage: {
+            type: 'string',
+            enum: ['json', 'sql', 'mongo'],
+          },
+        });
+      });
+
       it('properly converts properties with array and json schema', () => {
         @model()
         class TestModel {
@@ -264,22 +337,20 @@ describe('build-schema', () => {
         });
       });
 
-      it('properly converts properties with recursive arrays', () => {
+      it('throws for nested array property when json schema is missing', () => {
         @model()
         class RecursiveArray {
           @property.array(Array)
           recArr: string[][];
         }
 
-        const jsonSchema = modelToJsonSchema(RecursiveArray);
-        expect(jsonSchema.properties).to.eql({
-          recArr: {
-            type: 'array',
-            items: {
-              type: 'array',
-            },
+        expect.throws(
+          () => {
+            modelToJsonSchema(RecursiveArray);
           },
-        });
+          Error,
+          'You must provide the "jsonSchema" field when define a nested array property',
+        );
       });
 
       it('supports explicit primitive type decoration via strings', () => {
@@ -396,6 +467,7 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             CustomType: {
               title: 'CustomType',
+              type: 'object',
               properties: {
                 prop: {
                   type: 'string',
@@ -430,6 +502,7 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             CustomType: {
               title: 'CustomType',
+              type: 'object',
               properties: {
                 prop: {
                   type: 'string',
@@ -468,7 +541,9 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             CustomTypePartial: {
               title: 'CustomTypePartial',
-              description: "(Schema options: { partial: 'deep' })",
+              type: 'object',
+              description:
+                "(tsType: Partial<CustomType>, schemaOptions: { partial: 'deep' })",
               properties: {
                 prop: {
                   type: 'string',
@@ -529,6 +604,7 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             CustomType: {
               title: 'CustomType',
+              type: 'object',
               properties: {
                 prop: {
                   type: 'string',
@@ -566,7 +642,9 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             CustomTypePartial: {
               title: 'CustomTypePartial',
-              description: "(Schema options: { partial: 'deep' })",
+              type: 'object',
+              description:
+                "(tsType: Partial<CustomType>, schemaOptions: { partial: 'deep' })",
               properties: {
                 prop: {
                   type: 'string',
@@ -643,6 +721,7 @@ describe('build-schema', () => {
           expect(jsonSchema.definitions).to.deepEqual({
             Address: {
               title: 'Address',
+              type: 'object',
               properties: {
                 city: {
                   type: 'string',
@@ -736,6 +815,7 @@ describe('build-schema', () => {
           expect(schemaDefs).to.deepEqual({
             CustomTypeFoo: {
               title: 'CustomTypeFoo',
+              type: 'object',
               properties: {
                 prop: {
                   type: 'string',
@@ -745,6 +825,7 @@ describe('build-schema', () => {
             },
             CustomTypeBar: {
               title: 'CustomTypeBar',
+              type: 'object',
               properties: {
                 prop: {
                   type: 'array',
@@ -776,6 +857,7 @@ describe('build-schema', () => {
 
       const expectedSchema = {
         title: 'Category',
+        type: 'object',
         properties: {
           products: {
             type: 'array',
@@ -786,6 +868,7 @@ describe('build-schema', () => {
         definitions: {
           Product: {
             title: 'Product',
+            type: 'object',
             properties: {
               category: {
                 $ref: '#/definitions/Category',
@@ -926,6 +1009,7 @@ describe('build-schema', () => {
 
       const expectedSchemaForCategory = {
         title: 'Category',
+        type: 'object',
         properties: {
           products: {
             type: 'array',
@@ -936,6 +1020,7 @@ describe('build-schema', () => {
         definitions: {
           Product: {
             title: 'Product',
+            type: 'object',
             properties: {
               category: {
                 $ref: '#/definitions/Category',
@@ -975,7 +1060,10 @@ describe('build-schema', () => {
         definitions: {
           ProductWithRelations: {
             title: 'ProductWithRelations',
-            description: `(Schema options: { includeRelations: true })`,
+            type: 'object',
+            description:
+              `(tsType: ProductWithRelations, ` +
+              `schemaOptions: { includeRelations: true })`,
             properties: {
               id: {type: 'number'},
               categoryId: {type: 'number'},
@@ -993,7 +1081,10 @@ describe('build-schema', () => {
         },
         additionalProperties: false,
         title: 'CategoryWithRelations',
-        description: `(Schema options: { includeRelations: true })`,
+        type: 'object',
+        description:
+          `(tsType: CategoryWithRelations, ` +
+          `schemaOptions: { includeRelations: true })`,
       };
       const jsonSchema = getJsonSchema(Category, {includeRelations: true});
       expect(jsonSchema).to.deepEqual(expectedSchema);
@@ -1018,7 +1109,10 @@ describe('build-schema', () => {
         definitions: {
           ProductWithRelations: {
             title: 'ProductWithRelations',
-            description: `(Schema options: { includeRelations: true })`,
+            type: 'object',
+            description:
+              `(tsType: ProductWithRelations, ` +
+              `schemaOptions: { includeRelations: true })`,
             properties: {
               id: {type: 'number'},
               categoryId: {type: 'number'},
@@ -1037,7 +1131,10 @@ describe('build-schema', () => {
         },
         additionalProperties: false,
         title: 'CategoryWithoutPropWithRelations',
-        description: `(Schema options: { includeRelations: true })`,
+        type: 'object',
+        description:
+          `(tsType: CategoryWithoutPropWithRelations, ` +
+          `schemaOptions: { includeRelations: true })`,
       };
 
       // To check for case when there are no other properties than relational
@@ -1121,6 +1218,7 @@ describe('build-schema', () => {
         definitions: {
           ProductWithRelations: {
             title: 'ProductWithRelations',
+            type: 'object',
             properties: {
               id: {type: 'number'},
               categoryId: {type: 'number'},
@@ -1139,6 +1237,7 @@ describe('build-schema', () => {
         },
         additionalProperties: false,
         title: 'CategoryWithRelations',
+        type: 'object',
       };
       MetadataInspector.defineMetadata(
         JSON_SCHEMA_KEY,
@@ -1154,6 +1253,7 @@ describe('build-schema', () => {
         },
         additionalProperties: false,
         title: 'Category',
+        type: 'object',
       });
     });
 
@@ -1204,12 +1304,15 @@ describe('build-schema', () => {
         const excludeIdSchema = getJsonSchema(Product, {exclude: ['id']});
         expect(excludeIdSchema).to.deepEqual({
           title: 'ProductExcluding_id_',
+          type: 'object',
           properties: {
             name: {type: 'string'},
             description: {type: 'string'},
           },
           additionalProperties: false,
-          description: `(Schema options: { exclude: [ 'id' ] })`,
+          description:
+            `(tsType: Omit<Product, 'id'>, ` +
+            `schemaOptions: { exclude: [ 'id' ] })`,
         });
       });
 
@@ -1227,11 +1330,14 @@ describe('build-schema', () => {
         });
         expect(excludeIdAndNameSchema).to.deepEqual({
           title: 'ProductExcluding_id-name_',
+          type: 'object',
           properties: {
             description: {type: 'string'},
           },
           additionalProperties: false,
-          description: `(Schema options: { exclude: [ 'id', 'name' ] })`,
+          description:
+            `(tsType: Omit<Product, 'id' | 'name'>, ` +
+            `schemaOptions: { exclude: [ 'id', 'name' ] })`,
         });
       });
 
@@ -1276,7 +1382,8 @@ describe('build-schema', () => {
         expect(optionalIdSchema.required).to.deepEqual(['name']);
         expect(optionalIdSchema.title).to.equal('ProductOptional_id_');
         expect(optionalIdSchema.description).to.endWith(
-          `(Schema options: { optional: [ 'id' ] })`,
+          `(tsType: @loopback/repository-json-schema#Optional<Product, 'id'>, ` +
+            `schemaOptions: { optional: [ 'id' ] })`,
         );
       });
 
@@ -1293,7 +1400,8 @@ describe('build-schema', () => {
           'ProductOptional_id-name_',
         );
         expect(optionalIdAndNameSchema.description).to.endWith(
-          `(Schema options: { optional: [ 'id', 'name' ] })`,
+          `(tsType: @loopback/repository-json-schema#Optional<Product, 'id' | 'name'>, ` +
+            `schemaOptions: { optional: [ 'id', 'name' ] })`,
         );
       });
 
@@ -1319,7 +1427,8 @@ describe('build-schema', () => {
         expect(optionalNameSchema.required).to.deepEqual(['id']);
         expect(optionalNameSchema.title).to.equal('ProductOptional_name_');
         expect(optionalNameSchema.description).to.endWith(
-          `(Schema options: { optional: [ 'name' ] })`,
+          `(tsType: @loopback/repository-json-schema#Optional<Product, 'name'>,` +
+            ` schemaOptions: { optional: [ 'name' ] })`,
         );
 
         optionalNameSchema = getJsonSchema(Product, {
@@ -1329,7 +1438,8 @@ describe('build-schema', () => {
         expect(optionalNameSchema.required).to.deepEqual(['id']);
         expect(optionalNameSchema.title).to.equal('ProductOptional_name_');
         expect(optionalNameSchema.description).to.endWith(
-          `(Schema options: { optional: [ 'name' ] })`,
+          `(tsType: @loopback/repository-json-schema#Optional<Product, 'name'>, ` +
+            `schemaOptions: { optional: [ 'name' ] })`,
         );
       });
 
@@ -1359,7 +1469,9 @@ describe('build-schema', () => {
           'ProductOptional_name_Excluding_id_',
         );
         expect(bothOptionsSchema.description).to.endWith(
-          `(Schema options: { exclude: [ 'id' ], optional: [ 'name' ] })`,
+          `(tsType: @loopback/repository-json-schema#` +
+            `Optional<Omit<Product, 'id'>, 'name'>, ` +
+            `schemaOptions: { exclude: [ 'id' ], optional: [ 'name' ] })`,
         );
       });
     });

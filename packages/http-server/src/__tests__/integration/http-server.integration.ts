@@ -11,11 +11,10 @@ import {
   skipOnTravis,
   supertest,
 } from '@loopback/testlab';
-import {EventEmitter} from 'events';
+import {EventEmitter, once} from 'events';
 import fs from 'fs';
 import {Agent, IncomingMessage, Server, ServerResponse} from 'http';
 import os from 'os';
-import pEvent from 'p-event';
 import path from 'path';
 import {HttpOptions, HttpServer, HttpsOptions} from '../../';
 import {HttpServerOptions} from '../../http-server';
@@ -42,9 +41,8 @@ describe('HttpServer (integration)', () => {
     await supertest(server.url).get('/').expect(200);
   });
 
-  it('stops server', async function () {
+  it('stops server', async function (this: Mocha.Context) {
     // This test takes a bit longer to finish on windows.
-    // eslint-disable-next-line no-invalid-this
     this.timeout(3000);
     const serverOptions = givenHttpServerConfig();
     server = new HttpServer(dummyRequestHandler, serverOptions);
@@ -53,9 +51,8 @@ describe('HttpServer (integration)', () => {
     await expect(httpGetAsync(server.url)).to.be.rejectedWith(/ECONNREFUSED/);
   });
 
-  it('stops server with grace period and inflight request', async function () {
+  it('stops server with grace period and inflight request', async function (this: Mocha.Context) {
     // This test takes a bit longer to finish on windows.
-    // eslint-disable-next-line no-invalid-this
     this.timeout(3000);
     const serverOptions = givenHttpServerConfig() as HttpServerOptions;
     serverOptions.gracePeriodForClose = 1000;
@@ -66,7 +63,7 @@ describe('HttpServer (integration)', () => {
     // Send a request with keep-alive
     const req = httpGetAsync(server.url, agent);
     // Wait until the request is accepted by the server
-    await pEvent(server.server, 'request');
+    await once(server.server, 'request');
     // Stop the server
     const stop = server.stop();
     // Now notify the request to finish in next cycle with setImmediate
@@ -81,9 +78,8 @@ describe('HttpServer (integration)', () => {
     await expect(httpGetAsync(server.url)).to.be.rejectedWith(/ECONNREFUSED/);
   });
 
-  it('stops server with shorter grace period and inflight request', async function () {
+  it('stops server with shorter grace period and inflight request', async function (this: Mocha.Context) {
     // This test takes a bit longer to finish on windows.
-    // eslint-disable-next-line no-invalid-this
     this.timeout(3000);
     const serverOptions = givenHttpServerConfig() as HttpServerOptions;
     serverOptions.gracePeriodForClose = 10;
@@ -94,7 +90,7 @@ describe('HttpServer (integration)', () => {
     // Send a request with keep-alive
     const req = httpGetAsync(server.url, agent);
     // Wait until the request is accepted by the server
-    await pEvent(server.server, 'request');
+    await once(server.server, 'request');
     // Set up error handler for expected rejection before the event is emitted
     const socketPromise = expect(req).to.be.rejectedWith(/socket hang up/);
     // Stop the server

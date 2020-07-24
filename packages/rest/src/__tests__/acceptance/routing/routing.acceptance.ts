@@ -3,8 +3,14 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BindingScope, Constructor, Context, inject} from '@loopback/context';
-import {Application, CoreBindings} from '@loopback/core';
+import {
+  BindingScope,
+  Constructor,
+  Context,
+  inject,
+  Application,
+  CoreBindings,
+} from '@loopback/core';
 import {anOpenApiSpec, anOperationSpec} from '@loopback/openapi-spec-builder';
 import {
   api,
@@ -480,7 +486,7 @@ describe('Routing', () => {
     const app = givenAnApplication();
     const server = await givenAServer(app);
     const spec = anOpenApiSpec().build();
-    delete spec.paths;
+    spec.paths = {};
     server.api(spec);
   });
 
@@ -524,7 +530,7 @@ describe('Routing', () => {
     const app = givenAnApplication();
     const server = await givenAServer(app);
 
-    @api({basePath: '/my', paths: {}})
+    @api({basePath: '/my'})
     class MyController {
       @get('/greet')
       greet(@param.query.string('name') name: string) {

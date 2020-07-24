@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Booting an Application'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Booting
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Booting-an-Application.html
 ---
@@ -203,6 +203,24 @@ The `controllers` object supports the following options:
 | `nested`     | `boolean`            | `true`               | Look in nested directories in `dirs` for Controller artifacts                                                 |
 | `glob`       | `string`             |                      | A `glob` pattern string. This takes precendence over above 3 options (which are used to make a glob pattern). |
 
+### Model Booter
+
+This Booter's purpose is to discover [Model](Model.md) type Artifacts and to
+bind them to the Application's Context. The use of this Booter requires
+`RepositoryMixin` from `@loopback/repository` to be mixed into your Application
+class.
+
+You can configure the conventions used in your project for a Repository by
+passing a `models` object on `BootOptions` property of your Application. The
+`models` object supports the following options:
+
+| Options      | Type                 | Default         | Description                                                                                                   |
+| ------------ | -------------------- | --------------- | ------------------------------------------------------------------------------------------------------------- |
+| `dirs`       | `string \| string[]` | `['models']`    | Paths relative to projectRoot to look in for Model artifacts                                                  |
+| `extensions` | `string \| string[]` | `['.model.js']` | File extensions to match for Model artifacts                                                                  |
+| `nested`     | `boolean`            | `true`          | Look in nested directories in `dirs` for Model artifacts                                                      |
+| `glob`       | `string`             |                 | A `glob` pattern string. This takes precendence over above 3 options (which are used to make a glob pattern). |
+
 ### Repository Booter
 
 This Booter's purpose is to discover [Repository](Repositories.md) type
@@ -223,7 +241,7 @@ The `repositories` object supports the following options:
 
 ### DataSource Booter
 
-This Booter's purpose is to discover [DataSource](DataSource.md) type Artifacts
+This Booter's purpose is to discover [DataSource](DataSources.md) type Artifacts
 and to bind them to the Application's Context. The use of this Booter requires
 `RepositoryMixin` from `@loopback/repository` to be mixed into your Application
 class.
@@ -287,3 +305,44 @@ Used to discover the artifacts supported by the `Booter` based on convention.
 **load**
 
 Used to bind the discovered artifacts to the Application.
+
+### Boot an application using component
+
+For a complex project, we may break it down into multiple LoopBack applications,
+each of which has controllers, datasources, services, repositories, and other
+artifacts. How do we compose these sub applications into the main application?
+The component application booter can be created to support this use case.
+
+1. Create a component for the sub-application:
+
+```ts
+import {createComponentApplicationBooterBinding} from '@loopback/boot';
+import {Component} from '@loopback/core';
+
+export class SubAppComponent implements Component {
+  bindings = [
+    createComponentApplicationBooterBinding(
+      new SubApp(), /* an optional binding filter */,
+    ),
+  ];
+}
+```
+
+2. Mount the sub-application as a component to the main application:
+
+```ts
+const mainApp = new MainApp();
+
+// This can be done in the constructor of `MainApp` too. Make sure the component
+// is registered before calling `app.boot()`.
+mainApp.component(SubAppComponent);
+
+// Boot the main application. It will invoke the component application booter
+// to add artifacts from the `SubApp`.
+await mainApp.boot();
+```
+
+A binding filter function can be provided to select what bindings from the
+component application should be added to the main application. The booter skips
+bindings that exist in the component application before `boot`. It does not
+override locked bindings in the main application.

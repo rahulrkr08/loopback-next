@@ -1,12 +1,11 @@
 {
   "name": "@loopback/authorization",
-  "version": "0.5.3",
+  "version": "0.6.3",
   "description": "A LoopBack component for authorization support.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
-  },
-  "publishConfig": {
-    "access": "public"
+    "node": ">=10.16"
   },
   "scripts": {
     "acceptance": "lb-mocha \"dist/__tests__/acceptance/**/*.js\"",
@@ -18,22 +17,24 @@
     "unit": "lb-mocha \"dist/__tests__/unit/**/*.js\"",
     "verify": "npm pack && tar xf loopback-authorization*.tgz && tree package && npm run clean"
   },
-  "author": "IBM",
+  "author": "IBM Corp.",
   "copyright.owner": "IBM Corp.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@loopback/context": "^3.3.0",
-    "@loopback/core": "^2.2.1",
-    "@loopback/security": "^0.2.3",
+    "@loopback/core": "^2.9.2",
+    "@loopback/security": "^0.2.15",
     "debug": "^4.1.1",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^5.0.1",
-    "@loopback/testlab": "^3.0.0",
+    "@loopback/build": "^6.1.1",
+    "@loopback/testlab": "^3.2.1",
     "@types/debug": "^4.1.5",
-    "@types/node": "10.17.19",
-    "casbin": "^4.2.1"
+    "@types/node": "10.17.28",
+    "casbin": "^5.0.6"
   },
   "keywords": [
     "LoopBack",
@@ -41,8 +42,6 @@
   ],
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__",
@@ -50,6 +49,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/strongloop/loopback-next.git"
+    "url": "https://github.com/strongloop/loopback-next.git",
+    "directory": "packages/authorization"
   }
 }

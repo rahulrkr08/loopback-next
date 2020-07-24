@@ -3,6 +3,111 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.10](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.9...@loopback/repository-tests@0.12.10) (2020-07-20)
+
+
+### Bug Fixes
+
+* **repository:** hasManyThrough can delete correct target n through based on filter ([c1ba91f](https://github.com/strongloop/loopback-next/commit/c1ba91f2dcbc33dd1cee905d25f9719a71bc7919))
+
+
+
+
+
+## [0.12.9](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.8...@loopback/repository-tests@0.12.9) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.8](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.7...@loopback/repository-tests@0.12.8) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [0.12.7](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.6...@loopback/repository-tests@0.12.7) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.6](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.5...@loopback/repository-tests@0.12.6) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.5](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.4...@loopback/repository-tests@0.12.5) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.4](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.3...@loopback/repository-tests@0.12.4) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.3](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.2...@loopback/repository-tests@0.12.3) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.2](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.1...@loopback/repository-tests@0.12.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+## [0.12.1](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.12.0...@loopback/repository-tests@0.12.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
+# [0.12.0](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.11.4...@loopback/repository-tests@0.12.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [0.11.4](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.11.3...@loopback/repository-tests@0.11.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/repository-tests
+
+
+
+
+
 ## [0.11.3](https://github.com/strongloop/loopback-next/compare/@loopback/repository-tests@0.11.2...@loopback/repository-tests@0.11.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/repository-tests

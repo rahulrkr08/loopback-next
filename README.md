@@ -55,7 +55,7 @@ for more details.
 
 Make sure you have the following installed:
 
-- [Node.js](https://nodejs.org/en/download/) >= 10
+- [Node.js](https://nodejs.org/en/download/) >= 10.16
 
 Install LoopBack 4 CLI to help create new projects as follows:
 
@@ -98,9 +98,9 @@ See [SECURITY.md](SECURITY.md) for more details.
 
 ### Project Architects
 
-|                  Raymond Feng                   |            Miroslav Bajtos            |           Ritchie Martori           |
-| :---------------------------------------------: | :-----------------------------------: | :---------------------------------: |
-| [![raymondfeng]](http://github.com/raymondfeng) | [![bajtos]](http://github.com/bajtos) | [![ritch]](http://github.com/ritch) |
+|                  Raymond Feng                   |            Miroslav Bajtoš            |     |
+| :---------------------------------------------: | :-----------------------------------: | :-: |
+| [![raymondfeng]](http://github.com/raymondfeng) | [![bajtos]](http://github.com/bajtos) |     |
 
 ### Project Maintainers
 
@@ -108,17 +108,28 @@ See [SECURITY.md](SECURITY.md) for more details.
 | :----------------------------------------------: | :--------------------------------------------------------: | :----------------------------------------------: |
 |                    Diana Lau                     |                         Janny Hou                          |                    Hage Yaapa                    |
 |      [![dhmlau]](http://github.com/dhmlau)       |         [![jannyhou]](http://github.com/jannyHou)          | [![hacksparrow]](https://github.com/hacksparrow) |
-|                 Nora Abdelgadir                  |                       Mario Estrada                        |                   Hugo Da Roit                   |
-| [![nabdelgadir]](https://github.com/nabdelgadir) | [![marioestradarosa]](https://github.com/marioestradarosa) |        [![yaty]](https://github.com/yaty)        |
-|                 Dominique Emond                  |                         Agnes Lin                          |                 Deepak Rajamohan                 |
-|     [![emonddr]](https://github.com/emonddr)     |         [![agnes512]](https://github.com/agnes512)         | [![deepakrkris]](https://github.com/deepakrkris) |
-|                  Denny Bartelt                   |                    Douglas McConnachie                     |                  Rifa Achrinza                   |
-|     [![derdeka]](https://github.com/derdeka)     |         [![dougal83]](https://github.com/dougal83)         |    [![achrinza]](https://github.com/achrinza)    |
-|                 Francisco Buceta                 |                       Matthew Schnee                       |                                                  |
-|    [![frbuceta]](https://github.com/frbuceta)    |          [![mschnee]](https://github.com/mschnee)          |                                                  |
+|                    Agnes Lin                     |                       Mario Estrada                        |                   Hugo Da Roit                   |
+|    [![agnes512]](https://github.com/agnes512)    | [![marioestradarosa]](https://github.com/marioestradarosa) |        [![yaty]](https://github.com/yaty)        |
+|                 Dominique Emond                  |                       Denny Bartelt                        |               Douglas McConnachie                |
+|     [![emonddr]](https://github.com/emonddr)     |          [![derdeka]](https://github.com/derdeka)          |    [![dougal83]](https://github.com/dougal83)    |
+|                  Rifa Achrinza                   |                      Francisco Buceta                      |                  Matthew Schnee                  |
+|    [![achrinza]](https://github.com/achrinza)    |         [![frbuceta]](https://github.com/frbuceta)         |     [![mschnee]](https://github.com/mschnee)     |  |
+|                 Nora Abdelgadir                  |                                                            |                                                  |
+| [![nabdelgadir]](https://github.com/nabdelgadir) |                                                            |                                                  |
 
 See
 [all contributors](https://github.com/strongloop/loopback-next/graphs/contributors).
+
+### Alumni
+
+- [@ritch](http://github.com/ritch)
+- [@superkhau](https://github.com/superkhau)
+- [@rashmihunt](https://github.com/rashmihunt)
+- [@kjdelisle](https://github.com/kjdelisle)
+- [@virkt25](https://github.com/virkt25)
+- [@shimks](https://github.com/shimks)
+- [@b-admike](https://github.com/b-admike)
+- [@deepakrkris](https://github.com/deepakrkris)
 
 ## License
 

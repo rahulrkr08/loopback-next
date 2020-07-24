@@ -21,6 +21,8 @@ const props = {
 };
 const {expect} = require('@loopback/testlab');
 
+const {assertFilesToMatchSnapshot} = require('../../snapshots');
+
 const tests = require('../lib/project-generator')(
   generator,
   props,
@@ -37,60 +39,14 @@ describe('app-generator specific files', () => {
     return helpers.run(generator).withPrompts(props);
   });
   it('generates all the proper files', () => {
-    assert.file('src/application.ts');
-    assert.fileContent(
+    assertFilesToMatchSnapshot(
+      {},
       'src/application.ts',
-      /class MyAppApplication extends BootMixin\(/,
-    );
-    assert.fileContent(
-      'src/application.ts',
-      /ServiceMixin\(RepositoryMixin\(RestApplication\)\)/,
-    );
-    assert.fileContent('src/application.ts', /constructor\(/);
-    assert.fileContent('src/application.ts', /this.projectRoot = __dirname/);
-
-    assert.file('index.js');
-    assert.fileContent('index.js', /openApiSpec: {/);
-    assert.fileContent('index.js', /setServersFromRequest: true/);
-
-    assert.file('src/index.ts');
-    assert.fileContent('src/index.ts', /new MyAppApplication/);
-    assert.fileContent('src/index.ts', /await app.start\(\);/);
-
-    assert.file('src/controllers/ping.controller.ts');
-    assert.fileContent(
+      'src/index.ts',
       'src/controllers/ping.controller.ts',
-      /export class PingController/,
-    );
-    assert.fileContent('src/controllers/ping.controller.ts', /@inject/);
-    assert.fileContent(
-      'src/controllers/ping.controller.ts',
-      /@get\('\/ping'\, \{/,
-    );
-    assert.fileContent('src/controllers/ping.controller.ts', /ping\(\)/);
-    assert.fileContent(
-      'src/controllers/ping.controller.ts',
-      /\'\@loopback\/rest\'/,
-    );
-    assert.fileContent(
       'src/__tests__/acceptance/ping.controller.acceptance.ts',
-      /describe\('PingController'/,
-    );
-    assert.fileContent(
       'src/__tests__/acceptance/home-page.acceptance.ts',
-      /describe\('HomePage'/,
-    );
-    assert.fileContent(
       'src/__tests__/acceptance/test-helper.ts',
-      /export async function setupApplication/,
-    );
-    assert.fileContent(
-      'src/__tests__/acceptance/test-helper.ts',
-      'process.env.HOST',
-    );
-    assert.fileContent(
-      'src/__tests__/acceptance/test-helper.ts',
-      '+process.env.PORT',
     );
     assert.jsonFileContent('.yo-rc.json', {
       '@loopback/cli': {
@@ -100,23 +56,19 @@ describe('app-generator specific files', () => {
   });
 
   it('generates database migration script', () => {
-    assert.fileContent(
-      'src/migrate.ts',
-      /import {MyAppApplication} from '\.\/application'/,
-    );
+    assertFilesToMatchSnapshot({}, 'src/migrate.ts');
+  });
 
+  it('generates openapi spec script', () => {
+    assertFilesToMatchSnapshot({}, 'src/openapi-spec.ts');
     assert.fileContent(
-      'src/migrate.ts',
-      /const app = new MyAppApplication\(\);/,
+      'package.json',
+      /"openapi-spec": "node \.\/dist\/openapi-spec"/,
     );
-
-    assert.fileContent('src/migrate.ts', /export async function migrate/);
   });
 
   it('generates docker files', () => {
-    assert.fileContent('Dockerfile', /FROM node:10-slim/);
-    assert.fileContent('.dockerignore', /node_modules/);
-    assert.fileContent('.dockerignore', '*.tsbuildinfo');
+    assertFilesToMatchSnapshot({}, 'Dockerfile', '.dockerignore');
 
     assert.fileContent('package.json', /"docker:build": "docker build/);
     assert.fileContent('package.json', /"docker:run": "docker run/);
@@ -163,22 +115,31 @@ describe('app-generator with --applicationName', () => {
       .withPrompts(props);
   });
   it('generates all the proper files', () => {
-    assert.file('src/application.ts');
-    assert.fileContent('src/application.ts', /class MyApp extends BootMixin\(/);
+    assertFilesToMatchSnapshot({}, 'src/application.ts');
   });
   it('generates the application with RepositoryMixin', () => {
-    assert.file('src/application.ts');
-    assert.fileContent(
-      'src/application.ts',
-      /RepositoryMixin\(RestApplication\)/,
-    );
+    assertFilesToMatchSnapshot({}, 'src/application.ts');
+  });
+});
+
+describe('app-generator with --apiconnect', () => {
+  before(() => {
+    return helpers
+      .run(generator)
+      .withOptions({apiconnect: true})
+      .withPrompts(props);
+  });
+  it('adds imports for ApiConnectComponent', () => {
+    assertFilesToMatchSnapshot({}, 'src/application.ts');
+    assert.fileContent('package.json', '"@loopback/apiconnect"');
   });
 });
 
 // The test takes about 1 min to install dependencies
 function testFormat() {
-  before(function () {
-    // eslint-disable-next-line no-invalid-this
+  before(createAppAndInstallDeps);
+  /** @this {Mocha.Context} */
+  function createAppAndInstallDeps() {
     this.timeout(90 * 1000);
     return helpers
       .run(generator)
@@ -189,13 +150,14 @@ function testFormat() {
         skipInstall: false,
         // Disable npm log and progress bar
         npmInstall: {silent: true, progress: false},
+        yarnInstall: {silent: true},
         // Disable npm stdio
         spawn: {
           stdio: 'ignore',
         },
       })
       .withPrompts(props);
-  });
+  }
   it('generates all the proper files', () => {
     assert.file('src/application.ts');
     assert.fileContent('src/application.ts', /class MyApp extends BootMixin\(/);
@@ -253,7 +215,7 @@ describe('app-generator with default values', () => {
 });
 
 /** For testing the support of tilde path as the input of project path.
- * Use differnt paths to test out the support of `~` when the test runs outside of home dir.
+ * Use different paths to test out the support of `~` when the test runs outside of home dir.
  */
 describe('app-generator with tilde project path', () => {
   const rootDir = path.join(__dirname, '../../../../../');
@@ -277,9 +239,10 @@ describe('app-generator with tilde project path', () => {
     outdir: pathWithTilde,
   };
 
-  before(async function () {
+  before(givenScaffoldedApp);
+  /** @this {Mocha.Context} */
+  async function givenScaffoldedApp() {
     // Increase the timeout to accommodate slow CI build machines
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30 * 1000);
     // check it with full path. tilde-path-app should not exist at this point
     assert.equal(fs.existsSync(sandbox), false);
@@ -289,14 +252,17 @@ describe('app-generator with tilde project path', () => {
       // Mark it private to prevent accidental npm publication
       .withOptions({private: true})
       .withPrompts(tildePathProps);
-  });
+  }
+
   it('scaffold a new application for tilde-path-app', async () => {
     // tilde-path-app should be created at this point
     assert.equal(fs.existsSync(sandbox), true);
   });
-  after(function () {
+
+  after(cleanup);
+  /** @this {Mocha.Context} */
+  function cleanup() {
     // Increase the timeout to accommodate slow CI build machines
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30 * 1000);
 
     // Handle special case - Skipping... not inside the project root directory.
@@ -307,5 +273,5 @@ describe('app-generator with tilde project path', () => {
     }
     build.clean(['node', 'run-clean', sandbox]);
     process.chdir(cwd);
-  });
+  }
 });

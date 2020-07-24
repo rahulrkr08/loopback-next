@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/context
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -11,9 +11,12 @@ import {
   BindingScopeAndTags,
   Constructor,
   Context,
+  ContextTags,
   createBindingFromClass,
+  isProviderClass,
   Provider,
 } from '../..';
+import {inject} from '../../inject';
 
 describe('createBindingFromClass()', () => {
   it('inspects classes', () => {
@@ -152,6 +155,72 @@ describe('createBindingFromClass()', () => {
     expect(ctx.getSync(binding.key)).to.eql('my-value');
   });
 
+  it('inspects dynamic value provider classes', () => {
+    const spec = {
+      tags: ['rest'],
+      scope: BindingScope.CONTEXT,
+    };
+
+    @bind(spec)
+    class MyProvider {
+      static value() {
+        return 'my-value';
+      }
+    }
+
+    const ctx = new Context();
+    const binding = givenBindingFromClass(MyProvider, ctx);
+
+    expect(binding.key).to.eql('dynamicValueProviders.MyProvider');
+    expect(binding.scope).to.eql(spec.scope);
+    expect(binding.tagMap).to.containDeep({
+      type: 'dynamicValueProvider',
+      dynamicValueProvider: 'dynamicValueProvider',
+      rest: 'rest',
+    });
+    expect(ctx.getSync(binding.key)).to.eql('my-value');
+  });
+
+  it('recognizes dynamic value provider classes', () => {
+    const spec = {
+      tags: ['rest', {type: 'dynamicValueProvider'}],
+      scope: BindingScope.CONTEXT,
+    };
+
+    @bind(spec)
+    class MyProvider {
+      static value(@inject('prefix') prefix: string) {
+        return `[${prefix}] my-value`;
+      }
+    }
+
+    const ctx = new Context();
+    ctx.bind('prefix').to('abc');
+    const binding = givenBindingFromClass(MyProvider, ctx);
+
+    expect(binding.key).to.eql('dynamicValueProviders.MyProvider');
+    expect(binding.scope).to.eql(spec.scope);
+    expect(binding.tagMap).to.containDeep({
+      type: 'dynamicValueProvider',
+      dynamicValueProvider: 'dynamicValueProvider',
+      rest: 'rest',
+    });
+    expect(ctx.getSync(binding.key)).to.eql('[abc] my-value');
+  });
+
+  it('recognizes dynamic value provider classes without @bind', () => {
+    class MyProvider {
+      static value() {
+        return 'my-value';
+      }
+    }
+
+    const ctx = new Context();
+    const binding = givenBindingFromClass(MyProvider, ctx);
+    expect(binding.key).to.eql('dynamicValueProviders.MyProvider');
+    expect(ctx.getSync(binding.key)).to.eql('my-value');
+  });
+
   it('honors the binding key', () => {
     const spec: BindingScopeAndTags = {
       tags: {
@@ -206,6 +275,33 @@ describe('createBindingFromClass()', () => {
     expect(binding.key).to.eql('services.MyService');
   });
 
+  it('honors default namespace with options', () => {
+    class MyService {}
+
+    @bind({tags: {[ContextTags.NAMESPACE]: 'my-services'}})
+    class MyServiceWithNS {}
+
+    const ctx = new Context();
+    let binding = givenBindingFromClass(MyService, ctx, {
+      defaultNamespace: 'services',
+    });
+
+    expect(binding.key).to.eql('services.MyService');
+
+    binding = givenBindingFromClass(MyService, ctx, {
+      namespace: 'my-services',
+      defaultNamespace: 'services',
+    });
+
+    expect(binding.key).to.eql('my-services.MyService');
+
+    binding = givenBindingFromClass(MyServiceWithNS, ctx, {
+      defaultNamespace: 'services',
+    });
+
+    expect(binding.key).to.eql('my-services.MyServiceWithNS');
+  });
+
   it('includes class name in error messages', () => {
     expect(() => {
       // Reproduce a problem that @bajtos encountered when the project
@@ -226,5 +322,59 @@ describe('createBindingFromClass()', () => {
     const binding = createBindingFromClass(cls, options);
     ctx.add(binding);
     return binding;
+  }
+});
+
+describe('isProviderClass', () => {
+  describe('non-functions', () => {
+    assertNotProviderClasses(undefined, null, 'abc', 1, true, false, {x: 1});
+  });
+
+  describe('functions that do not have value()', () => {
+    function fn() {}
+    class MyClass {}
+    class MyClassWithVal {
+      value = 'abc';
+    }
+    assertNotProviderClasses(String, Date, fn, MyClass, MyClassWithVal);
+  });
+
+  describe('functions that have value()', () => {
+    class MyProvider {
+      value() {
+        return 'abc';
+      }
+    }
+
+    class MyAsyncProvider {
+      value() {
+        return Promise.resolve('abc');
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    function MyJsProvider() {}
+
+    MyJsProvider.prototype.value = function () {
+      return 'abc';
+    };
+
+    assertProviderClasses(MyProvider, MyAsyncProvider, MyJsProvider);
+  });
+
+  function assertNotProviderClasses(...values: unknown[]) {
+    for (const v of values) {
+      it(`recognizes ${v} is not a provider class`, () => {
+        expect(isProviderClass(v)).to.be.false();
+      });
+    }
+  }
+
+  function assertProviderClasses(...values: unknown[]) {
+    for (const v of values) {
+      it(`recognizes ${v} is a provider class`, () => {
+        expect(isProviderClass(v)).to.be.true();
+      });
+    }
   }
 });

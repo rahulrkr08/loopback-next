@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/context
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -19,6 +19,8 @@ import {
   mergeInterceptors,
   Provider,
 } from '../..';
+import {registerInterceptor} from '../../interceptor';
+import {UNIQUE_ID_PATTERN} from '../../unique-id';
 
 describe('mergeInterceptors', () => {
   it('removes duplicate entries from the spec', () => {
@@ -107,15 +109,17 @@ describe('globalInterceptors', () => {
   });
 
   it('sorts by group alphabetically without ordered group', () => {
-    ctx
-      .bind('globalInterceptors.authInterceptor')
-      .to(authInterceptor)
-      .apply(asGlobalInterceptor('auth'));
+    registerInterceptor(ctx, authInterceptor, {
+      global: true,
+      name: 'authInterceptor',
+      group: 'auth',
+    });
 
-    ctx
-      .bind('globalInterceptors.logInterceptor')
-      .to(logInterceptor)
-      .apply(asGlobalInterceptor('log'));
+    registerInterceptor(ctx, logInterceptor, {
+      global: true,
+      group: 'log',
+      name: 'logInterceptor',
+    });
 
     const invocationCtx = givenInvocationContext();
 
@@ -137,15 +141,15 @@ describe('globalInterceptors', () => {
     it,
     'sorts by binding order without group tags',
     async () => {
-      ctx
-        .bind('globalInterceptors.authInterceptor')
-        .to(authInterceptor)
-        .apply(asGlobalInterceptor());
+      registerInterceptor(ctx, authInterceptor, {
+        global: true,
+        name: 'authInterceptor',
+      });
 
-      ctx
-        .bind('globalInterceptors.logInterceptor')
-        .to(logInterceptor)
-        .apply(asGlobalInterceptor());
+      registerInterceptor(ctx, logInterceptor, {
+        global: true,
+        name: 'logInterceptor',
+      });
 
       const invocationCtx = givenInvocationContext();
 
@@ -192,18 +196,19 @@ describe('globalInterceptors', () => {
   });
 
   it('includes interceptors that match the source type', () => {
-    ctx
-      .bind('globalInterceptors.authInterceptor')
-      .to(authInterceptor)
-      .apply(asGlobalInterceptor('auth'))
-      // Allows `route` source type explicitly
-      .tag({[ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: 'route'});
+    registerInterceptor(ctx, authInterceptor, {
+      global: true,
+      group: 'auth',
+      source: 'route',
+      name: 'authInterceptor',
+    });
 
-    ctx
-      .bind('globalInterceptors.logInterceptor')
-      .to(logInterceptor)
-      .apply(asGlobalInterceptor('log'));
-    // No source type is tagged - always apply
+    registerInterceptor(ctx, logInterceptor, {
+      global: true,
+      group: 'log',
+      name: 'logInterceptor',
+      // No source type is tagged - always apply
+    });
 
     const invocationCtx = givenInvocationContext('route');
 
@@ -215,17 +220,18 @@ describe('globalInterceptors', () => {
   });
 
   it('excludes interceptors that do not match the source type', () => {
-    ctx
-      .bind('globalInterceptors.authInterceptor')
-      .to(authInterceptor)
-      .apply(asGlobalInterceptor('auth'))
-      // Do not apply for `proxy` source type
-      .tag({[ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: 'route'});
+    registerInterceptor(ctx, authInterceptor, {
+      global: true,
+      group: 'auth',
+      source: 'route',
+      name: 'authInterceptor',
+    });
 
-    ctx
-      .bind('globalInterceptors.logInterceptor')
-      .to(logInterceptor)
-      .apply(asGlobalInterceptor('log'));
+    registerInterceptor(ctx, logInterceptor, {
+      global: true,
+      group: 'log',
+      name: 'logInterceptor',
+    });
 
     const invocationCtx = givenInvocationContext('proxy');
 
@@ -234,23 +240,36 @@ describe('globalInterceptors', () => {
   });
 
   it('excludes interceptors that do not match the source type - with array', () => {
-    ctx
-      .bind('globalInterceptors.authInterceptor')
-      .to(authInterceptor)
-      .apply(asGlobalInterceptor('auth'))
-      // Do not apply for `proxy` source type
-      .tag({[ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: 'route'});
+    registerInterceptor(ctx, authInterceptor, {
+      global: true,
+      group: 'auth',
+      source: 'route',
+      name: 'authInterceptor',
+    });
 
-    ctx
-      .bind('globalInterceptors.logInterceptor')
-      .to(logInterceptor)
-      .apply(asGlobalInterceptor('log'))
-      .tag({[ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: ['route', 'proxy']});
+    registerInterceptor(ctx, logInterceptor, {
+      global: true,
+      group: 'log',
+      source: ['route', 'proxy'],
+      name: 'logInterceptor',
+    });
 
     const invocationCtx = givenInvocationContext('proxy');
 
     const keys = invocationCtx.getGlobalInterceptorBindingKeys();
     expect(keys).to.eql(['globalInterceptors.logInterceptor']);
+  });
+
+  it('infers binding key from the interceptor function', () => {
+    const binding = registerInterceptor(ctx, logInterceptor);
+    expect(binding.key).to.eql('interceptors.logInterceptor');
+  });
+
+  it('generates binding key for the interceptor function', () => {
+    const binding = registerInterceptor(ctx, () => undefined);
+    expect(binding.key).to.match(
+      new RegExp(`interceptors.${UNIQUE_ID_PATTERN.source}`, 'i'),
+    );
   });
 
   class MyController {

@@ -4,14 +4,16 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {
+  Application,
   bind,
+  Component,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   config,
   ContextTags,
+  CoreBindings,
   createBindingFromClass,
   inject,
-} from '@loopback/context';
-import {Application, Component, CoreBindings} from '@loopback/core';
+} from '@loopback/core';
 import {metricsControllerFactory} from './controllers';
 import {MetricsInterceptor} from './interceptors';
 import {MetricsBindings} from './keys';
@@ -29,22 +31,16 @@ export class MetricsComponent implements Component {
     @config()
     options: MetricsOptions = DEFAULT_METRICS_OPTIONS,
   ) {
-    if (
-      !options.defaultMetrics ||
-      (options.defaultMetrics && !options.defaultMetrics.disabled)
-    ) {
+    if (!options.defaultMetrics || !options.defaultMetrics?.disabled) {
       this.application.lifeCycleObserver(MetricsObserver);
     }
-    if (
-      !options.pushGateway ||
-      (options.pushGateway && !options.pushGateway.disabled)
-    ) {
+    if (!options.pushGateway || !options.pushGateway?.disabled) {
       this.application.lifeCycleObserver(MetricsPushObserver);
     }
     this.application.add(createBindingFromClass(MetricsInterceptor));
-    if (!options.endpoint || (options.endpoint && !options.endpoint.disabled)) {
+    if (!options.endpoint || !options.endpoint?.disabled) {
       this.application.controller(
-        metricsControllerFactory(options.endpoint && options.endpoint.basePath),
+        metricsControllerFactory(options.endpoint?.basePath),
       );
     }
   }

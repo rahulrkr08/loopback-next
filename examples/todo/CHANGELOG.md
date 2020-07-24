@@ -3,6 +3,125 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.6.2](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.6.1...@loopback/example-todo@3.6.2) (2020-07-20)
+
+
+### Bug Fixes
+
+* ensure delete only applies to optional properties ([89cd43f](https://github.com/strongloop/loopback-next/commit/89cd43f1a455983f120d9bb9c869eac36adc7ad7))
+
+
+
+
+
+## [3.6.1](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.6.0...@loopback/example-todo@3.6.1) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
+# [3.6.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.5.1...@loopback/example-todo@3.6.0) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+### Features
+
+* update sequence.ts to invoke middleware ([e2ff6b2](https://github.com/strongloop/loopback-next/commit/e2ff6b22367e919926d0f41f6d939d988c654c00))
+
+
+
+
+
+## [3.5.1](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.5.0...@loopback/example-todo@3.5.1) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
+# [3.5.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.4.1...@loopback/example-todo@3.5.0) (2020-05-28)
+
+
+### Features
+
+* add `npm run openapi-spec` to export the openapi spec ([dca78e1](https://github.com/strongloop/loopback-next/commit/dca78e1ba3241ed2a0e7067e00cc1afd001f0335))
+
+
+
+
+
+## [3.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.4.0...@loopback/example-todo@3.4.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
+# [3.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.3.0...@loopback/example-todo@3.4.0) (2020-05-19)
+
+
+### Features
+
+* upgrade to TypeScript 3.9.x ([3300e45](https://github.com/strongloop/loopback-next/commit/3300e4569ab8410bb1285f7a54d326e9d976476d))
+
+
+
+
+
+# [3.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.2.0...@loopback/example-todo@3.3.0) (2020-05-07)
+
+
+### Features
+
+* **example-todo:** add morgan middleware if env var DEBUG is set ([4457495](https://github.com/strongloop/loopback-next/commit/4457495b9147f9db0e5a84479f0e546d72c19274))
+
+
+
+
+
+# [3.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.1.3...@loopback/example-todo@3.2.0) (2020-04-29)
+
+
+### Features
+
+* move datasource config from JSON to TS files ([6105456](https://github.com/strongloop/loopback-next/commit/6105456deb6d7acadc3e46867558311dce2d005c))
+
+
+
+
+
+## [3.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.1.2...@loopback/example-todo@3.1.3) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
+## [3.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.1.1...@loopback/example-todo@3.1.2) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
+## [3.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.1.0...@loopback/example-todo@3.1.1) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/example-todo
+
+
+
+
+
 # [3.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/example-todo@3.0.2...@loopback/example-todo@3.1.0) (2020-04-08)
 
 

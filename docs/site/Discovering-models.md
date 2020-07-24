@@ -1,7 +1,8 @@
 ---
 lang: en
 title: 'Discovering models from relational databases'
-keywords: LoopBack 4.0, LoopBack-Next
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Database Discovery
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Discovering-models.html
 ---
@@ -29,7 +30,7 @@ Models can be discovered from a supported datasource by running the
 `lb4 discover` command.
 
 {% include important.html content="The LoopBack project must be built with
-`npm run build` to transpile the datasource files to `/dist/datasources/*.js`."
+`npm run build` to transpile the datasource files to `/dist/datasources/*.ts`."
 %}
 
 ### Options

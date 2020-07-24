@@ -10,8 +10,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const utils = require('../../bin/utils');
 
-describe('build', function () {
-  // eslint-disable-next-line no-invalid-this
+describe('build', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
   const cwd = process.cwd();
   const projectDir = path.resolve(__dirname, './fixtures');
@@ -138,6 +137,34 @@ describe('build', function () {
     );
   });
 
+  it('removes invalid options for tsc with -b', () => {
+    const run = require('../../bin/compile-package');
+    const command = run(
+      [
+        'node',
+        'bin/compile-package',
+        '--watch',
+        '-b',
+        '-v',
+        '--xyz',
+        '--locale',
+        'en_US.UTF-8',
+      ],
+      true,
+    );
+    assert(command.indexOf('--xyz') === -1, '--xyz should be removed');
+    assert(command.indexOf('--watch') !== -1, '--watch should be honored');
+    assert(command.indexOf('-v') !== -1, '-v should be honored');
+    assert(
+      command.indexOf('--locale en_US.UTF-8') !== -1,
+      '--locale en_US.UTF-8 should be honored',
+    );
+    assert(
+      command.indexOf('tsc.js -b') !== -1,
+      '-b should be the first argument',
+    );
+  });
+
   it('runs prettier against ts files', done => {
     const run = require('../../bin/run-prettier');
     const childProcess = run(
@@ -215,8 +242,7 @@ describe('build', function () {
   });
 });
 
-describe('mocha', function () {
-  // eslint-disable-next-line no-invalid-this
+describe('mocha', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
   const cwd = process.cwd();
   const projectDir = path.resolve(__dirname, './fixtures');

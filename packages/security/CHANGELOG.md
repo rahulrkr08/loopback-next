@@ -3,6 +3,105 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.15](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.14...@loopback/security@0.2.15) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.14](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.13...@loopback/security@0.2.14) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.13](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.12...@loopback/security@0.2.13) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [0.2.12](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.11...@loopback/security@0.2.12) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.11](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.10...@loopback/security@0.2.11) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.10](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.9...@loopback/security@0.2.10) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.9](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.8...@loopback/security@0.2.9) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.8](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.7...@loopback/security@0.2.8) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.7](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.6...@loopback/security@0.2.7) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.6](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.5...@loopback/security@0.2.6) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.5](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.4...@loopback/security@0.2.5) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
+## [0.2.4](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.3...@loopback/security@0.2.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/security
+
+
+
+
+
 ## [0.2.3](https://github.com/strongloop/loopback-next/compare/@loopback/security@0.2.2...@loopback/security@0.2.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/security

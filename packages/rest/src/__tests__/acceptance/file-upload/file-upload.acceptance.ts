@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {inject} from '@loopback/context';
+import {inject} from '@loopback/core';
 import {
   Client,
   createRestAppClient,
@@ -89,7 +89,7 @@ describe('multipart/form-data', () => {
       const storage = multer.memoryStorage();
       const upload = multer({storage});
       return new Promise<object>((resolve, reject) => {
-        upload.any()(request, response, err => {
+        upload.any()(request, response, (err: unknown) => {
           if (err) reject(err);
           else {
             resolve({

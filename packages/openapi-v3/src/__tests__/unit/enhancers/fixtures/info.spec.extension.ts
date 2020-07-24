@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/openapi-v3
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -6,9 +6,12 @@
 import {bind} from '@loopback/core';
 import debugModule from 'debug';
 import {inspect} from 'util';
-import {mergeOpenAPISpec} from '../../../..';
-import {asSpecEnhancer, OASEnhancer} from '../../../../enhancers/types';
-import {OpenApiSpec} from '../../../../types';
+import {
+  asSpecEnhancer,
+  mergeOpenAPISpec,
+  OASEnhancer,
+  OpenApiSpec,
+} from '../../../..';
 const debug = debugModule('loopback:openapi:spec-enhancer');
 
 /**
@@ -23,7 +26,7 @@ export class InfoSpecEnhancer implements OASEnhancer {
       info: {title: 'LoopBack Test Application', version: '1.0.1'},
     };
     const mergedSpec = mergeOpenAPISpec(spec, InfoPatchSpec);
-    debug(`security spec extension, merged spec: ${inspect(mergedSpec)}`);
+    debug(`Info spec extension, merged spec: ${inspect(mergedSpec)}`);
     return mergedSpec;
   }
 }

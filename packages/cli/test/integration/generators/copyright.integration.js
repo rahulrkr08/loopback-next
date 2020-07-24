@@ -21,8 +21,7 @@ const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
 const year = new Date().getFullYear();
 
-describe('lb4 copyright', function () {
-  // eslint-disable-next-line no-invalid-this
+describe('lb4 copyright', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
 
   beforeEach('reset sandbox', async () => {
@@ -61,7 +60,11 @@ describe('lb4 copyright', function () {
           additionalFiles: SANDBOX_FILES,
         }),
       )
-      .withOptions({owner: 'ACME Inc.', license: 'ISC', gitOnly: false});
+      .withOptions({
+        owner: 'ACME Inc.',
+        license: 'ISC',
+        gitOnly: false,
+      });
 
     assertHeader(
       ['src/application.ts', 'lib/no-header.js'],
@@ -69,6 +72,49 @@ describe('lb4 copyright', function () {
       '// Node module: myapp',
       `// This file is licensed under the ${spdxLicenseList['isc'].name}.`,
       `// License text available at ${spdxLicenseList['isc'].url}`,
+    );
+
+    assertNoHeader(
+      ['node_modules/third-party.js'],
+      `// Copyright ACME Inc. ${year}. All Rights Reserved.`,
+      '// Node module: myapp',
+      `// This file is licensed under the ${spdxLicenseList['isc'].name}.`,
+      `// License text available at ${spdxLicenseList['isc'].url}`,
+    );
+  });
+
+  it('updates custom copyright/license headers with options', async () => {
+    await testUtils
+      .executeGenerator(generator)
+      .inDir(sandbox.path, () =>
+        testUtils.givenLBProject(sandbox.path, {
+          excludePackageJSON: true,
+          additionalFiles: SANDBOX_FILES,
+        }),
+      )
+      .withOptions({
+        owner: 'ACME Inc.',
+        license: 'CUSTOM',
+        gitOnly: false,
+      })
+      .withPrompts({
+        customLicenseLines: `
+=============================================================================
+Licensed Materials - Property of <%= owner %>
+(C) Copyright <%= owner %> <%= years %>
+US Government Users Restricted Rights - Use, duplication or disclosure
+restricted by GSA ADP Schedule Contract with <%= owner %>.
+=============================================================================`,
+      });
+
+    assertHeader(
+      ['src/application.ts', 'lib/no-header.js'],
+      `=============================================================================`,
+      `Licensed Materials - Property of ACME Inc.`,
+      `(C) Copyright ACME Inc. ${year}`,
+      `US Government Users Restricted Rights - Use, duplication or disclosure`,
+      `restricted by GSA ADP Schedule Contract with ACME Inc..`,
+      `=============================================================================`,
     );
   });
 
@@ -97,7 +143,7 @@ describe('lb4 copyright', function () {
     );
 
     assertNoHeader(
-      ['lib/no-header.js'],
+      ['lib/no-header.js', 'node_modules/third-party.js'],
       `// Copyright ACME Inc. ${year}. All Rights Reserved.`,
       '// Node module: myapp',
       `// This file is licensed under the ${spdxLicenseList['isc'].name}.`,

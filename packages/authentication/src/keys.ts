@@ -3,9 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BindingKey} from '@loopback/context';
-import {MetadataAccessor} from '@loopback/metadata';
-import {SecurityBindings} from '@loopback/security';
+import {BindingKey, MetadataAccessor} from '@loopback/core';
+import {SecurityBindings, UserProfile} from '@loopback/security';
 import {AuthenticationComponent} from './authentication.component';
 import {
   AuthenticateFn,
@@ -117,7 +116,7 @@ export namespace AuthenticationBindings {
     'authentication.strategies';
 
   // Make `CURRENT_USER` the alias of SecurityBindings.USER for backward compatibility
-  export const CURRENT_USER = SecurityBindings.USER;
+  export const CURRENT_USER: BindingKey<UserProfile> = SecurityBindings.USER;
 
   // Redirect url for authenticating current user
   export const AUTHENTICATION_REDIRECT_URL = BindingKey.create<string>(

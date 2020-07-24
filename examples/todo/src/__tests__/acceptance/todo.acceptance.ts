@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {EntityNotFoundError} from '@loopback/repository';
+import {Request, Response} from '@loopback/rest';
 import {
   Client,
   createRestAppClient,
@@ -11,6 +12,7 @@ import {
   givenHttpServerConfig,
   toJSON,
 } from '@loopback/testlab';
+import morgan from 'morgan';
 import {TodoListApplication} from '../../application';
 import {Todo} from '../../models/';
 import {TodoRepository} from '../../repositories/';
@@ -37,8 +39,7 @@ describe('TodoApplication', () => {
   after(() => app.stop());
 
   let available = true;
-  before(async function () {
-    // eslint-disable-next-line no-invalid-this
+  before(async function (this: Mocha.Context) {
     this.timeout(30 * 1000);
     const service = await app.get<Geocoder>('services.Geocoder');
     available = await isGeoCoderServiceAvailable(service);
@@ -53,10 +54,9 @@ describe('TodoApplication', () => {
     await todoRepo.deleteAll();
   });
 
-  it('creates a todo', async function () {
+  it('creates a todo', async function (this: Mocha.Context) {
     // Set timeout to 30 seconds as `post /todos` triggers geocode look up
     // over the internet and it takes more than 2 seconds
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
     const todo = givenTodo();
     const response = await client.post('/todos').send(todo).expect(200);
@@ -74,7 +74,7 @@ describe('TodoApplication', () => {
   });
 
   it('rejects requests to create a todo with no title', async () => {
-    const todo = givenTodo();
+    const todo: Partial<Todo> = givenTodo();
     delete todo.title;
     await client.post('/todos').send(todo).expect(422);
   });
@@ -85,11 +85,9 @@ describe('TodoApplication', () => {
     await client.post('/todos').send(todo).expect(422);
   });
 
-  it('creates an address-based reminder', async function () {
-    // eslint-disable-next-line no-invalid-this
+  it('creates an address-based reminder', async function (this: Mocha.Context) {
     if (!available) return this.skip();
     // Increase the timeout to accommodate slow network connections
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
 
     const todo = givenTodo({remindAtAddress: aLocation.address});
@@ -102,11 +100,9 @@ describe('TodoApplication', () => {
     expect(result).to.containEql(todo);
   });
 
-  it('returns 400 if it cannot find an address', async function () {
-    // eslint-disable-next-line no-invalid-this
+  it('returns 400 if it cannot find an address', async function (this: Mocha.Context) {
     if (!available) return this.skip();
     // Increase the timeout to accommodate slow network connections
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
 
     const todo = givenTodo({remindAtAddress: 'this address does not exist'});
@@ -181,6 +177,23 @@ describe('TodoApplication', () => {
 
     it('returns 404 when deleting a todo that does not exist', async () => {
       await client.del(`/todos/99999`).expect(404);
+    });
+  });
+
+  context('allows logging to be reconfigured', () => {
+    it('logs http requests', async () => {
+      const logs: string[] = [];
+      const logToArray = (str: string) => {
+        logs.push(str);
+      };
+      app.configure<morgan.Options<Request, Response>>('middleware.morgan').to({
+        stream: {
+          write: logToArray,
+        },
+      });
+      await client.get('/todos');
+      expect(logs.length).to.eql(1);
+      expect(logs[0]).to.match(/"GET \/todos HTTP\/1\.1" 200 - "-"/);
     });
   });
 

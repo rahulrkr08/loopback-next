@@ -20,7 +20,7 @@ import {
   isBindingAddress,
   isBindingTagFilter,
 } from './binding-filter';
-import {BindingAddress} from './binding-key';
+import {BindingAddress, BindingKey} from './binding-key';
 import {BindingComparator} from './binding-sorter';
 import {BindingCreationPolicy, Context} from './context';
 import {ContextView, createViewGetter} from './context-view';
@@ -40,8 +40,17 @@ const METHODS_KEY = MetadataAccessor.create<Injection, MethodDecorator>(
   'inject:methods',
 );
 
+// TODO(rfeng): We may want to align it with `ValueFactory` interface that takes
+// an argument of `ResolutionContext`.
 /**
- * A function to provide resolution of injected values
+ * A function to provide resolution of injected values.
+ *
+ * @example
+ * ```ts
+ * const resolver: ResolverFunction = (ctx, injection, session) {
+ *   return session.currentBinding?.key;
+ * }
+ * ```
  */
 export interface ResolverFunction {
   (
@@ -123,6 +132,11 @@ export function inject(
   const injectionMetadata = Object.assign({decorator: '@inject'}, metadata);
   if (injectionMetadata.bindingComparator && !resolve) {
     throw new Error('Binding comparator is only allowed with a binding filter');
+  }
+  if (!bindingSelector && typeof resolve !== 'function') {
+    throw new Error(
+      'A non-empty binding selector or resolve function is required for @inject',
+    );
   }
   return function markParameterOrPropertyAsInjected(
     target: Object,
@@ -313,7 +327,7 @@ export namespace inject {
    * @param metadata - Metadata for the injection
    */
   export const binding = function injectBinding(
-    bindingKey?: BindingAddress,
+    bindingKey?: string | BindingKey<unknown>,
     metadata?: InjectBindingMetadata,
   ) {
     metadata = Object.assign({decorator: '@inject.binding'}, metadata);
@@ -377,7 +391,7 @@ export namespace inject {
    * ```
    */
   export const context = function injectContext() {
-    return inject('', {decorator: '@inject.context'}, ctx => ctx);
+    return inject('', {decorator: '@inject.context'}, (ctx: Context) => ctx);
   };
 }
 
@@ -604,22 +618,19 @@ export function describeInjectedArguments(
  * @param injection - Injection information
  */
 export function inspectTargetType(injection: Readonly<Injection>) {
-  let type = MetadataInspector.getDesignTypeForProperty(
-    injection.target,
-    injection.member!,
-  );
-  if (type) {
-    return type;
-  }
-  const designType = MetadataInspector.getDesignTypeForMethod(
-    injection.target,
-    injection.member!,
-  );
-  type =
-    designType.parameterTypes[
+  if (typeof injection.methodDescriptorOrParameterIndex === 'number') {
+    const designType = MetadataInspector.getDesignTypeForMethod(
+      injection.target,
+      injection.member!,
+    );
+    return designType.parameterTypes[
       injection.methodDescriptorOrParameterIndex as number
     ];
-  return type;
+  }
+  return MetadataInspector.getDesignTypeForProperty(
+    injection.target,
+    injection.member!,
+  );
 }
 
 /**

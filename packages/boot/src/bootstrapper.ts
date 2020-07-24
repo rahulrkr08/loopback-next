@@ -3,12 +3,17 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Context, inject, resolveList} from '@loopback/context';
-import {Application, CoreBindings} from '@loopback/core';
+import {
+  Application,
+  Context,
+  CoreBindings,
+  inject,
+  resolveList,
+} from '@loopback/core';
 import debugModule from 'debug';
 import {resolve} from 'path';
 import {BootBindings, BootTags} from './keys';
-import {_bindBooter} from './mixins';
+import {bindBooter} from './mixins';
 import {
   Bootable,
   BOOTER_PHASES,
@@ -69,16 +74,12 @@ export class Bootstrapper {
     // Bind booters passed in as a part of BootOptions
     // We use _bindBooter so this Class can be used without the Mixin
     if (execOptions?.booters) {
-      execOptions.booters.forEach(booter => _bindBooter(this.app, booter));
+      execOptions.booters.forEach(booter => bindBooter(this.app, booter));
     }
 
     // Determine the phases to be run. If a user set a phases filter, those
     // are selected otherwise we run the default phases (BOOTER_PHASES).
-    const phases = execOptions
-      ? execOptions.filter && execOptions.filter.phases
-        ? execOptions.filter.phases
-        : BOOTER_PHASES
-      : BOOTER_PHASES;
+    const phases = execOptions?.filter?.phases ?? BOOTER_PHASES;
 
     // Find booters registered to the BOOTERS_TAG by getting the bindings
     const bindings = bootCtx.findByTag(BootTags.BOOTER);
@@ -95,7 +96,7 @@ export class Bootstrapper {
     // names of booters that should be run), that is the value, otherwise it
     // is all the registered booters by default.
     const names = execOptions
-      ? execOptions.filter && execOptions.filter.booters
+      ? execOptions.filter?.booters
         ? execOptions.filter.booters
         : defaultBooterNames
       : defaultBooterNames;

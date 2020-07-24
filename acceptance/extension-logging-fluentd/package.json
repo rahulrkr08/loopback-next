@@ -1,14 +1,16 @@
 {
   "name": "@loopback/test-extension-logging-fluentd",
-  "version": "0.2.3",
-  "description": "Acceptance test for extension-logging with fluentd",
+  "version": "0.3.10",
+  "description": "Acceptance test for `@loopback/extension-logging` with fluentd",
   "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "lb-tsc",
-    "clean": "lb-clean loopback-test-extension-logging-fluentd*.tgz dist tsconfig.build.tsbuildinfo package",
+    "clean": "lb-clean loopback-test-extension-logging-fluentd*.tgz dist *.tsbuildinfo package",
     "pretest": "npm run build",
     "test": "npm run mocha",
     "mocha": "lb-mocha \"dist/__tests__/**/*.js\"",
@@ -19,18 +21,16 @@
   "license": "MIT",
   "devDependencies": {
     "@loopback/build": "^2.0.16",
-    "@loopback/core": "^2.2.1",
-    "@loopback/eslint-config": "^4.1.4",
-    "@loopback/extension-logging": "^0.2.3",
-    "@loopback/testlab": "^3.0.0",
-    "@types/node": "^10.17.19",
-    "testcontainers": "^2.7.0",
-    "tslib": "^1.11.1"
+    "@loopback/core": "^2.9.2",
+    "@loopback/eslint-config": "^8.0.4",
+    "@loopback/extension-logging": "^0.3.10",
+    "@loopback/testlab": "^3.2.1",
+    "@types/node": "^10.17.28",
+    "testcontainers": "^3.2.0",
+    "tslib": "^2.0.0"
   },
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"

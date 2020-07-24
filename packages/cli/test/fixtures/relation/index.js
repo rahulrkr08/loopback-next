@@ -1,10 +1,15 @@
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
+// Node module: @loopback/cli
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 const DATASOURCE_APP_PATH = 'src/datasources';
 const MODEL_APP_PATH = 'src/models';
 const REPOSITORY_APP_PATH = 'src/repositories';
 const CONTROLLER_PATH = 'src/controllers';
 const CONFIG_PATH = '.';
-const DUMMY_CONTENT = '--DUMMY VALUE--';
 const fs = require('fs');
+const {getSourceForDataSourceClassWithConfig} = require('../../test-utils');
 
 const SourceEntries = {
   CustomerModel: {
@@ -149,6 +154,41 @@ const SourceEntries = {
     file: 'index.ts',
     content: readSourceFile('./controllers/index.ts'),
   },
+  DoctorModel: {
+    path: MODEL_APP_PATH,
+    file: 'doctor.model.ts',
+    content: readSourceFile('./models/doctor.model.ts'),
+  },
+  DoctorRepository: {
+    path: REPOSITORY_APP_PATH,
+    file: 'doctor.repository.ts',
+    content: readSourceFile('./repositories/doctor.repository.ts'),
+  },
+  PatientModel: {
+    path: MODEL_APP_PATH,
+    file: 'patient.model.ts',
+    content: readSourceFile('./models/patient.model.ts'),
+  },
+  PatientRepository: {
+    path: REPOSITORY_APP_PATH,
+    file: 'patient.repository.ts',
+    content: readSourceFile('./repositories/patient.repository.ts'),
+  },
+  AppointmentModel: {
+    path: MODEL_APP_PATH,
+    file: 'appointment.model.ts',
+    content: readSourceFile('./models/appointment.model.ts'),
+  },
+  AppointmentRepository: {
+    path: REPOSITORY_APP_PATH,
+    file: 'appointment.repository.ts',
+    content: readSourceFile('./repositories/appointment.repository.ts'),
+  },
+  DoctorPatientController: {
+    path: CONTROLLER_PATH,
+    file: 'doctor-patient.controller.ts',
+    content: readSourceFile('./controllers/doctor-patient.controller.ts'),
+  },
 };
 exports.SourceEntries = SourceEntries;
 
@@ -163,58 +203,35 @@ exports.SANDBOX_FILES = [
   },
   {
     path: DATASOURCE_APP_PATH,
-    file: 'dbkv.datasource.config.json',
-    content: JSON.stringify({
+    file: 'dbkv.datasource.ts',
+    content: getSourceForDataSourceClassWithConfig('DbkvDataSource', {
       name: 'dbkv',
       connector: 'kv-redis',
     }),
   },
   {
     path: DATASOURCE_APP_PATH,
-    file: 'dbkv.datasource.ts',
-    content: DUMMY_CONTENT,
-  },
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'dbmem.datasource.config.json',
-    content: JSON.stringify({
-      name: 'dbmem',
-      connector: 'memory',
-    }),
-  },
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'my-ds.datasource.config.json',
-    content: JSON.stringify({
+    file: 'my-ds.datasource.ts',
+    content: getSourceForDataSourceClassWithConfig('MyDsDataSource', {
       name: 'MyDS',
       connector: 'memory',
     }),
   },
   {
     path: DATASOURCE_APP_PATH,
-    file: 'dbmem.datasource.ts',
-    content: DUMMY_CONTENT,
-  },
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'restdb.datasource.config.json',
-    content: JSON.stringify({
+    file: 'restdb.datasource.ts',
+    content: getSourceForDataSourceClassWithConfig('RestdbDataSource', {
       name: 'restdb',
       connector: 'rest',
     }),
   },
   {
     path: DATASOURCE_APP_PATH,
-    file: 'sqlite3.datasource.config.json',
-    content: JSON.stringify({
+    file: 'sqlite3.datasource.ts',
+    content: getSourceForDataSourceClassWithConfig('Sqlite3DataSource', {
       name: 'sqlite3',
       connector: 'loopback-connector-sqlite3',
     }),
-  },
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'sqlite3.datasource.ts',
-    content: DUMMY_CONTENT,
   },
   SourceEntries.CustomerRepository,
   SourceEntries.OrderRepository,
@@ -226,11 +243,10 @@ exports.SANDBOX_FILES = [
   SourceEntries.OrderClassTypeRepository,
   SourceEntries.AddressClassTypeRepository,
   SourceEntries.NoKeyRepository,
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'restdb.datasource.ts',
-    content: DUMMY_CONTENT,
-  },
+  SourceEntries.DoctorRepository,
+  SourceEntries.PatientRepository,
+  SourceEntries.AppointmentRepository,
+
   SourceEntries.CustomerModel,
   SourceEntries.OrderModel,
   SourceEntries.AddressModel,
@@ -242,6 +258,10 @@ exports.SANDBOX_FILES = [
   SourceEntries.CustomerClassTypeModel,
   SourceEntries.OrderClassTypeModel,
   SourceEntries.AddressClassTypeModel,
+  SourceEntries.DoctorModel,
+  SourceEntries.PatientModel,
+  SourceEntries.AppointmentModel,
+  SourceEntries.DoctorPatientController,
 ];
 
 exports.SANDBOX_FILES2 = [
@@ -255,12 +275,9 @@ exports.SANDBOX_FILES2 = [
   SourceEntries.OrderClassTypeRepository,
   SourceEntries.AddressClassTypeRepository,
   SourceEntries.NoKeyRepository,
-
-  {
-    path: DATASOURCE_APP_PATH,
-    file: 'restdb.datasource.ts',
-    content: DUMMY_CONTENT,
-  },
+  SourceEntries.DoctorRepository,
+  SourceEntries.PatientRepository,
+  SourceEntries.AppointmentRepository,
 
   SourceEntries.CustomerModel,
   SourceEntries.OrderModel,
@@ -271,6 +288,9 @@ exports.SANDBOX_FILES2 = [
   SourceEntries.OrderClassModel,
   SourceEntries.AddressClassModel,
   SourceEntries.CustomerClassTypeModel,
+  SourceEntries.DoctorModel,
+  SourceEntries.PatientModel,
+  SourceEntries.AppointmentModel,
 
   SourceEntries.IndexOfControllers,
 ];

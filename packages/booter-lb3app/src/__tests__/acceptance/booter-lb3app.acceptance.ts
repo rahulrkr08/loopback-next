@@ -236,10 +236,26 @@ describe('booter-lb3app', () => {
     it('binds datasource to the context', async () => {
       const expected = require('../../../fixtures/app-with-model').dataSources
         .memory;
-      const dsBindings = app.findByTag('datasource');
+      const dsBindings = app.findByTag('lb3-datasource');
       const key = dsBindings[0].key;
       const ds = await app.get(key);
       expect(ds).to.eql(expected);
+    });
+  });
+
+  context('binding LoopBack 3 models', () => {
+    before(async () => {
+      ({app, client} = await setupApplication({
+        lb3app: {path: '../fixtures/app-with-model'},
+      }));
+    });
+
+    it('binds model to the context', async () => {
+      const expected = require('../../../fixtures/app-with-model').models.Color;
+      const modelBindings = app.findByTag('lb3-model');
+      const key = modelBindings[0].key;
+      const model = await app.get(key);
+      expect(model).to.eql(expected);
     });
   });
 });

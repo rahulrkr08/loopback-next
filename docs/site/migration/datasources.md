@@ -1,7 +1,8 @@
 ---
 lang: en
 title: 'Migrating datasources'
-keywords: LoopBack 4.0, LoopBack 4, LoopBack 3, Migration
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, LoopBack 3, Migration
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/migration-datasources.html
 ---
@@ -17,9 +18,9 @@ datasources from LoopBack 3 to LoopBack 4 is simple.
 
 In LoopBack 3, all datasources are defined in the `server/datasources.json`
 file, whereas in LoopBack 4 each datasource is defined in its own file in the
-`src/datasources` folder. Each LoopBack 4 datasource has a configuration file
-(e.g. `mysql-ds.datasource.config.json`) and a class file (e.g.
-`mysql-ds.datasource.ts`).
+`src/datasources` folder. Each LoopBack 4 datasource is represented as a class,
+the source file (e.g. `mysql-ds.datasource.ts`) includes both the configuration
+and the class definition.
 
 ## Migration Steps
 
@@ -44,9 +45,9 @@ steps:
    ? Full path to file for persistence (server only):
    ```
 
-3. Replace the contents of the newly created
-   `src/datasources/{dataSource.dataSourceName}.datasource.config.json` file in
-   your LoopBack 4 application with the datasource configuration from
+3. Replace content of the `config` object defined in the newly created
+   `src/datasources/{dataSource.dataSourceName}.datasource.ts` file in your
+   LoopBack 4 application with the datasource configuration from
    `server/datasources.json` in your LoopBack 3 application.
 
    For example, if your `server/datasources.json` file contains:
@@ -65,19 +66,19 @@ steps:
    }
    ```
 
-   Move it to `src/datasources/mysql-ds.datasource.config.json`, so that it
-   looks as follows:
+   Move it to `src/datasources/mysql-ds.datasource.ts`, so that the `config`
+   object is defined as follows:
 
-   ```json
-   {
-     "name": "mysqlDs",
-     "connector": "mysql",
-     "host": "demo.strongloop.com",
-     "port": 3306,
-     "database": "getting_started",
-     "username": "demo",
-     "password": "L00pBack"
-   }
+   ```ts
+   const config = {
+     name: 'mysqlDs',
+     connector: 'mysql',
+     host: 'demo.strongloop.com',
+     port: 3306,
+     database: 'getting_started',
+     username: 'demo',
+     password: 'L00pBack',
+   };
    ```
 
 4. Repeat steps 1-3 for each datasource you want to migrate.

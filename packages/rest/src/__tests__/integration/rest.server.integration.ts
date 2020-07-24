@@ -4,7 +4,13 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Application} from '@loopback/core';
-import {anOpenApiSpec, anOperationSpec} from '@loopback/openapi-spec-builder';
+import {invokeMiddleware} from '@loopback/express';
+import {
+  aComponentsSpec,
+  anOpenApiSpec,
+  anOperationSpec,
+} from '@loopback/openapi-spec-builder';
+import {OpenAPIObject} from '@loopback/openapi-v3';
 import {
   createClientForHandler,
   createRestAppClient,
@@ -15,7 +21,6 @@ import {
   supertest,
 } from '@loopback/testlab';
 import fs from 'fs';
-import {IncomingMessage, ServerResponse} from 'http';
 import yaml from 'js-yaml';
 import path from 'path';
 import {is} from 'type-is';
@@ -538,9 +543,9 @@ paths:
                 type: string
     `);
     // Use json for comparison to tolerate textual diffs
-    const json = yaml.safeLoad(response.text);
+    const json = yaml.safeLoad(response.text) as OpenAPIObject;
     expect(json).to.containDeep(expected);
-    expect(json.servers[0].url).to.match('/');
+    expect(json.servers?.[0].url).to.match('/');
 
     expect(response.get('Access-Control-Allow-Origin')).to.equal('*');
     expect(response.get('Access-Control-Allow-Credentials')).to.equal('true');
@@ -787,7 +792,7 @@ paths:
     const pfxPath = path.join(FIXTURES, 'pfx.pfx');
     const serverOptions = givenHttpServerConfig({
       port: 0,
-      protocol: 'https' as 'https',
+      protocol: 'https' as const,
       pfx: fs.readFileSync(pfxPath),
       passphrase: 'loopback4',
     });
@@ -872,6 +877,185 @@ paths:
     serverUrl = server.getSync(RestBindings.URL);
     const res = await httpsGetAsync(serverUrl);
     expect(res.statusCode).to.equal(200);
+    await server.stop();
+  });
+
+  it('disables consolidator if openApiSpec.consolidate option is set to false', async () => {
+    const options = {openApiSpec: {consolidate: false}};
+    const server = await givenAServer({rest: options});
+
+    const EXPECTED_SPEC = anOpenApiSpec()
+      .withOperation(
+        'get',
+        '/',
+        anOperationSpec().withResponse(200, {
+          description: 'Example',
+          content: {
+            'application/json': {
+              schema: {
+                title: 'loopback.example',
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        }),
+      )
+      .build();
+
+    server.route('get', '/', EXPECTED_SPEC.paths['/'].get, () => {});
+
+    await server.start();
+    const spec = await server.getApiSpec();
+    expect(spec).to.eql(EXPECTED_SPEC);
+    await server.stop();
+  });
+
+  it('runs consolidator if openApiSpec.consolidate option is set to true', async () => {
+    const options = {openApiSpec: {consolidate: true}};
+    const server = await givenAServer({rest: options});
+
+    const EXPECTED_SPEC = anOpenApiSpec()
+      .withOperation(
+        'get',
+        '/',
+        anOperationSpec().withResponse(200, {
+          description: 'Example',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/loopback.example',
+              },
+            },
+          },
+        }),
+      )
+      .withComponents(
+        aComponentsSpec().withSchema('loopback.example', {
+          title: 'loopback.example',
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+        }),
+      )
+      .build();
+
+    server.route(
+      'get',
+      '/',
+      anOperationSpec()
+        .withResponse(200, {
+          description: 'Example',
+          content: {
+            'application/json': {
+              schema: {
+                title: 'loopback.example',
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        })
+        .build(),
+      () => {},
+    );
+
+    await server.start();
+    const spec = await server.getApiSpec();
+    expect(spec).to.eql(EXPECTED_SPEC);
+    await server.stop();
+  });
+
+  it('runs consolidator if openApiSpec.consolidate option is undefined', async () => {
+    const options = {openApiSpec: {consolidate: undefined}};
+    const server = await givenAServer({rest: options});
+
+    const EXPECTED_SPEC = anOpenApiSpec()
+      .withOperation(
+        'get',
+        '/',
+        anOperationSpec().withResponse(200, {
+          description: 'Example',
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/loopback.example',
+              },
+            },
+          },
+        }),
+      )
+      .withComponents(
+        aComponentsSpec().withSchema('loopback.example', {
+          title: 'loopback.example',
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+        }),
+      )
+      .build();
+
+    server.route(
+      'get',
+      '/',
+      anOperationSpec()
+        .withResponse(200, {
+          description: 'Example',
+          content: {
+            'application/json': {
+              schema: {
+                title: 'loopback.example',
+                properties: {
+                  test: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        })
+        .build(),
+      () => {},
+    );
+
+    await server.start();
+    const spec = await server.getApiSpec();
+    expect(spec).to.eql(EXPECTED_SPEC);
+    await server.stop();
+  });
+
+  it('keeps api spec components object', async () => {
+    const server = await givenAServer();
+
+    const EXPECTED_SPEC = anOpenApiSpec()
+      .withComponents(
+        aComponentsSpec().withParameter('limit', {
+          name: 'limit',
+          in: 'query',
+          description: 'Maximum number of items to return',
+          required: false,
+          schema: {
+            type: 'integer',
+          },
+        }),
+      )
+      .build();
+
+    server.api(EXPECTED_SPEC);
+
+    await server.start();
+    const spec = await server.getApiSpec();
+    expect(spec.components).to.eql(EXPECTED_SPEC.components);
     await server.stop();
   });
 
@@ -1079,7 +1263,7 @@ paths:
 
     it('controls server urls', async () => {
       const response = await createClientForHandler(server.requestHandler).get(
-        '/openapi.json',
+        '/api/openapi.json',
       );
       expect(response.body.servers).to.containEql({url: '/api'});
     });
@@ -1087,7 +1271,7 @@ paths:
     it('controls server urls even when set via server.basePath() API', async () => {
       server.basePath('/v2');
       const response = await createClientForHandler(server.requestHandler).get(
-        '/openapi.json',
+        '/v2/openapi.json',
       );
       expect(response.body.servers).to.containEql({url: '/v2'});
     });
@@ -1113,11 +1297,10 @@ paths:
     return app.getServer(RestServer);
   }
 
-  function dummyRequestHandler(handler: {
-    request: IncomingMessage;
-    response: ServerResponse;
-  }) {
-    const {response} = handler;
+  async function dummyRequestHandler(requestContext: RequestContext) {
+    const {response} = requestContext;
+    const result = await invokeMiddleware(requestContext);
+    if (result === response) return;
     response.write('Hello');
     response.end();
   }

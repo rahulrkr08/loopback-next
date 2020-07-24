@@ -21,8 +21,7 @@ const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
 const year = new Date().getFullYear();
 
-describe('lb4 copyright for monorepo', function () {
-  // eslint-disable-next-line no-invalid-this
+describe('lb4 copyright for monorepo', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
 
   beforeEach('reset sandbox', async () => {
@@ -38,7 +37,11 @@ describe('lb4 copyright for monorepo', function () {
           additionalFiles: SANDBOX_FILES,
         }),
       )
-      .withOptions({gitOnly: false, owner: 'ACME Inc.', license: 'MIT'});
+      .withOptions({
+        gitOnly: false,
+        owner: 'ACME Inc.',
+        license: 'MIT',
+      });
     assertHeader(
       ['packages/pkg1/src/application.ts', 'packages/pkg1/lib/no-header.js'],
       `// Copyright ACME Inc. ${year}. All Rights Reserved.`,

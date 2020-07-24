@@ -19,13 +19,14 @@ export class Shipment extends Entity {
   @property({
     id: true,
     generated: true,
-    useDefaltIdType: true,
+    useDefaultIdType: true,
   })
   id: MixedIdType;
 
   @property({
     type: 'number',
   })
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   shipment_id: number;
 
   @property({type: 'string'})

@@ -1,7 +1,8 @@
 ---
 lang: en
 title: 'Migrating boot scripts'
-keywords: LoopBack 4.0, LoopBack 4, LoopBack 3, Migration
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, LoopBack 3, Migration
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/migration-boot-scripts.html
 ---
@@ -263,7 +264,7 @@ export class CreateSampleObserver implements LifeCycleObserver {
 
     const sample = {title: 'a todo sample', desc: 'Something to do.'};
     // Create the sample by calling TodoRepo.create()
-    const result = await TodoRepo.create(sample);
+    const result = await todoRepo.create(sample);
     console.log('Sample created as ', result);
   }
 

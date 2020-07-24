@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+// no translation: Model
 'use strict';
 
 const modelDiscoverer = require('../../lib/model-discoverer');
@@ -439,12 +440,13 @@ module.exports = class ModelGenerator extends ArtifactGenerator {
           name: 'default',
           message: g.f(
             'Default value %s:',
-            `${chalk.yellow('[leave blank for none]')}`,
+            `${chalk.yellow(g.f('[leave blank for none]'))}`,
           ),
           when: answers => {
             return (
               ![null, 'buffer', 'any'].includes(answers.type) &&
-              !answers.generated
+              !answers.generated &&
+              answers.required !== true
             );
           },
         },

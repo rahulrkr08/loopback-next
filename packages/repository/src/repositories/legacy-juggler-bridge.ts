@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Getter} from '@loopback/context';
+import {Getter} from '@loopback/core';
 import assert from 'assert';
 import legacy from 'loopback-datasource-juggler';
 import {
@@ -11,21 +11,29 @@ import {
   Command,
   Count,
   DataObject,
+  DeepPartial,
   NamedParameters,
   Options,
   PositionalParameters,
 } from '../common-types';
 import {EntityNotFoundError} from '../errors';
-import {Entity, Model, PropertyType} from '../model';
-import {Filter, Inclusion, Where, FilterExcludingWhere} from '../query';
+import {
+  Entity,
+  Model,
+  PropertyType,
+  rejectNavigationalPropertiesInData,
+} from '../model';
+import {Filter, FilterExcludingWhere, Inclusion, Where} from '../query';
 import {
   BelongsToAccessor,
   BelongsToDefinition,
   createBelongsToAccessor,
   createHasManyRepositoryFactory,
+  createHasManyThroughRepositoryFactory,
   createHasOneRepositoryFactory,
   HasManyDefinition,
   HasManyRepositoryFactory,
+  HasManyThroughRepositoryFactory,
   HasOneDefinition,
   HasOneRepositoryFactory,
   includeRelatedModels,
@@ -109,8 +117,8 @@ export class DefaultCrudRepository<
 
   /**
    * Constructor of DefaultCrudRepository
-   * @param entityClass - Legacy entity class
-   * @param dataSource - Legacy data source
+   * @param entityClass - LoopBack 4 entity class
+   * @param dataSource - Legacy juggler data source
    */
   constructor(
     // entityClass should have type "typeof T", but that's not supported by TSC
@@ -275,6 +283,62 @@ export class DefaultCrudRepository<
       meta as HasManyDefinition,
       targetRepoGetter,
     );
+  }
+
+  /**
+   * Function to create a constrained hasManyThrough relation repository factory
+   *
+   * @example
+   * ```ts
+   * class CustomerRepository extends DefaultCrudRepository<
+   *   Customer,
+   *   typeof Customer.prototype.id,
+   *   CustomerRelations
+   * > {
+   *   public readonly cartItems: HasManyRepositoryFactory<CartItem, typeof Customer.prototype.id>;
+   *
+   *   constructor(
+   *     protected db: juggler.DataSource,
+   *     cartItemRepository: EntityCrudRepository<CartItem, typeof, CartItem.prototype.id>,
+   *     throughRepository: EntityCrudRepository<Through, typeof Through.prototype.id>,
+   *   ) {
+   *     super(Customer, db);
+   *     this.cartItems = this.createHasManyThroughRepositoryFactoryFor(
+   *       'cartItems',
+   *       cartItemRepository,
+   *     );
+   *   }
+   * }
+   * ```
+   *
+   * @param relationName - Name of the relation defined on the source model
+   * @param targetRepo - Target repository instance
+   * @param throughRepo - Through repository instance
+   */
+  protected createHasManyThroughRepositoryFactoryFor<
+    Target extends Entity,
+    TargetID,
+    Through extends Entity,
+    ThroughID,
+    ForeignKeyType
+  >(
+    relationName: string,
+    targetRepoGetter: Getter<EntityCrudRepository<Target, TargetID>>,
+    throughRepoGetter: Getter<EntityCrudRepository<Through, ThroughID>>,
+  ): HasManyThroughRepositoryFactory<
+    Target,
+    TargetID,
+    Through,
+    ForeignKeyType
+  > {
+    const meta = this.entityClass.definition.relations[relationName];
+    return createHasManyThroughRepositoryFactory<
+      Target,
+      TargetID,
+      Through,
+      ThroughID,
+      ForeignKeyType
+    >(meta as HasManyDefinition, targetRepoGetter, throughRepoGetter);
   }
 
   /**
@@ -458,6 +522,9 @@ export class DefaultCrudRepository<
     data: DataObject<T>,
     options?: Options,
   ): Promise<void> {
+    if (id === undefined) {
+      throw new Error('Invalid Argument: id cannot be undefined');
+    }
     const idProp = this.modelClass.definition.idName();
     const where = {} as Where<T>;
     (where as AnyObject)[idProp] = id;
@@ -587,27 +654,10 @@ export class DefaultCrudRepository<
     const data: AnyObject =
       typeof entity.toJSON === 'function' ? entity.toJSON() : {...entity};
     */
+    const data: DeepPartial<R> = new this.entityClass(entity);
 
-    const data: AnyObject = new this.entityClass(entity);
+    rejectNavigationalPropertiesInData(this.entityClass, data);
 
-    const def = this.entityClass.definition;
-    const props = def.properties;
-    for (const r in def.relations) {
-      const relName = def.relations[r].name;
-      if (relName in data) {
-        let invalidNameMsg = '';
-        if (relName in props) {
-          invalidNameMsg =
-            ` The error might be invoked by belongsTo relations, please make sure the relation name is not the same as` +
-            ` the property name.`;
-        }
-        throw new Error(
-          `Navigational properties are not allowed in model data (model "${this.entityClass.modelName}"` +
-            ` property "${relName}"), please remove it.` +
-            invalidNameMsg,
-        );
-      }
-    }
     return data;
   }
 

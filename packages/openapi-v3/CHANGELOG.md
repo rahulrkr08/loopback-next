@@ -3,6 +3,119 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.4.6](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.5...@loopback/openapi-v3@3.4.6) (2020-07-20)
+
+
+### Bug Fixes
+
+* **repository-json-schema:** added type 'object' to model json schema ([5c5f9ef](https://github.com/strongloop/loopback-next/commit/5c5f9efcfdea7788503d74610e7ce64f31abc7cd)), closes [#3804](https://github.com/strongloop/loopback-next/issues/3804)
+
+
+
+
+
+## [3.4.5](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.4...@loopback/openapi-v3@3.4.5) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+## [3.4.4](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.3...@loopback/openapi-v3@3.4.4) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [3.4.3](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.2...@loopback/openapi-v3@3.4.3) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+## [3.4.2](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.1...@loopback/openapi-v3@3.4.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+## [3.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.4.0...@loopback/openapi-v3@3.4.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+# [3.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.3.1...@loopback/openapi-v3@3.4.0) (2020-05-19)
+
+
+### Features
+
+* **openapi-v3:** relax `[@api](https://github.com/api)` to make `paths` optional with `{}` as the default ([ef3c415](https://github.com/strongloop/loopback-next/commit/ef3c4151efb2c88daa2b5abb37c6086b91860c92))
+
+
+
+
+
+## [3.3.1](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.3.0...@loopback/openapi-v3@3.3.1) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+# [3.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.2.1...@loopback/openapi-v3@3.3.0) (2020-04-29)
+
+
+### Features
+
+* populate x-typescript-type for openapi schema ([02a2633](https://github.com/strongloop/loopback-next/commit/02a26339e8a49b92148aa9c05179458a4bc85a70))
+
+
+
+
+
+## [3.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.2.0...@loopback/openapi-v3@3.2.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
+# [3.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.1.3...@loopback/openapi-v3@3.2.0) (2020-04-22)
+
+
+### Features
+
+* **rest:** ensure OpenAPI spec components are merged ([2efa27b](https://github.com/strongloop/loopback-next/commit/2efa27b283d86258fe705914c557536abaf2c435))
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+* **rest:** add openapi schema consolidation ([6a039ed](https://github.com/strongloop/loopback-next/commit/6a039edd4e056089bca8cf2acd4ed7ddab55d55e))
+
+
+
+
+
+## [3.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.1.2...@loopback/openapi-v3@3.1.3) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/openapi-v3
+
+
+
+
+
 ## [3.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/openapi-v3@3.1.1...@loopback/openapi-v3@3.1.2) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/openapi-v3

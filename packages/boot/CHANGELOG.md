@@ -3,6 +3,140 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.5...@loopback/boot@2.4.0) (2020-07-20)
+
+
+### Bug Fixes
+
+* **boot:** generate unique binding keys for component application booters ([0a7c406](https://github.com/strongloop/loopback-next/commit/0a7c4068fca043b676b3abdce10b4ee4c0ef9f58))
+
+
+### Features
+
+* **typeorm:** add a component for TypeORM integration ([b4e984a](https://github.com/strongloop/loopback-next/commit/b4e984a18f46e29ff540a19d6a0a4bc045d0c393))
+
+
+
+
+
+## [2.3.5](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.4...@loopback/boot@2.3.5) (2020-06-30)
+
+
+### Bug Fixes
+
+* **boot:** use unique sandbox subdirs for testing ([293d9e0](https://github.com/strongloop/loopback-next/commit/293d9e0dc537ca8a78e61bd0a84e6658dc94c7fa))
+
+
+
+
+
+## [2.3.4](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.3...@loopback/boot@2.3.4) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+### Reverts
+
+* Revert "fix(boot): make sure sandbox directories are removed after tests" ([c971347](https://github.com/strongloop/loopback-next/commit/c971347dd2b7dc2c8afcecb8562d8fa46a3dea32))
+
+
+
+
+
+## [2.3.3](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.2...@loopback/boot@2.3.3) (2020-06-11)
+
+
+### Bug Fixes
+
+* **boot:** make sure sandbox directories are removed after tests ([00d52ee](https://github.com/strongloop/loopback-next/commit/00d52eed7fc23fb8da44084bac4f9ab75f65152e))
+
+
+
+
+
+## [2.3.2](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.1...@loopback/boot@2.3.2) (2020-05-28)
+
+
+### Bug Fixes
+
+* bootmixin get binding from super.component() ([9a855ff](https://github.com/strongloop/loopback-next/commit/9a855ffb6b42c9052b1faba32530c62a06cc0b1c))
+
+
+
+
+
+## [2.3.1](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.3.0...@loopback/boot@2.3.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/boot
+
+
+
+
+
+# [2.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.2.0...@loopback/boot@2.3.0) (2020-05-19)
+
+
+### Features
+
+* **boot:** add `applicationBooter` method to `BootMixin` ([3a8a487](https://github.com/strongloop/loopback-next/commit/3a8a48700fc34d007137c591c03af813cb96db20))
+* **boot:** add a booter for model classes ([2de7d5f](https://github.com/strongloop/loopback-next/commit/2de7d5f5f3a4498eda1ca615cf2c5a472163236f))
+* **boot:** make sure core bindings are excluded from sub app boot ([a6108ce](https://github.com/strongloop/loopback-next/commit/a6108ced24e2760b21e3d6d29f0becf14ea42baf))
+* **repository:** add `model()` to RepositoryMixin ([8314612](https://github.com/strongloop/loopback-next/commit/8314612f816f0eb41d5a30f71dffa8738b84b2d6)), closes [/github.com/strongloop/loopback-next/pull/5378#discussion_r424980840](https://github.com//github.com/strongloop/loopback-next/pull/5378/issues/discussion_r424980840)
+
+
+
+
+
+# [2.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.1.2...@loopback/boot@2.2.0) (2020-05-07)
+
+
+### Features
+
+* **boot:** add helpers to create a booter for component applications ([9276237](https://github.com/strongloop/loopback-next/commit/92762378d63c104c2c43f4960ae96fc649c8d3fe))
+* **context:** add registerInterceptor helper function and app.interceptor ([c760966](https://github.com/strongloop/loopback-next/commit/c76096684771ffaf535b75b025892ccfb057bff0))
+
+
+
+
+
+## [2.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.1.1...@loopback/boot@2.1.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/boot
+
+
+
+
+
+## [2.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.1.0...@loopback/boot@2.1.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/boot
+
+
+
+
+
+# [2.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.0.4...@loopback/boot@2.1.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [2.0.4](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.0.3...@loopback/boot@2.0.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/boot
+
+
+
+
+
 ## [2.0.3](https://github.com/strongloop/loopback-next/compare/@loopback/boot@2.0.2...@loopback/boot@2.0.3) (2020-04-08)
 
 

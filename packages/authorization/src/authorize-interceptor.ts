@@ -13,8 +13,9 @@ import {
   Interceptor,
   InvocationContext,
   Next,
+  NonVoid,
   Provider,
-} from '@loopback/context';
+} from '@loopback/core';
 import {SecurityBindings, UserProfile} from '@loopback/security';
 import debugFactory from 'debug';
 import {getAuthorizationMetadata} from './decorators/authorize';
@@ -41,6 +42,7 @@ export class AuthorizationInterceptor implements Provider<Interceptor> {
     this.options = {
       defaultDecision: AuthorizationDecision.DENY,
       precedence: AuthorizationDecision.DENY,
+      defaultStatusCodeForDeny: 403,
       ...options,
     };
     debug('Authorization options', this.options);
@@ -50,7 +52,10 @@ export class AuthorizationInterceptor implements Provider<Interceptor> {
     return this.intercept.bind(this);
   }
 
-  async intercept(invocationCtx: InvocationContext, next: Next) {
+  async intercept(
+    invocationCtx: InvocationContext,
+    next: Next,
+  ): Promise<NonVoid> {
     const description = debug.enabled ? invocationCtx.description : '';
     let metadata = getAuthorizationMetadata(
       invocationCtx.target,
@@ -103,7 +108,7 @@ export class AuthorizationInterceptor implements Provider<Interceptor> {
       ) {
         debug('Access denied');
         const error = new AuthorizationError('Access denied');
-        error.statusCode = 401;
+        error.statusCode = this.options.defaultStatusCodeForDeny;
         throw error;
       }
       if (
@@ -118,7 +123,7 @@ export class AuthorizationInterceptor implements Provider<Interceptor> {
     // Handle the final decision
     if (finalDecision === AuthorizationDecision.DENY) {
       const error = new AuthorizationError('Access denied');
-      error.statusCode = 401;
+      error.statusCode = this.options.defaultStatusCodeForDeny;
       throw error;
     }
     return next();

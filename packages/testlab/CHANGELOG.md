@@ -3,6 +3,111 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.2.0...@loopback/testlab@3.2.1) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+# [3.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.8...@loopback/testlab@3.2.0) (2020-06-30)
+
+
+### Features
+
+* **testlab:** add transform option for sandbox copyFile ([f5565fb](https://github.com/strongloop/loopback-next/commit/f5565fbfce2e88f4f0accaaa620f4237dc67545c))
+
+
+
+
+
+## [3.1.8](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.7...@loopback/testlab@3.1.8) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [3.1.7](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.6...@loopback/testlab@3.1.7) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.6](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.5...@loopback/testlab@3.1.6) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.5](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.4...@loopback/testlab@3.1.5) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.4](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.3...@loopback/testlab@3.1.4) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.2...@loopback/testlab@3.1.3) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.1...@loopback/testlab@3.1.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+## [3.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.1.0...@loopback/testlab@3.1.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
+# [3.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.0.1...@loopback/testlab@3.1.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [3.0.1](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@3.0.0...@loopback/testlab@3.0.1) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/testlab
+
+
+
+
+
 # [3.0.0](https://github.com/strongloop/loopback-next/compare/@loopback/testlab@2.0.2...@loopback/testlab@3.0.0) (2020-04-08)
 
 

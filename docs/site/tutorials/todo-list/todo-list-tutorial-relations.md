@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Add Model Relations'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Tutorial
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/todo-list-tutorial-relations.html
 summary: LoopBack 4 TodoList Application Tutorial - Add TodoList Repository
@@ -44,8 +44,7 @@ Relation BelongsTo was created in src/
 
 {% include note.html content="
 We use **default** foreign key and source property names in this case.
-If you'd like to customize them, please check [Relation Metadata](
-../../HasMany-relation.md#relation-metadata) and other
+If you'd like to customize them, please check [Relation Metadata](../../HasMany-relation.md#relation-metadata) and other
 relations as well.
 " %}
 

@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Relations'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Model Relation
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Relations.html
 ---
@@ -44,6 +44,7 @@ Here are the currently supported relations:
 - [HasMany](HasMany-relation.md)
 - [BelongsTo](BelongsTo-relation.md)
 - [HasOne](HasOne-relation.md)
+- [HasManyThrough](HasManyThrough-relation.md)
 
 {% include note.html content="
 The `hasMany` relation may alternatively be implemented using the
@@ -57,8 +58,8 @@ The articles on each type of relation above will show you how to leverage the
 new relation engine to define and configure relations in your LoopBack
 application.
 
-To generate a `HasMany`, `HasOne` or `BelongsTo` relation through the CLI, see
-[Relation generator](Relation-generator.md).
+To generate a `HasMany`, `HasOne`, `BelongsTo`, or `hasManyThrough` relation
+through the CLI, see [Relation generator](Relation-generator.md).
 
 ## Limitations
 

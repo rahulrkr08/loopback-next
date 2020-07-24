@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Integrate with a geo-coding service'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Tutorial
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/todo-tutorial-geocoding-service.html
 summary:
@@ -40,7 +40,7 @@ or [Google Maps Platform](https://developers.google.com/maps/documentation/geoco
 Run `lb4 datasource` to define a new datasource connecting to Geocoder REST
 service. When prompted for a connector to use, select "REST services".
 
-```
+```sh
 $ lb4 datasource
 ? Datasource name: geocoder
 ? Select the connector for geocoder: REST services (supported by StrongLoop)
@@ -48,7 +48,6 @@ $ lb4 datasource
 ? Default options for the request:
 ? An array of operation templates:
 ? Use default CRUD mapping: No
-   create src/datasources/geocoder.datasource.config.json
    create src/datasources/geocoder.datasource.ts
  # npm will install dependencies now
     update src/datasources/index.ts
@@ -60,36 +59,41 @@ Edit the newly created datasource configuration to configure Geocoder API
 endpoints. Configuration options provided by REST Connector are described in our
 docs here: [REST connector](/doc/en/lb4/REST-connector.html).
 
-{% include code-caption.html content="/src/datasources/geocoder.datasource.config.json" %}
+{% include code-caption.html content="[/src/datasources/geocoder.datasource.ts](https://github.com/strongloop/loopback-next/blob/master/examples/todo/src/datasources/geocoder.datasource.ts)" %}
 
-```json
-{
-  "name": "geocoder",
-  "connector": "rest",
-  "options": {
-    "headers": {
-      "accept": "application/json",
-      "content-type": "application/json"
-    }
+```ts
+// (imports skipped for brevity)
+
+const config = {
+  name: 'geocoder',
+  connector: 'rest',
+  options: {
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+    },
   },
-  "operations": [
+  operations: [
     {
-      "template": {
-        "method": "GET",
-        "url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress",
-        "query": {
-          "format": "{format=json}",
-          "benchmark": "Public_AR_Current",
-          "address": "{address}"
+      template: {
+        method: 'GET',
+        url:
+          'https://geocoding.geo.census.gov/geocoder/locations/onelineaddress',
+        query: {
+          format: '{format=json}',
+          benchmark: 'Public_AR_Current',
+          address: '{address}',
         },
-        "responsePath": "$.result.addressMatches[*].coordinates"
+        responsePath: '$.result.addressMatches[*].coordinates',
       },
-      "functions": {
-        "geocode": ["address"]
-      }
-    }
-  ]
-}
+      functions: {
+        geocode: ['address'],
+      },
+    },
+  ],
+};
+
+// (definition of DataSource class skipped for brevity)
 ```
 
 ### Implement a service provider
@@ -111,7 +115,7 @@ Service Geocoder was created in src/services/
 In the `src/services/geocoder.service.ts`, we'll add a `GeoPoint` interface and
 a `geocode` function to the `Geocoder` interface as follows:
 
-{% include code-caption.html content="src/services/geocoder.service.ts" %}
+{% include code-caption.html content="[src/services/geocoder.service.ts](https://github.com/strongloop/loopback-next/blob/master/examples/todo/src/services/geocoder.service.ts)" %}
 
 ```ts
 import {inject, Provider} from '@loopback/core';
@@ -138,7 +142,7 @@ export interface Geocoder {
 
 export class GeocoderProvider implements Provider<Geocoder> {
   constructor(
-    // geocoder must match the name property in the datasource json file
+    // geocoder must match the name property in the datasource file
     @inject('datasources.geocoder')
     protected dataSource: GeocoderDataSource = new GeocoderDataSource(),
   ) {}
@@ -153,7 +157,7 @@ export class GeocoderProvider implements Provider<Geocoder> {
 
 Add two new properties to our Todo model: `remindAtAddress` and `remindAtGeo`.
 
-{% include code-caption.html content="src/models/todo.model.ts" %}
+{% include code-caption.html content="[src/models/todo.model.ts](https://github.com/strongloop/loopback-next/blob/master/examples/todo/src/models/todo.model.ts)" %}
 
 ```ts
 @model()
@@ -180,10 +184,24 @@ coordinates when a new Todo item is created.
 Import `Geocoder` interface into the `TodoController` and then modify the
 Controller constructor to receive `Geocoder` as a new dependency.
 
-{% include code-caption.html content="src/controllers/todo.controller.ts" %}
+{% include code-caption.html content="[src/controllers/todo.controller.ts](https://github.com/strongloop/loopback-next/blob/master/examples/todo/src/controllers/todo.controller.ts)" %}
 
 ```ts
 import {inject} from '@loopback/core';
+import {Filter, repository} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  HttpErrors,
+  param,
+  patch,
+  post,
+  put,
+  requestBody,
+} from '@loopback/rest';
+import {Todo} from '../models';
+import {TodoRepository} from '../repositories';
 import {Geocoder} from '../services';
 
 export class TodoController {
@@ -200,7 +218,7 @@ export class TodoController {
 Modify the `create` method to look up the address provided in `remindAtAddress`
 property and convert it to GPS coordinates stored in `remindAtGeo`.
 
-{% include code-caption.html content="src/controllers/todo.controller.ts" %}
+{% include code-caption.html content="[src/controllers/todo.controller.ts](https://github.com/strongloop/loopback-next/blob/master/examples/todo/src/controllers/todo.controller.ts)" %}
 
 ```ts
 export class TodoController {

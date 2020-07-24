@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+// no translate: Repository
 'use strict';
 const _ = require('lodash');
 const ArtifactGenerator = require('../../lib/artifact-generator');
@@ -38,7 +39,7 @@ const CLI_BASE_KEY_VALUE_REPOSITORIES = [
 const CLI_BASE_SEPARATOR = [
   {
     type: 'separator',
-    line: '----- Custom Repositories -----',
+    line: g.f('----- Custom Repositories -----'),
   },
 ];
 
@@ -46,7 +47,7 @@ const REPOSITORY_KV_TEMPLATE = 'repository-kv-template.ts.ejs';
 const REPOSITORY_CRUD_TEMPLATE = 'repository-crud-default-template.ts.ejs';
 
 const PROMPT_MESSAGE_MODEL = g.f(
-  'Select the model(s) you want to generate a repository',
+  'Select the model(s) you want to generate a repository for',
 );
 const PROMPT_MESSAGE_DATA_SOURCE = g.f('Please select the datasource');
 const PROMPT_BASE_REPOSITORY_CLASS = g.f(
@@ -242,7 +243,7 @@ module.exports = class RepositoryGenerator extends ArtifactGenerator {
       ? utils.toClassName(this.options.datasource) + 'Datasource'
       : '';
 
-    debug(`command line datasource is  ${cmdDatasourceName}`);
+    debug('command line datasource is %j', cmdDatasourceName);
 
     try {
       datasourcesList = await utils.getArtifactList(
@@ -251,18 +252,26 @@ module.exports = class RepositoryGenerator extends ArtifactGenerator {
         true,
       );
       debug(
-        `datasourcesList from ${utils.sourceRootDir}/${utils.datasourcesDir} : ${datasourcesList}`,
+        'datasourcesList from %s/%s:',
+        utils.sourceRootDir,
+        utils.datasourcesDir,
+        datasourcesList,
       );
     } catch (err) {
       return this.exit(err);
     }
 
     const availableDatasources = datasourcesList.filter(item => {
-      debug(`data source inspecting item: ${item}`);
       const result = utils.isConnectorOfType(
         VALID_CONNECTORS_FOR_REPOSITORY,
         this.artifactInfo.datasourcesDir,
         item,
+      );
+      debug(
+        'has %s connector of type %o? %s',
+        item,
+        VALID_CONNECTORS_FOR_REPOSITORY,
+        result,
       );
       return result !== false;
     });

@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2018,2019. All Rights Reserved.
+// Copyright IBM Corp. 2018,2020. All Rights Reserved.
 // Node module: @loopback/context
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -14,7 +14,6 @@ import {
   isProviderClass,
   removeNameAndKeyTags,
 } from './binding-inspector';
-import {Provider} from './provider';
 import {Constructor} from './value-promise';
 
 /**
@@ -97,8 +96,8 @@ export namespace bind {
    */
   export function provider(
     ...specs: BindingSpec[]
-  ): (target: Constructor<Provider<unknown>>) => void {
-    return (target: Constructor<Provider<unknown>>) => {
+  ): (target: Constructor<unknown>) => void {
+    return (target: Constructor<unknown>) => {
       if (!isProviderClass(target)) {
         throw new Error(`Target ${target} is not a Provider`);
       }

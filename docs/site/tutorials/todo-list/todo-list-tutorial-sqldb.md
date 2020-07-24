@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Running on relational databases'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Tutorial
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/todo-list-tutorial-sqldb.html
 summary:
@@ -77,10 +77,10 @@ export class Todo extends Entity {
 ```
 
 Check out the details for
-[auto-migrate and auto-update](https://loopback.io/doc/en/lb3/PostgreSQL-connector.html#auto-migrateauto-update-models-with-foreign-keys)
+[auto-migrate and auto-update](https://loopback.io/doc/en/lb4/PostgreSQL-connector.html#auto-migrateauto-update-models-with-foreign-keys)
 for PostgreSQL connector. For other connectors, go to the corresponding
 connector from the
-[Connectors Reference](https://loopback.io/doc/en/lb3/Connectors-reference.html)
+[Connectors Reference](https://loopback.io/doc/en/lb4/Connectors-reference.html)
 section.
 
 #### Specify the foreign key constraints in TodoListImage model

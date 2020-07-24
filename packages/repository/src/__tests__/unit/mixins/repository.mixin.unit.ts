@@ -11,10 +11,12 @@ import {
   DefaultCrudRepository,
   Entity,
   juggler,
+  Model,
   ModelDefinition,
   Repository,
   RepositoryMixin,
 } from '../../..';
+import {model, property} from '../../../decorators';
 
 describe('RepositoryMixin', () => {
   it('mixed class has .repository()', () => {
@@ -74,6 +76,23 @@ describe('RepositoryMixin', () => {
 
     expectComponentToBeBound(myApp, TestComponent);
     expectNoteRepoToBeBound(myApp);
+  });
+
+  it('binds user defined component with models', () => {
+    @model()
+    class MyModel extends Model {}
+
+    class MyModelComponent {
+      models = [MyModel];
+    }
+
+    const myApp = new AppWithRepoMixin();
+    myApp.component(MyModelComponent);
+
+    const boundModels = myApp.find('models.*').map(b => b.key);
+    expect(boundModels).to.containEql('models.MyModel');
+    const modelCtor = myApp.getSync<typeof MyModel>('models.MyModel');
+    expect(modelCtor).to.be.equal(MyModel);
   });
 
   context('migrateSchema', () => {
@@ -212,6 +231,7 @@ describe('RepositoryMixin', () => {
     expect(boundRepositories).to.containEql('repositories.NoteRepo');
     const binding = myApp.getBinding('repositories.NoteRepo');
     expect(binding.scope).to.equal(BindingScope.TRANSIENT);
+    expect(binding.tagMap).to.have.property('repository');
     const repoInstance = myApp.getSync('repositories.NoteRepo');
     expect(repoInstance).to.be.instanceOf(NoteRepo);
   }
@@ -247,7 +267,8 @@ describe('RepositoryMixin dataSource', () => {
   it('binds dataSource class using the dataSourceName property', () => {
     const myApp = new AppWithRepoMixin();
 
-    myApp.dataSource(FooDataSource);
+    const binding = myApp.dataSource(FooDataSource);
+    expect(binding.tagMap).to.have.property('datasource');
     expectDataSourceToBeBound(myApp, FooDataSource, 'foo');
   });
 
@@ -255,6 +276,15 @@ describe('RepositoryMixin dataSource', () => {
     const myApp = new AppWithRepoMixin();
     myApp.dataSource(FooDataSource, 'bar');
     expectDataSourceToBeBound(myApp, FooDataSource, 'bar');
+  });
+
+  it('binds dataSource class using options', () => {
+    const myApp = new AppWithRepoMixin();
+    const binding = myApp.dataSource(FooDataSource, {
+      name: 'bar',
+      namespace: 'my-datasources',
+    });
+    expect(binding.key).to.eql('my-datasources.bar');
   });
 
   it('binds dataSource class using Class name', () => {
@@ -283,6 +313,9 @@ describe('RepositoryMixin dataSource', () => {
     expect(app.find('datasources.*').map(d => d.key)).to.containEql(
       `datasources.${name}`,
     );
+    expect(app.findByTag('datasource').map(d => d.key)).to.containEql(
+      `datasources.${name}`,
+    );
     expect(app.getSync(`datasources.${name}`)).to.be.instanceOf(ds);
   };
 
@@ -306,4 +339,27 @@ describe('RepositoryMixin dataSource', () => {
       });
     }
   }
+});
+
+describe('RepositoryMixin model', () => {
+  it('mixes into the target class', () => {
+    const myApp = new AppWithRepoMixin();
+    expect(typeof myApp.model).to.be.eql('function');
+  });
+
+  it('binds a model class', () => {
+    const myApp = new AppWithRepoMixin();
+    const binding = myApp.model(MyModel);
+    expect(binding.key).to.eql('models.MyModel');
+    expect(binding.tagMap).to.have.property('model');
+    expect(myApp.getSync('models.MyModel')).to.eql(MyModel);
+  });
+
+  @model()
+  class MyModel {
+    @property()
+    name: string;
+  }
+
+  class AppWithRepoMixin extends RepositoryMixin(Application) {}
 });

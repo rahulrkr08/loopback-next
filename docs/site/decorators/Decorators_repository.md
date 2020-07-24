@@ -1,7 +1,8 @@
 ---
 lang: en
 title: 'Repository Decorators'
-keywords: LoopBack 4.0, LoopBack-Next
+keywords:
+  LoopBack 4.0, LoopBack, Node.js, TypeScript, OpenAPI, Decorator, Repository
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Decorators_repository.html
 ---
@@ -161,7 +162,7 @@ Syntax:
 `@hasOne(targetResolver: EntityResolver<T>, definition?: Partial<HasOneDefinition>)`
 
 One-to-one connection between models e.g. a `TodoList` model has one
-`TodoListImage` model. See [HasOne relation](../hasOne-relation.md) for more
+`TodoListImage` model. See [HasOne relation](../HasOne-relation.md) for more
 details.
 
 {% include code-caption.html content="todo-list.model.ts" %}

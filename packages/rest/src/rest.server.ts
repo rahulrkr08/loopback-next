@@ -4,19 +4,21 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {
+  Application,
   Binding,
   BindingAddress,
   BindingScope,
   Constructor,
-  Context,
   ContextObserver,
+  CoreBindings,
   createBindingFromClass,
   filterByKey,
   filterByTag,
   inject,
+  Server,
   Subscription,
-} from '@loopback/context';
-import {Application, CoreBindings, Server} from '@loopback/core';
+} from '@loopback/core';
+import {BaseMiddlewareRegistry, ExpressRequestHandler} from '@loopback/express';
 import {HttpServer, HttpServerOptions} from '@loopback/http-server';
 import {
   getControllerSpec,
@@ -27,14 +29,16 @@ import {
   OperationObject,
   ServerObject,
 } from '@loopback/openapi-v3';
-import {AssertionError} from 'assert';
+import assert, {AssertionError} from 'assert';
 import cors from 'cors';
 import debugFactory from 'debug';
 import express, {ErrorRequestHandler} from 'express';
 import {PathParams} from 'express-serve-static-core';
+import fs from 'fs';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ServerOptions} from 'https';
 import {safeDump} from 'js-yaml';
+import {cloneDeep} from 'lodash';
 import {ServeStaticOptions} from 'serve-static';
 import {writeErrorToResponse} from 'strong-error-handler';
 import {BodyParser, REQUEST_BODY_PARSER_TAG} from './body-parsers';
@@ -48,7 +52,6 @@ import {
   ControllerRoute,
   createControllerFactoryForBinding,
   createRoutesForController,
-  ExpressRequestHandler,
   ExternalExpressRoutes,
   RedirectRoute,
   RestRouterOptions,
@@ -59,16 +62,7 @@ import {
 } from './router';
 import {assignRouterSpec} from './router/router-spec';
 import {DefaultSequence, SequenceFunction, SequenceHandler} from './sequence';
-import {
-  FindRoute,
-  InvokeMethod,
-  ParseParams,
-  Reject,
-  Request,
-  RequestBodyParserOptions,
-  Response,
-  Send,
-} from './types';
+import {Request, RequestBodyParserOptions, Response} from './types';
 
 const debug = debugFactory('loopback:rest:server');
 
@@ -82,12 +76,6 @@ export interface HttpServerLike {
 }
 
 const SequenceActions = RestBindings.SequenceActions;
-
-// NOTE(bajtos) we cannot use `import cloneDeep from 'lodash/cloneDeep'
-// because it produces the following TypeScript error:
-//  Module '"(...)/node_modules/@types/lodash/cloneDeep/index"' resolves to
-//  a non-module entity and cannot be imported using this construct.
-const cloneDeep: <T>(value: T) => T = require('lodash/cloneDeep');
 
 /**
  * A REST API server for use with Loopback.
@@ -116,7 +104,8 @@ const cloneDeep: <T>(value: T) => T = require('lodash/cloneDeep');
  * const server = await app.get('servers.foo');
  * ```
  */
-export class RestServer extends Context implements Server, HttpServerLike {
+export class RestServer extends BaseMiddlewareRegistry
+  implements Server, HttpServerLike {
   /**
    * Handle incoming HTTP(S) request by invoking the corresponding
    * Controller method via the configured Sequence.
@@ -138,6 +127,7 @@ export class RestServer extends Context implements Server, HttpServerLike {
    */
 
   protected _OASEnhancer: OASEnhancerService;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public get OASEnhancer(): OASEnhancerService {
     this._setupOASEnhancerIfNeeded();
     return this._OASEnhancer;
@@ -167,7 +157,7 @@ export class RestServer extends Context implements Server, HttpServerLike {
 
   protected _httpServer: HttpServer | undefined;
 
-  protected _expressApp: express.Application;
+  protected _expressApp?: express.Application;
 
   get listening(): boolean {
     return this._httpServer ? this._httpServer.listening : false;
@@ -190,7 +180,7 @@ export class RestServer extends Context implements Server, HttpServerLike {
    * will be 'http://localhost:3000' regardless of the `basePath`.
    */
   get rootUrl(): string | undefined {
-    return this._httpServer && this._httpServer.url;
+    return this._httpServer?.url;
   }
 
   /**
@@ -256,7 +246,11 @@ export class RestServer extends Context implements Server, HttpServerLike {
 
     // Allow CORS support for all endpoints so that users
     // can test with online SwaggerUI instance
-    this._expressApp.use(cors(this.config.cors));
+    this.expressMiddleware(cors, this.config.cors, {
+      injectConfiguration: false,
+      key: 'middleware.cors',
+      group: 'cors',
+    });
 
     // Set up endpoints for OpenAPI spec/ui
     this._setupOpenApiSpecEndpoints();
@@ -301,6 +295,7 @@ export class RestServer extends Context implements Server, HttpServerLike {
    * Apply express settings.
    */
   protected _applyExpressSettings() {
+    assertExists(this._expressApp, 'this._expressApp');
     const settings = this.config.expressSettings;
     for (const key in settings) {
       this._expressApp.set(key, settings[key]);
@@ -315,50 +310,54 @@ export class RestServer extends Context implements Server, HttpServerLike {
    * to redirect to externally hosted API explorer
    */
   protected _setupOpenApiSpecEndpoints() {
+    assertExists(this._expressApp, 'this._expressApp');
     if (this.config.openApiSpec.disabled) return;
+    const router = express.Router();
     const mapping = this.config.openApiSpec.endpointMapping!;
     // Serving OpenAPI spec
     for (const p in mapping) {
-      this.addOpenApiSpecEndpoint(p, mapping[p]);
+      this.addOpenApiSpecEndpoint(p, mapping[p], router);
     }
-
     const explorerPaths = ['/swagger-ui', '/explorer'];
-    this._expressApp.get(explorerPaths, (req, res, next) =>
+    router.get(explorerPaths, (req, res, next) =>
       this._redirectToSwaggerUI(req, res, next),
     );
+    this.expressMiddleware('middleware.apiSpec.defaults', router, {
+      group: 'apiSpec',
+    });
   }
 
   /**
    * Add a new non-controller endpoint hosting a form of the OpenAPI spec.
    *
    * @param path Path at which to host the copy of the OpenAPI
-   * @param form Form that should be renedered from that path
+   * @param form Form that should be rendered from that path
    */
-  addOpenApiSpecEndpoint(path: string, form: OpenApiSpecForm) {
-    if (this._expressApp) {
-      // if the app is already started, try to hot-add it
-      // this only actually "works" mid-startup, once this._handleHttpRequest
-      // has been added to express, adding any later routes won't work
-
-      // NOTE(bajtos) Regular routes are handled through Sequence.
-      // IMO, this built-in endpoint should not run through a Sequence,
-      // because it's not part of the application API itself.
-      // E.g. if the app implements access/audit logs, I don't want
-      // this endpoint to trigger a log entry. If the server implements
-      // content-negotiation to support XML clients, I don't want the OpenAPI
-      // spec to be converted into an XML response.
-      this._expressApp.get(path, (req, res) =>
-        this._serveOpenApiSpec(req, res, form),
-      );
-    } else {
-      // if the app is not started, add the mapping to the config
-      const mapping = this.config.openApiSpec.endpointMapping!;
-      if (path in mapping) {
+  addOpenApiSpecEndpoint(
+    path: string,
+    form: OpenApiSpecForm,
+    router?: express.Router,
+  ) {
+    if (router == null) {
+      const key = `middleware.apiSpec.${path}.${form}`;
+      if (this.contains(key)) {
         throw new Error(
           `The path ${path} is already configured for OpenApi hosting`,
         );
       }
-      mapping[path] = form;
+      const newRouter = express.Router();
+      newRouter.get(path, (req, res) => this._serveOpenApiSpec(req, res, form));
+      this.expressMiddleware(
+        () => newRouter,
+        {},
+        {
+          injectConfiguration: false,
+          key: `middleware.apiSpec.${path}.${form}`,
+          group: 'apiSpec',
+        },
+      );
+    } else {
+      router.get(path, (req, res) => this._serveOpenApiSpec(req, res, form));
     }
   }
 
@@ -421,8 +420,8 @@ export class RestServer extends Context implements Server, HttpServerLike {
       }
 
       debug('Registering controller %s', controllerName);
-      if (apiSpec.components && apiSpec.components.schemas) {
-        this._httpHandler.registerApiDefinitions(apiSpec.components.schemas);
+      if (apiSpec.components) {
+        this._httpHandler.registerApiComponents(apiSpec.components);
       }
       const controllerFactory = createControllerFactoryForBinding(b.key);
       const routes = createRoutesForController(
@@ -798,14 +797,14 @@ export class RestServer extends Context implements Server, HttpServerLike {
    */
   async getApiSpec(requestContext?: RequestContext): Promise<OpenApiSpec> {
     let spec = await this.get<OpenApiSpec>(RestBindings.API_SPEC);
-    const defs = this.httpHandler.getApiDefinitions();
+    const components = this.httpHandler.getApiComponents();
 
     // Apply deep clone to prevent getApiSpec() callers from
     // accidentally modifying our internal routing data
     spec.paths = cloneDeep(this.httpHandler.describeApiPaths());
-    if (defs) {
-      spec.components = spec.components ?? {};
-      spec.components.schemas = cloneDeep(defs);
+    if (components) {
+      const defs = cloneDeep(components);
+      spec.components = {...spec.components, ...defs};
     }
 
     assignRouterSpec(spec, this._externalRoutes.routerSpec);
@@ -888,21 +887,8 @@ export class RestServer extends Context implements Server, HttpServerLike {
    */
   public handler(handlerFn: SequenceFunction) {
     class SequenceFromFunction extends DefaultSequence {
-      // NOTE(bajtos) Unfortunately, we have to duplicate the constructor
-      // in order for our DI/IoC framework to inject constructor arguments
-      constructor(
-        @inject(SequenceActions.FIND_ROUTE) protected findRoute: FindRoute,
-        @inject(SequenceActions.PARSE_PARAMS)
-        protected parseParams: ParseParams,
-        @inject(SequenceActions.INVOKE_METHOD) protected invoke: InvokeMethod,
-        @inject(SequenceActions.SEND) public send: Send,
-        @inject(SequenceActions.REJECT) public reject: Reject,
-      ) {
-        super(findRoute, parseParams, invoke, send, reject);
-      }
-
       async handle(context: RequestContext): Promise<void> {
-        await Promise.resolve(handlerFn(context, this));
+        return handlerFn(context, this);
       }
     }
 
@@ -1005,6 +991,44 @@ export class RestServer extends Context implements Server, HttpServerLike {
   ): void {
     this._externalRoutes.mountRouter(basePath, router, spec);
   }
+
+  /**
+   * Export the OpenAPI spec to the given json or yaml file
+   * @param outFile - File name for the spec. The extension of the file
+   * determines the format of the file.
+   * - `yaml` or `yml`: YAML
+   * - `json` or other: JSON
+   * If the outFile is not provided or its value is `''` or `'-'`, the spec is
+   * written to the console using the `log` function.
+   * @param log - Log function, default to `console.log`
+   */
+  async exportOpenApiSpec(outFile = '', log = console.log): Promise<void> {
+    const spec = await this.getApiSpec();
+    if (outFile === '-' || outFile === '') {
+      const json = JSON.stringify(spec, null, 2);
+      log('%s', json);
+      return;
+    }
+    const fileName = outFile.toLowerCase();
+    if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) {
+      const yaml = safeDump(spec);
+      fs.writeFileSync(outFile, yaml, 'utf-8');
+    } else {
+      const json = JSON.stringify(spec, null, 2);
+      fs.writeFileSync(outFile, json, 'utf-8');
+    }
+    log('The OpenAPI spec has been saved to %s.', outFile);
+  }
+}
+
+/**
+ * An assertion type guard for TypeScript to instruct the compiler that the
+ * given value is not `null` or `undefined.
+ * @param val - A value can be `undefined` or `null`
+ * @param name - Name of the value
+ */
+function assertExists<T>(val: T, name: string): asserts val is NonNullable<T> {
+  assert(val != null, `The value of ${name} cannot be null or undefined`);
 }
 
 /**
@@ -1066,6 +1090,12 @@ export interface OpenApiSpecOptions {
    * Set this flag to disable the endpoint for OpenAPI spec
    */
   disabled?: true;
+
+  /**
+   * Set this flag to `false` to disable OAS schema consolidation. If not set,
+   * the value defaults to `true`.
+   */
+  consolidate?: boolean;
 }
 
 export interface ApiExplorerOptions {

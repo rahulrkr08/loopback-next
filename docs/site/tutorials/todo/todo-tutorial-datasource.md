@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Add a Datasource'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Tutorial
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/todo-tutorial-datasource.html
 summary: LoopBack 4 Todo Application Tutorial - Add a Datasource
@@ -39,7 +39,6 @@ lb4 datasource
 ? window.localStorage key to use for persistence (browser only):
 ? Full path to file for persistence (server only): ./data/db.json
 
-  create src/datasources/db.datasource.config.json
   create src/datasources/db.datasource.ts
   update src/datasources/index.ts
 

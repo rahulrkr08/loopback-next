@@ -1,9 +1,9 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/rest
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BoundValue, Context, inject, Provider} from '@loopback/context';
+import {BoundValue, Context, inject, Provider} from '@loopback/core';
 import {
   Application,
   Component,
@@ -34,8 +34,6 @@ describe('RestComponent', () => {
         RestBindings.SequenceActions.FIND_ROUTE.key,
         RestBindings.SequenceActions.INVOKE_METHOD.key,
         RestBindings.SequenceActions.REJECT.key,
-        RestBindings.BIND_ELEMENT.key,
-        RestBindings.GET_FROM_CONTEXT.key,
         RestBindings.SequenceActions.PARSE_PARAMS.key,
         RestBindings.SequenceActions.SEND.key,
       ];

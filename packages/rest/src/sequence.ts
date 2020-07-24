@@ -4,7 +4,8 @@
 // License text available at https://opensource.org/licenses/MIT
 
 const debug = require('debug')('loopback:rest:sequence');
-import {inject} from '@loopback/context';
+import {inject, ValueOrPromise} from '@loopback/core';
+import {InvokeMiddleware} from '@loopback/express';
 import {RestBindings} from './keys';
 import {RequestContext} from './request-context';
 import {FindRoute, InvokeMethod, ParseParams, Reject, Send} from './types';
@@ -18,7 +19,7 @@ const SequenceActions = RestBindings.SequenceActions;
 export type SequenceFunction = (
   context: RequestContext,
   sequence: DefaultSequence,
-) => Promise<void> | void;
+) => ValueOrPromise<void>;
 
 /**
  * A sequence handler is a class implementing sequence of actions
@@ -54,6 +55,13 @@ export interface SequenceHandler {
  */
 export class DefaultSequence implements SequenceHandler {
   /**
+   * Optional invoker for registered middleware in a chain.
+   * To be injected via SequenceActions.INVOKE_MIDDLEWARE.
+   */
+  @inject(SequenceActions.INVOKE_MIDDLEWARE, {optional: true})
+  protected invokeMiddleware: InvokeMiddleware = () => false;
+
+  /**
    * Constructor: Injects findRoute, invokeMethod & logError
    * methods as promises.
    *
@@ -81,6 +89,7 @@ export class DefaultSequence implements SequenceHandler {
    * running the sequence will produce a response or an error.
    *
    * Default sequence executes these steps
+   *  - Executes middleware for CORS, OpenAPI spec endpoints
    *  - Finds the appropriate controller method, swagger spec
    *    and args for invocation
    *  - Parses HTTP request to get API argument list
@@ -95,6 +104,12 @@ export class DefaultSequence implements SequenceHandler {
   async handle(context: RequestContext): Promise<void> {
     try {
       const {request, response} = context;
+      // Invoke registered Express middleware
+      const finished = await this.invokeMiddleware(context);
+      if (finished) {
+        // The response been produced by the middleware chain
+        return;
+      }
       const route = this.findRoute(request);
       const args = await this.parseParams(request, route);
       const result = await this.invoke(route, args);

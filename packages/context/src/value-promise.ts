@@ -8,6 +8,7 @@
  * utility methods to handle values and/or promises.
  */
 
+import {v4 as uuidv4} from 'uuid';
 /**
  * A class constructor accepting arbitrary arguments.
  */
@@ -186,36 +187,63 @@ export function resolveList<T, V>(
  * @param action - A function that returns a promise or a value
  * @param finalAction - A function to be called once the action
  * is fulfilled or rejected (synchronously or asynchronously)
+ *
+ *  @typeParam T - Type for the return value
  */
 export function tryWithFinally<T>(
   action: () => ValueOrPromise<T>,
   finalAction: () => void,
 ): ValueOrPromise<T> {
+  return tryCatchFinally(action, undefined, finalAction);
+}
+
+/**
+ * Try to run an action that returns a promise or a value with error and final
+ * actions to mimic `try {} catch(err) {} finally {}` for a value or promise.
+ *
+ * @param action - A function that returns a promise or a value
+ * @param errorAction - A function to be called once the action
+ * is rejected (synchronously or asynchronously). It must either return a new
+ * value or throw an error.
+ * @param finalAction - A function to be called once the action
+ * is fulfilled or rejected (synchronously or asynchronously)
+ *
+ * @typeParam T - Type for the return value
+ */
+export function tryCatchFinally<T>(
+  action: () => ValueOrPromise<T>,
+  errorAction: (err: unknown) => T | never = err => {
+    throw err;
+  },
+  finalAction: () => void = () => {},
+): ValueOrPromise<T> {
   let result: ValueOrPromise<T>;
   try {
     result = action();
   } catch (err) {
-    finalAction();
-    throw err;
+    result = reject(err);
   }
   if (isPromiseLike(result)) {
-    // Once (promise.finally)[https://github.com/tc39/proposal-promise-finally
-    // is supported, the following can be simplifed as
-    // `result = result.finally(finalAction);`
-    result = result.then(
-      val => {
-        finalAction();
-        return val;
-      },
-      err => {
-        finalAction();
-        throw err;
-      },
-    );
-  } else {
-    finalAction();
+    return result.then(resolve, reject);
   }
-  return result;
+
+  return resolve(result);
+
+  function resolve(value: T) {
+    try {
+      return value;
+    } finally {
+      finalAction();
+    }
+  }
+
+  function reject(err: unknown): T | never {
+    try {
+      return errorAction(err);
+    } finally {
+      finalAction();
+    }
+  }
 }
 
 /**
@@ -270,3 +298,20 @@ export function transformValueOrPromise<T, V>(
     return transformer(valueOrPromise);
   }
 }
+
+/**
+ * A utility to generate uuid v4
+ *
+ * @deprecated Use [uuid](https://www.npmjs.com/package/uuid) or
+ * [hyperid](https://www.npmjs.com/package/hyperid) instead.
+ */
+export function uuid() {
+  return uuidv4();
+}
+
+/**
+ * A regular expression for testing uuid v4 PATTERN
+ * @deprecated This pattern is an internal helper used by unit-tests, we are no
+ * longer using it.
+ */
+export const UUID_PATTERN = /[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}/i;

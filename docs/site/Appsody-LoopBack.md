@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Developing and Deploying LoopBack Applications with Appsody'
-keywords: LoopBack 4.0, LoopBack 4, Appsody
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Appsody, Cloud
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Appsody-LoopBack.html
 ---
@@ -264,7 +264,6 @@ Model Todo was created in src/models/
    ? Select the connector for db: In-memory db (supported by StrongLoop)
    ? window.localStorage key to use for persistence (browser only):
    ? Full path to file for persistence (server only): ./data/db.json
-   create src/datasources/db.datasource.config.json
    create src/datasources/db.datasource.ts
    update src/datasources/index.ts
 

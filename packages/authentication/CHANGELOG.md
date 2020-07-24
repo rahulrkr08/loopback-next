@@ -3,6 +3,113 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.10](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.9...@loopback/authentication@4.2.10) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.9](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.8...@loopback/authentication@4.2.9) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.8](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.7...@loopback/authentication@4.2.8) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+* **docs:** fix broken links ([0e63a6b](https://github.com/strongloop/loopback-next/commit/0e63a6b79b3dc727b01ff4031548b3d3aeceb544))
+
+
+
+
+
+## [4.2.7](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.6...@loopback/authentication@4.2.7) (2020-06-11)
+
+
+### Bug Fixes
+
+* remove unused dependency `@loopback/metadata` ([c0b87c3](https://github.com/strongloop/loopback-next/commit/c0b87c3d49d3e4cf57a01e95c5c55267cf7b054b))
+
+
+
+
+
+## [4.2.6](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.5...@loopback/authentication@4.2.6) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.5](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.4...@loopback/authentication@4.2.5) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.4](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.3...@loopback/authentication@4.2.4) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.3](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.2...@loopback/authentication@4.2.3) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.2](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.1...@loopback/authentication@4.2.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+## [4.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.2.0...@loopback/authentication@4.2.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
+# [4.2.0](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.1.3...@loopback/authentication@4.2.0) (2020-04-22)
+
+
+### Features
+
+* migrate loopback-example-passport repo as lb4 example ([dd3c328](https://github.com/strongloop/loopback-next/commit/dd3c328a138621bb3f6ae770b4db83ba21ecc2d6))
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [4.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.1.2...@loopback/authentication@4.1.3) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/authentication
+
+
+
+
+
 ## [4.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/authentication@4.1.1...@loopback/authentication@4.1.2) (2020-04-08)
 
 

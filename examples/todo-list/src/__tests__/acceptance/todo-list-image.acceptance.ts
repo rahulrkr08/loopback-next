@@ -44,17 +44,21 @@ describe('TodoListApplication', () => {
   });
 
   it('creates image for a todoList', async () => {
-    const todoListImage = givenTodoListImage();
+    const todoListImage: Partial<TodoListImage> = givenTodoListImage();
     delete todoListImage.todoListId;
     const response = await client
       .post(`/todo-lists/${persistedTodoList.id}/image`)
       .send(todoListImage)
       .expect(200);
 
-    const expected = {...todoListImage, todoListId: persistedTodoList.id};
+    const expected = {
+      ...todoListImage,
+      todoListId: persistedTodoList.id,
+    };
     expect(response.body).to.containEql(expected);
 
     const created = await todoListImageRepo.findById(response.body.id);
+
     expect(toJSON(created)).to.deepEqual({id: response.body.id, ...expected});
   });
 
@@ -90,7 +94,7 @@ describe('TodoListApplication', () => {
     id: typeof TodoList.prototype.id,
     todoListImage?: Partial<TodoListImage>,
   ) {
-    const data = givenTodoListImage(todoListImage);
+    const data: Partial<TodoListImage> = givenTodoListImage(todoListImage);
     delete data.todoListId;
     return todoListRepo.image(id).create(data);
   }

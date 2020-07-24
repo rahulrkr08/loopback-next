@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+import {generateUniqueId} from './unique-id';
+
 export type BindingAddress<T = unknown> = string | BindingKey<T>;
 
 export class BindingKey<ValueType> {
@@ -118,5 +120,19 @@ export class BindingKey<ValueType> {
     const suffix = BindingKey.CONFIG_NAMESPACE;
     const bindingKey = key ? `${key}:${suffix}` : suffix;
     return bindingKey;
+  }
+
+  /**
+   * Generate a universally unique binding key.
+   *
+   * Please note the format of they generated key is not specified, you must
+   * not rely on any specific formatting (e.g. UUID style).
+   *
+   * @param namespace - Namespace for the binding
+   */
+  static generate<T>(namespace = ''): BindingKey<T> {
+    const prefix = namespace ? `${namespace}.` : '';
+    const name = generateUniqueId();
+    return BindingKey.create(`${prefix}${name}`);
   }
 }

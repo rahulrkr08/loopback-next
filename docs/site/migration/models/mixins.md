@@ -1,7 +1,8 @@
 ---
 lang: en
 title: 'Migrating model mixins'
-keywords: LoopBack 4.0, LoopBack 4, LoopBack 3, Migration
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, LoopBack 3, Migration
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/migration-models-mixins.html
 ---
@@ -16,7 +17,7 @@ This document will guide you in migrating custom model mixins, and custom
 method/remote method mixins in LoopBack 3 to their equivalent implementations in
 LoopBack 4.
 
-For an understanding of how models in LoopBack 3 are now architectually
+For an understanding of how models in LoopBack 3 are now architecturally
 decoupled into 3 classes (model, repository, and controller) please read
 [Migrating custom model methods](./methods.md).
 
@@ -160,7 +161,7 @@ This mixin class factory function `AddCategoryPropertyMixin` in
 {% include code-caption.html content="src/mixins/category-property-mixin.ts" %}
 
 ```ts
-import {Constructor} from '@loopback/context';
+import {Constructor} from '@loopback/core';
 import {property, Model} from '@loopback/repository';
 
 /**
@@ -169,7 +170,7 @@ import {property, Model} from '@loopback/repository';
  * @param superClass - Base Class
  * @typeParam T - Model class
  */
-export function AddCategoryPropertyMixin<T extends Constructor<Model>>(
+export function AddCategoryPropertyMixin<T extends MixinTarget<Model>>(
   superClass: T,
 ) {
   class MixedModel extends superClass {
@@ -432,7 +433,7 @@ method to any repository.
 {% include code-caption.html content="src/mixins/find-by-title-repository-mixin.ts" %}
 
 ```ts
-import {Constructor} from '@loopback/context';
+import {Constructor} from '@loopback/core';
 import {Model, CrudRepository, Where} from '@loopback/repository';
 import {FindByTitle} from './find-by-title-interface';
 
@@ -447,7 +448,7 @@ import {FindByTitle} from './find-by-title-interface';
  */
 export function FindByTitleRepositoryMixin<
   M extends Model & {title: string},
-  R extends Constructor<CrudRepository<M>>
+  R extends MixinTarget<CrudRepository<M>>
 >(superClass: R) {
   class MixedRepository extends superClass implements FindByTitle<M> {
     async findByTitle(title: string): Promise<M[]> {
@@ -523,7 +524,7 @@ method to any controller.
 {% include code-caption.html content="src/mixins/src/mixins/find-by-title-controller-mixin.ts" %}
 
 ```ts
-import {Constructor} from '@loopback/context';
+import {Constructor} from '@loopback/core';
 import {Model} from '@loopback/repository';
 import {FindByTitle} from './find-by-title-interface';
 import {param, get, getModelSchemaRef} from '@loopback/rest';
@@ -552,10 +553,12 @@ export interface FindByTitleControllerMixinOptions {
  */
 export function FindByTitleControllerMixin<
   M extends Model,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  T extends Constructor<any> = Constructor<object>
+  T extends MixinTarget<object>
 >(superClass: T, options: FindByTitleControllerMixinOptions) {
   class MixedController extends superClass implements FindByTitle<M> {
+    // Value will be provided by the subclassed controller class
+    repository: FindByTitle<M>;
+
     @get(`${options.basePath}/findByTitle/{title}`, {
       responses: {
         '200': {
@@ -587,7 +590,7 @@ mixin class factory function needs to accept some options. We defined an
 interface `FindByTitleControllerMixinOptions` to allow for this.
 
 It is also a good idea to give the injected repository (in the controller super
-class) a generic name like `this.respository` to keep things simple in the mixin
+class) a generic name like `this.repository` to keep things simple in the mixin
 class factory function.
 
 #### Generating A Controller Via The CLI

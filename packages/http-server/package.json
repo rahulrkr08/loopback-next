@@ -1,13 +1,15 @@
 {
   "name": "@loopback/http-server",
-  "version": "2.0.3",
+  "version": "2.1.10",
   "description": "A wrapper for creating HTTP/HTTPS servers",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "lb-tsc",
-    "clean": "lb-clean loopback-http-server*.tgz dist tsconfig.build.tsbuildinfo package",
+    "clean": "lb-clean loopback-http-server*.tgz dist *.tsbuildinfo package",
     "pretest": "npm run build",
     "test": "lb-mocha \"dist/__tests__/**/*.js\"",
     "verify": "npm pack && tar xf loopback-http-server*.tgz && tree package && npm run clean"
@@ -15,30 +17,27 @@
   "author": "IBM Corp.",
   "copyright.owner": "IBM Corp.",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "p-event": "^4.1.0",
     "stoppable": "^1.1.0",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^5.0.1",
-    "@loopback/core": "^2.2.1",
-    "@loopback/eslint-config": "^6.0.3",
-    "@loopback/testlab": "^3.0.0",
-    "@types/node": "^10.17.19",
+    "@loopback/build": "^6.1.1",
+    "@loopback/core": "^2.9.2",
+    "@loopback/eslint-config": "^8.0.4",
+    "@loopback/testlab": "^3.2.1",
+    "@types/node": "^10.17.28",
     "@types/stoppable": "^1.1.0"
   },
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/strongloop/loopback-next.git",

@@ -3,6 +3,108 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.10](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.9...@loopback/extension-health@0.4.10) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.9](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.8...@loopback/extension-health@0.4.9) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.8](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.7...@loopback/extension-health@0.4.8) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [0.4.7](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.6...@loopback/extension-health@0.4.7) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.6](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.5...@loopback/extension-health@0.4.6) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.5](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.4...@loopback/extension-health@0.4.5) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.4](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.3...@loopback/extension-health@0.4.4) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.3](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.2...@loopback/extension-health@0.4.3) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.2](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.1...@loopback/extension-health@0.4.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+## [0.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.4.0...@loopback/extension-health@0.4.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
+# [0.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.3.4...@loopback/extension-health@0.4.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+
+
+
+
+
+## [0.3.4](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.3.3...@loopback/extension-health@0.3.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/extension-health
+
+
+
+
+
 ## [0.3.3](https://github.com/strongloop/loopback-next/compare/@loopback/extension-health@0.3.2...@loopback/extension-health@0.3.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/extension-health

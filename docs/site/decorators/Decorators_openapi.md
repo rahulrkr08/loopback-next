@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'OpenAPI Decorators'
-keywords: LoopBack 4.0, LoopBack-Next
+keywords: LoopBack 4.0, LoopBack, Node.js, TypeScript, OpenAPI, Decorator
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Decorators_openapi.html
 ---
@@ -10,8 +10,8 @@ permalink: /doc/en/lb4/Decorators_openapi.html
 
 Route decorators are used to expose controller methods as REST API operations.
 If you are not familiar with the concept of Route or Controller, please see
-[LoopBack Route](Routes.md) and [LoopBack Controller](Controllers.md) to learn
-more about them.
+[LoopBack Route](../Routes.md) and [LoopBack Controller](../Controllers.md) to
+learn more about them.
 
 By calling a route decorator, you provide OpenAPI specification to describe the
 endpoint which the decorated method maps to. You can choose different decorators
@@ -61,7 +61,7 @@ app.controller(MyController);
 ```
 
 A more detailed explanation can be found in
-[Specifying Controller APIs](Controllers.md#specifying-controller-apis)
+[Specifying Controller APIs](../Controllers.md#specifying-controller-apis)
 
 ### Operation Decorator
 
@@ -127,7 +127,7 @@ class MyController {
 ### Parameter Decorator
 
 Syntax: see
-[API documentation](https://github.com/strongloop/loopback-next/tree/master/packages/openapi-v3/src/decorators/parameter.decorator.ts#L17-L29)
+[API documentation](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.param.html)
 
 `@param` is applied to controller method parameters to generate an OpenAPI
 parameter specification for them.
@@ -186,7 +186,7 @@ class MyController {
 ```
 
 You can find specific use cases in
-[Writing Controller methods](Controllers.md#writing-controller-methods)
+[Writing Controller methods](../Controllers.md#writing-controller-methods)
 
 _The parameter location cookie is not supported yet, see_
 _(https://github.com/strongloop/loopback-next/issues/997)_
@@ -236,7 +236,7 @@ GET /todos?filter[where][completed]=false
 ### RequestBody Decorator
 
 Syntax: see
-[API documentation](https://github.com/strongloop/loopback-next/tree/master/packages/openapi-v3/src/decorators/request-body.decorator.ts#L20-L79)
+[API documentation](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.requestbody.html)
 
 `@requestBody()` is applied to a controller method parameter to generate OpenAPI
 requestBody specification for it.
@@ -277,7 +277,7 @@ class User {
 ```
 
 _To learn more about decorating models and the corresponding OpenAPI schema, see
-[model decorators](Model.md#model-decorator)._
+[model decorators](../Model.md#model-decorator)._
 
 The model decorators allow type information of the model to be visible to the
 spec generator so that `@requestBody` can be used on the parameter:
@@ -357,14 +357,28 @@ class MyController {
 }
 ```
 
+#### @requestBody.array
+
+Syntax: see
+[API documentation](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.requestbody.array.html)
+
+`@requestBody.array` marks the request body to accept arrays. It is a
+lightweight wrapper around `@requestBody` and accepts the same parameters.
+
+```ts
+class MyController {
+  @post('/Users')
+  async addUsers(@requestBody.array() users: User[]) {}
+}
+```
+
 #### @requestBody.file
 
 `@requestBody.file` marks a request body for `multipart/form-data` based file
 upload. For example,
 
 ```ts
-import {post, requestBody} from '@loopback/openapi-v3';
-import {Request} from '@loopback/rest';
+import {post, Request, requestBody} from '@loopback/rest';
 class MyController {
   @post('/pictures')
   upload(
@@ -389,7 +403,7 @@ example,
 
 ```ts
 import {model, property} from '@loopback/repository';
-import {requestBody, post, get} from '@loopback/openapi-v3';
+import {requestBody, post, get} from '@loopback/rest';
 
 @model()
 class MyModel {
@@ -423,6 +437,9 @@ export class MyController {
 ```
 
 The `x-ts-type` can be used for array and object properties too:
+
+{% include note.html content="Arrays should be defined with
+[`@requestBody.array`](#@requestBody.array) instead." %}
 
 ```ts
 const schemaWithArrayOfMyModel = {
@@ -548,11 +565,11 @@ use verbose JSON.
 
 ## Shortcuts for the OpenAPI Spec (OAS) Objects
 
-All of the above are direct exports of `@loopback/openapi-v3`, but they are also
+All of the above are direct exports of `@loopback/rest`, but they are also
 available under the `oas` namespace:
 
 ```ts
-import {oas} from '@loopback/openapi-v3';
+import {oas} from '@loopback/rest';
 
 @oas.api({})
 class MyController {
@@ -605,7 +622,7 @@ class MyOtherController {
 
 ### @oas.response
 
-[API document](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.oas.response.html),
+[API document](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.oas.html#oas-variable),
 [OpenAPI Response Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#response-object)
 
 This decorator lets you easily add response specifications using `Models` from
@@ -782,8 +799,7 @@ class MyController {
 file download. For example:
 
 ```ts
-import {oas, get, param} from '@loopback/openapi-v3';
-import {RestBindings, Response} from '@loopback/rest';
+import {get, oas, param, RestBindings, Response} from '@loopback/rest';
 
 class MyController {
   @get('/files/{filename}')
@@ -806,7 +822,7 @@ valid `OperationObject`.
 
 ### @oas.tags
 
-[API document](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.tags.html),
+[API document](https://loopback.io/doc/en/lb4/apidocs.openapi-v3.oas.html#oas-variable),
 [OpenAPI Operation Specification](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#operation-object)
 
 This decorator can be applied to a controller class and to controller class

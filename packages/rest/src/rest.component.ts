@@ -8,7 +8,7 @@ import {
   Constructor,
   createBindingFromClass,
   inject,
-} from '@loopback/context';
+} from '@loopback/core';
 import {
   Application,
   Component,
@@ -16,6 +16,7 @@ import {
   ProviderMap,
   Server,
 } from '@loopback/core';
+import {InvokeMiddlewareProvider} from '@loopback/express';
 import {createEmptyApiSpec} from '@loopback/openapi-v3';
 import {
   JsonBodyParser,
@@ -27,9 +28,7 @@ import {
 import {RawBodyParser} from './body-parsers/body-parser.raw';
 import {RestBindings} from './keys';
 import {
-  BindElementProvider,
   FindRouteProvider,
-  GetFromContextProvider,
   InvokeMethodProvider,
   LogErrorProvider,
   ParseParamsProvider,
@@ -42,17 +41,18 @@ import {
   RestServerConfig,
 } from './rest.server';
 import {DefaultSequence} from './sequence';
+import {ConsolidationEnhancer} from './spec-enhancers/consolidate.spec-enhancer';
 import {InfoSpecEnhancer} from './spec-enhancers/info.spec-enhancer';
 import {AjvFactoryProvider} from './validation/ajv-factory.provider';
 
 export class RestComponent implements Component {
   providers: ProviderMap = {
     [RestBindings.SequenceActions.LOG_ERROR.key]: LogErrorProvider,
+    [RestBindings.SequenceActions.INVOKE_MIDDLEWARE
+      .key]: InvokeMiddlewareProvider,
     [RestBindings.SequenceActions.FIND_ROUTE.key]: FindRouteProvider,
     [RestBindings.SequenceActions.INVOKE_METHOD.key]: InvokeMethodProvider,
     [RestBindings.SequenceActions.REJECT.key]: RejectProvider,
-    [RestBindings.BIND_ELEMENT.key]: BindElementProvider,
-    [RestBindings.GET_FROM_CONTEXT.key]: GetFromContextProvider,
     [RestBindings.SequenceActions.PARSE_PARAMS.key]: ParseParamsProvider,
     [RestBindings.SequenceActions.SEND.key]: SendProvider,
     [RestBindings.AJV_FACTORY.key]: AjvFactoryProvider,
@@ -60,7 +60,7 @@ export class RestComponent implements Component {
   /**
    * Add built-in body parsers
    */
-  bindings = [
+  bindings: Binding[] = [
     // FIXME(rfeng): We now register request body parsers in TRANSIENT scope
     // so that they can be bound at application or server level
     Binding.bind(RestBindings.REQUEST_BODY_PARSER).toClass(RequestBodyParser),
@@ -85,6 +85,7 @@ export class RestComponent implements Component {
       RestBindings.REQUEST_BODY_PARSER_STREAM,
     ),
     createBindingFromClass(InfoSpecEnhancer),
+    createBindingFromClass(ConsolidationEnhancer),
   ];
   servers: {
     [name: string]: Constructor<Server>;

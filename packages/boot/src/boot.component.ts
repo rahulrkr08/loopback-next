@@ -3,8 +3,13 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BindingScope, inject} from '@loopback/context';
-import {Application, Component, CoreBindings} from '@loopback/core';
+import {
+  Application,
+  BindingScope,
+  Component,
+  CoreBindings,
+  inject,
+} from '@loopback/core';
 import {
   ApplicationMetadataBooter,
   ControllerBooter,
@@ -12,6 +17,7 @@ import {
   InterceptorProviderBooter,
   LifeCycleObserverBooter,
   ModelApiBooter,
+  ModelBooter,
   RepositoryBooter,
   ServiceBooter,
 } from './booters';
@@ -35,6 +41,7 @@ export class BootComponent implements Component {
     LifeCycleObserverBooter,
     InterceptorProviderBooter,
     ModelApiBooter,
+    ModelBooter,
   ];
 
   /**

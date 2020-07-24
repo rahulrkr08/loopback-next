@@ -6,12 +6,14 @@
 import {expect} from '@loopback/testlab';
 import {
   BindingAddress,
+  BindingScope,
   Context,
   Getter,
   inject,
   Injection,
   instantiateClass,
   invokeMethod,
+  Provider,
   ResolutionSession,
 } from '../..';
 
@@ -51,14 +53,14 @@ describe('constructor injection', () => {
   });
 
   it('can report error for missing binding key', () => {
-    class TestClass {
-      constructor(@inject('', {x: 'bar'}) public fooBar: string) {}
-    }
-
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      instantiateClass(TestClass, ctx);
-    }).to.throw(/Cannot resolve injected arguments/);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      class TestClass {
+        constructor(@inject('', {x: 'bar'}) public fooBar: string) {}
+      }
+    }).to.throw(
+      /A non-empty binding selector or resolve function is required for @inject/,
+    );
   });
 
   it('allows optional constructor injection', () => {
@@ -378,15 +380,15 @@ describe('property injection', () => {
   });
 
   it('can report error for missing binding key', () => {
-    class TestClass {
-      @inject('', {x: 'bar'})
-      public fooBar: string;
-    }
-
     expect(() => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      instantiateClass(TestClass, ctx);
-    }).to.throw(/Cannot resolve injected property/);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      class TestClass {
+        @inject('', {x: 'bar'})
+        public fooBar: string;
+      }
+    }).to.throw(
+      /A non-empty binding selector or resolve function is required for @inject/,
+    );
   });
 
   it('resolves injected properties with custom resolve function', () => {
@@ -734,4 +736,92 @@ describe('async method injection', () => {
     expect(t).to.eql('hello FOO');
     expect(inst.bar).to.eql('FOO');
   });
+});
+
+describe('concurrent resolutions', () => {
+  let asyncCount = 0;
+  let syncCount = 0;
+
+  beforeEach(() => {
+    asyncCount = 0;
+    syncCount = 0;
+  });
+
+  it('returns the same value for concurrent resolutions of the same binding - CONTEXT', async () => {
+    const ctx = new Context('request');
+
+    ctx
+      .bind('asyncValue')
+      .toProvider(AsyncValueProvider)
+      .inScope(BindingScope.CONTEXT);
+    ctx
+      .bind('syncValue')
+      .toProvider(SyncValueProvider)
+      .inScope(BindingScope.CONTEXT);
+    ctx.bind('AsyncValueUser').toClass(AsyncValueUser);
+    const user: AsyncValueUser = await ctx.get('AsyncValueUser');
+    expect(user.asyncValue1).to.eql('async value: 0');
+    expect(user.asyncValue2).to.eql('async value: 0');
+    expect(user.syncValue1).to.eql('sync value: 0');
+    expect(user.syncValue2).to.eql('sync value: 0');
+  });
+
+  it('returns the same value for concurrent resolutions of the same binding -  SINGLETON', async () => {
+    const ctx = new Context('request');
+
+    ctx
+      .bind('asyncValue')
+      .toProvider(AsyncValueProvider)
+      .inScope(BindingScope.SINGLETON);
+    ctx
+      .bind('syncValue')
+      .toProvider(SyncValueProvider)
+      .inScope(BindingScope.SINGLETON);
+    ctx.bind('AsyncValueUser').toClass(AsyncValueUser);
+    const user: AsyncValueUser = await ctx.get('AsyncValueUser');
+    expect(user.asyncValue1).to.eql('async value: 0');
+    expect(user.asyncValue2).to.eql('async value: 0');
+    expect(user.syncValue1).to.eql('sync value: 0');
+    expect(user.syncValue2).to.eql('sync value: 0');
+  });
+
+  it('returns new values for concurrent resolutions of the same binding -  TRANSIENT', async () => {
+    const ctx = new Context('request');
+
+    ctx
+      .bind('asyncValue')
+      .toProvider(AsyncValueProvider)
+      .inScope(BindingScope.TRANSIENT);
+    ctx
+      .bind('syncValue')
+      .toProvider(SyncValueProvider)
+      .inScope(BindingScope.TRANSIENT);
+    ctx.bind('AsyncValueUser').toClass(AsyncValueUser);
+    const user: AsyncValueUser = await ctx.get('AsyncValueUser');
+    expect(user.asyncValue1).to.eql('async value: 0');
+    expect(user.asyncValue2).to.eql('async value: 1');
+    expect(user.syncValue1).to.eql('sync value: 0');
+    expect(user.syncValue2).to.eql('sync value: 1');
+  });
+
+  class AsyncValueProvider implements Provider<string> {
+    public value() {
+      return Promise.resolve(`async value: ${asyncCount++}`);
+    }
+  }
+
+  class SyncValueProvider implements Provider<string> {
+    public value() {
+      return `sync value: ${syncCount++}`;
+    }
+  }
+
+  class AsyncValueUser {
+    constructor(
+      @inject('asyncValue') readonly asyncValue1: string,
+      @inject('asyncValue') readonly asyncValue2: string,
+      @inject('syncValue') readonly syncValue1: string,
+      @inject('syncValue') readonly syncValue2: string,
+    ) {}
+  }
 });

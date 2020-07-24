@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/example-context
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -29,6 +29,13 @@ if (require.main === module) {
 
   main().catch(err => {
     console.error(err);
+    process.exit(1);
+  });
+}
+
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Fails to run examples.', err);
     process.exit(1);
   });
 }

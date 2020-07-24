@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'DataSources'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/DataSources.html
 ---
@@ -20,27 +20,29 @@ It is recommended to use the [`lb4 datasource` command](DataSource-generator.md)
 provided by the CLI to generate a DataSource. The CLI will prompt for all
 necessary connector information and create the following files:
 
-- `${dataSource.dataSourceName}.datasource.config.json` containing the connector
-  configuration
 - `${dataSource.dataSourceName}.datasource.ts` containing a class extending
   `juggler.DataSource`. This class can be used to override the default
-  DataSource behaviour programaticaly. Note: The connector configuration stored
-  in the `.json` file is injected into this class using
-  [Dependency Injection](Dependency-injection.md).
+  DataSource behavior programmatically. Note: The connector configuration is
+  available in a static property `defaultConfig` and can be injected into the
+  class constructor using [Dependency Injection](Dependency-injection.md).
 
-Both the above files are generated in `src/datasources/` directory by the CLI.
-It will also update `src/datasources/index.ts` to export the new DataSource
-class.
+The above file is generated in `src/datasources/` directory by the CLI. CLI will
+also update `src/datasources/index.ts` to export the new DataSource class.
 
 Example DataSource Class:
 
 ```ts
 import {inject} from '@loopback/core';
 import {juggler} from '@loopback/repository';
-import config from './db.datasource.config.json';
+
+const config = {
+  name: 'db',
+  connector: 'memory',
+};
 
 export class DbDataSource extends juggler.DataSource {
   static dataSourceName = 'db';
+  static readonly defaultConfig = config;
 
   constructor(
     @inject('datasources.config.db', {optional: true})
@@ -50,3 +52,32 @@ export class DbDataSource extends juggler.DataSource {
   }
 }
 ```
+
+### Creating a DataSource at Runtime
+
+A datasource can be created at runtime by creating an instance of
+`juggler.DataSource`. It requires a name for the datasource, the connector, and
+the connection details.
+
+```ts
+import {juggler} from '@loopback/repository';
+const dsName = 'bookstore-ds';
+const bookDs = new juggler.DataSource({
+  name: dsName,
+  connector: require('loopback-connector-mongodb'),
+  url: 'mongodb://sysop:moon@localhost',
+});
+await bookDs.connect();
+app.dataSource(bookDs, dsName);
+```
+
+For details about datasource options, refer to the [DataSource
+documentation])(https://apidocs.strongloop.com/loopback-datasource-juggler/#datasource)
+.
+
+Attach the newly created datasource to the app by calling `app.dataSource()`.
+
+{% include note.html content="
+The `app.datasource()` method is available only on application classes
+with `RepositoryMixin` applied.
+" %}

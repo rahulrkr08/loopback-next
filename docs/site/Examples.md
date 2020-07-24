@@ -1,7 +1,7 @@
 ---
 lang: en
 title: Example Projects
-keywords: LoopBack 4.0
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Examples
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Examples.html
 ---
@@ -53,6 +53,17 @@ LoopBack 4 comes with the following example projects.
   An example demonstrating how to implement a Role Based Access Control (RBAC)
   system.
 
+### Authentication and authorization related examples
+
+- **[passport-login](https://github.com/strongloop/loopback-next/tree/master/examples/passport-login)**:
+  An example implmenting authentication in a LoopBack application using
+  [Passport](https://github.com/jaredhanson/passport) modules.
+
+- **[todo-jwt](https://github.com/strongloop/loopback-next/tree/master/examples/todo-jwt)**:
+  A modified
+  [Todo example](https://github.com/strongloop/loopback-next/tree/master/examples/todo)
+  with JWT authentication.
+
 ### Other examples
 
 - **[context](https://github.com/strongloop/loopback-next/tree/master/examples/context)**:
@@ -66,6 +77,10 @@ LoopBack 4 comes with the following example projects.
 - **[greeting-app](https://github.com/strongloop/loopback-next/tree/master/examples/greeting-app)**:
   An example showing how to compose an application from component and
   controllers, interceptors, and observers.
+
+- **[multi-tenancy](https://github.com/strongloop/loopback-next/tree/master/examples/multi-tenancy)**:
+  An example application to demonstrate how to implement multi-tenancy with
+  LoopBack 4.
 
 - **[rpc-server](https://github.com/strongloop/loopback-next/tree/master/examples/rpc-server)**:
   An example showing how to implement a made-up RPC protocol.

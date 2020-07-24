@@ -10,9 +10,9 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import delay from 'delay';
+import {once} from 'events';
 import http from 'http';
 import {AddressInfo} from 'net';
-import pEvent from 'p-event';
 import path from 'path';
 import rimrafCb from 'rimraf';
 import tunnel, {ProxyOptions as TunnelProxyOptions} from 'tunnel';
@@ -44,9 +44,8 @@ describe('HttpCachingProxy', () => {
     expect(proxy.url).to.match(/not-running/);
   });
 
-  it('proxies HTTP requests', async function () {
+  it('proxies HTTP requests', async function (this: Mocha.Context) {
     // Increase the timeout to accommodate slow network connections
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
 
     await givenRunningProxy();
@@ -58,9 +57,8 @@ describe('HttpCachingProxy', () => {
     expect(result.body).to.containEql('example');
   });
 
-  it('reports error for HTTP requests', async function () {
+  it('reports error for HTTP requests', async function (this: Mocha.Context) {
     // Increase the timeout to accommodate slow network connections
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
 
     await givenRunningProxy({logError: false});
@@ -86,9 +84,8 @@ describe('HttpCachingProxy', () => {
     ).to.be.rejectedWith(/502 - "Error: timeout of 1ms exceeded/);
   });
 
-  it('proxies HTTPs requests (no tunneling)', async function () {
+  it('proxies HTTPs requests (no tunneling)', async function (this: Mocha.Context) {
     // Increase the timeout to accommodate slow network connections
-    // eslint-disable-next-line no-invalid-this
     this.timeout(30000);
 
     await givenRunningProxy();
@@ -188,9 +185,8 @@ describe('HttpCachingProxy', () => {
     expect(result2.body).to.equal(2);
   });
 
-  it('handles the case where backend service is not running', async function () {
+  it('handles the case where backend service is not running', async function (this: Mocha.Context) {
     // This test takes a bit longer to finish on windows.
-    // eslint-disable-next-line no-invalid-this
     this.timeout(3000);
     await givenRunningProxy({logError: false});
 
@@ -301,7 +297,7 @@ describe('HttpCachingProxy', () => {
       }
     });
     stubServer.listen(0);
-    await pEvent(stubServer, 'listening');
+    await once(stubServer, 'listening');
     const address = stubServer.address() as AddressInfo;
     stubServerUrl = `http://127.0.0.1:${address.port}`;
   }
@@ -309,7 +305,7 @@ describe('HttpCachingProxy', () => {
   async function stopStubServer() {
     if (!stubServer) return;
     stubServer.close();
-    await pEvent(stubServer, 'close');
+    await once(stubServer, 'close');
     stubServer = undefined;
   }
 

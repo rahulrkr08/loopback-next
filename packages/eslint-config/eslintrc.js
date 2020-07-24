@@ -93,6 +93,9 @@ module.exports = {
     '@typescript-eslint/no-empty-interface': 'off',
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
 
+    // Disable warning  Missing return type on function for now
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+
     /**
      * The following rules are enforced to support legacy tslint configuration
      */
@@ -108,7 +111,8 @@ module.exports = {
     'no-new-wrappers': 'error', // tslint:no-construct
     // 'no-redeclare': 'error', // tslint:no-duplicate-variable
 
-    'no-invalid-this': 'error',
+    'no-invalid-this': 'off',
+    '@typescript-eslint/no-invalid-this': ['error'],
     '@typescript-eslint/no-misused-new': 'error',
     'no-shadow': 'error', // tslint:no-shadowed-variable
     'no-throw-literal': 'error', // tslint:no-string-throw
@@ -126,7 +130,7 @@ module.exports = {
          *
          * @example
          * ```ts
-         * import {inject} from '@loopback/context';
+         * import {inject} from '@loopback/core';
          * class MyController {
          *   constructor(@inject('foo') foo: string) {}
          * }
@@ -154,6 +158,106 @@ module.exports = {
     '@typescript-eslint/prefer-nullish-coalescing': 'error',
     '@typescript-eslint/no-extra-non-null-assertion': 'error',
     '@typescript-eslint/return-await': 'error',
+
+    // https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/docs/rules/naming-convention.md
+    camelcase: 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'default',
+        format: ['camelCase'],
+      },
+
+      {
+        selector: 'variable',
+        format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+      },
+
+      {
+        selector: 'variable',
+        format: null,
+        filter: {
+          regex: '^_$',
+          match: true,
+        },
+      },
+
+      // For mixin functions
+      {
+        selector: 'function',
+        format: ['PascalCase'],
+        filter: {
+          regex: 'Mixin$',
+          match: true,
+        },
+      },
+
+      {
+        selector: 'parameter',
+        format: ['camelCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      // For members such as `Content-Type`
+      {
+        selector: 'memberLike',
+        format: null,
+        filter: {
+          // you can expand this regex as you find more cases that require
+          // quoting that you want to allow
+          regex: '[- ]',
+          match: true,
+        },
+      },
+
+      // For enum members
+      {
+        selector: 'enumMember',
+        format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      // For properties
+      {
+        selector: 'property',
+        format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      {
+        selector: 'method',
+        format: ['camelCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      // For static members
+      {
+        selector: 'memberLike',
+        modifiers: ['static'],
+        format: ['camelCase', 'UPPER_CASE'],
+      },
+
+      // For private members
+      {
+        selector: 'memberLike',
+        modifiers: ['private'],
+        format: ['camelCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      // For protected members
+      {
+        selector: 'memberLike',
+        modifiers: ['protected'],
+        format: ['camelCase'],
+        leadingUnderscore: 'allow',
+      },
+
+      {
+        selector: 'typeLike',
+        format: ['PascalCase'],
+      },
+    ],
   },
 
   overrides: [

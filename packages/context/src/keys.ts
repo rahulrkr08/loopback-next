@@ -12,6 +12,7 @@ import {BindingKey} from './binding-key';
 export namespace ContextTags {
   export const CLASS = 'class';
   export const PROVIDER = 'provider';
+  export const DYNAMIC_VALUE_PROVIDER = 'dynamicValueProvider';
 
   /**
    * Type of the artifact
@@ -57,6 +58,11 @@ export namespace ContextTags {
  * Default namespace for global interceptors
  */
 export const GLOBAL_INTERCEPTOR_NAMESPACE = 'globalInterceptors';
+
+/**
+ * Default namespace for local interceptors
+ */
+export const LOCAL_INTERCEPTOR_NAMESPACE = 'interceptors';
 
 /**
  * Namespace for context bindings

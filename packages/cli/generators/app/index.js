@@ -49,6 +49,11 @@ module.exports = class AppGenerator extends ProjectGenerator {
       description: g.f('Include service-proxy imports and ServiceMixin'),
     });
 
+    this.option('apiconnect', {
+      type: Boolean,
+      description: g.f('Include ApiConnectComponent'),
+    });
+
     return super._setupGenerator();
   }
 
@@ -80,7 +85,7 @@ module.exports = class AppGenerator extends ProjectGenerator {
   }
 
   promptApplication() {
-    if (this.shouldExit()) return false;
+    if (this.shouldExit()) return;
     const prompts = [
       {
         type: 'input',
@@ -105,8 +110,13 @@ module.exports = class AppGenerator extends ProjectGenerator {
     return super.promptOptions();
   }
 
+  promptYarnInstall() {
+    if (this.shouldExit()) return;
+    return super.promptYarnInstall();
+  }
+
   buildAppClassMixins() {
-    if (this.shouldExit()) return false;
+    if (this.shouldExit()) return;
     const {repositories, services} = this.projectInfo || {};
     if (!repositories && !services) return;
 
@@ -152,7 +162,7 @@ module.exports = class AppGenerator extends ProjectGenerator {
     this.log(g.f('Next steps:'));
     this.log();
     this.log('$ cd ' + this.projectInfo.outdir);
-    this.log('$ npm start');
+    this.log(`$ ${this.options.packageManager || 'npm'} start`);
     this.log();
   }
 };

@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Interceptors'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Interceptor
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Interceptors.html
 ---
@@ -34,7 +34,7 @@ Controller methods decorated with `@intercept` are invoked with applied
 interceptors for corresponding routes upon API requests.
 
 ```ts
-import {intercept} from '@loopback/context';
+import {intercept} from '@loopback/core';
 
 @intercept(log) // `log` is an interceptor function
 export class OrderController {
@@ -53,10 +53,11 @@ method level interceptors. For example, the following code registers a global
 `caching-interceptor` for all methods.
 
 ```ts
-app
-  .bind('caching-interceptor')
-  .toProvider(CachingInterceptorProvider)
-  .apply(asGlobalInterceptor('caching'));
+app.interceptor(CachingInterceptorProvider, {
+  global: true,
+  group: 'caching',
+  key: 'caching-interceptor',
+});
 ```
 
 Global interceptors are also executed for route handler functions without a
@@ -73,7 +74,7 @@ services and would like to allow repository or service methods to be
 intercepted.
 
 ```ts
-import {createProxyWithInterceptors} from '@loopback/context';
+import {createProxyWithInterceptors} from '@loopback/core';
 
 const proxy = createProxyWithInterceptors(controllerInstance, ctx);
 const msg = await proxy.greet('John');
@@ -147,7 +148,7 @@ To explicitly invoke a method with interceptors, use `invokeMethod` from
 `RestServer` for controller methods.
 
 ```ts
-import {Context, invokeMethod} from '@loopback/context';
+import {Context, invokeMethod} from '@loopback/core';
 
 const ctx: Context = new Context();
 
@@ -332,13 +333,13 @@ class MyControllerWithClassLevelInterceptors {
 ### Global interceptors
 
 Global interceptors are discovered from the `InvocationContext`. They are
-registered as bindings with `interceptor` tag. For example,
+registered as bindings with `globalInterceptor` tag. For example,
 
 ```ts
-import {asGlobalInterceptor} from '@loopback/context';
+import {asGlobalInterceptor} from '@loopback/core';
 
 app
-  .bind('interceptors.MetricsInterceptor')
+  .bind('globalInterceptors.MetricsInterceptor')
   .toProvider(MetricsInterceptorProvider)
   .apply(asGlobalInterceptor('metrics'));
 ```
@@ -351,6 +352,12 @@ templates that mark bindings of global interceptors. It takes an optional
   the `metrics` group
 - - `asGlobalInterceptor()`: mark a binding as a global interceptor in the
     default group
+
+The registration can be further simplified as:
+
+```ts
+app.interceptor(MetricsInterceptorProvider, {global: true, group: 'metrics'});
+```
 
 ### Order of invocation for interceptors
 
@@ -435,10 +442,11 @@ Global interceptors can be sorted as follows:
    example:
 
    ```ts
-   app
-     .bind('globalInterceptors.authInterceptor')
-     .to(authInterceptor)
-     .apply(asGlobalInterceptor('auth'));
+   app.interceptor(authInterceptor, {
+     name: 'authInterceptor',
+     global: true,
+     group: 'auth',
+   });
    ```
 
    If the group tag does not exist, the value is default to `''`.
@@ -732,3 +740,72 @@ Here are some example interceptor functions:
      return result;
    };
    ```
+
+### Compose multiple interceptors
+
+Sometimes we want to apply more than one interceptors together as a whole. It
+can be done by `composeInterceptors`:
+
+```ts
+import {composeInterceptors} from '@loopback/core';
+
+const interceptor = composeInterceptors(
+  interceptorFn1,
+  'interceptors.my-interceptor',
+  interceptorFn2,
+);
+```
+
+The code above composes `interceptorFn1` and `interceptorFn2` functions with
+`interceptors.my-interceptor` binding key into a single interceptor.
+
+### Build your own interceptor chains
+
+Behind the scenes, interceptors are chained one by one by their orders into an
+invocation chain.
+[GenericInvocationChain](https://loopback.io/doc/en/lb4/apidocs.context.genericinterceptorchain.html)
+is the base class that can be extended to create your own flavor of interceptors
+and chains. For example,
+
+```ts
+import {GenericInvocationChain, GenericInterceptor} from '@loopback/core';
+import {RequestContext} from '@loopback/rest';
+
+export interface RequestInterceptor
+  extends GenericInterceptor<RequestContext> {}
+
+export class RequestInterceptorChain extends GenericInterceptorChain<
+  RequestContext
+> {}
+```
+
+The interceptor chain can be instantiated in two styles:
+
+- with a list of interceptor functions or binding keys
+- with a binding filter function to discover matching interceptors within the
+  context
+
+Once the chain is built, it can be invoked using `invokeInterceptors`:
+
+```ts
+const chain = new RequestInterceptorChain(requestCtx, interceptors);
+await chain.invokeInterceptors();
+```
+
+It's also possible to pass in a final handler:
+
+```ts
+import {Next} from '@loopback/core';
+const finalHandler: Next = async () => {
+  // return ...;
+};
+await chain.invokeInterceptors(finalHandler);
+```
+
+The invocation chain itself can be used a single interceptor so that it be
+registered as one handler to another chain.
+
+```ts
+const chain = new RequestInterceptorChain(requestCtx, interceptors);
+const interceptor = chain.asInterceptor();
+```

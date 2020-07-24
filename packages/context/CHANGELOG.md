@@ -3,6 +3,151 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.9.3](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.9.2...@loopback/context@3.9.3) (2020-07-20)
+
+
+### Bug Fixes
+
+* **context:** destroy debug instances to avoid memory leak ([a28d53c](https://github.com/strongloop/loopback-next/commit/a28d53c8951bf71af62f5238d694662905d1a8f6))
+
+
+
+
+
+## [3.9.2](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.9.1...@loopback/context@3.9.2) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/context
+
+
+
+
+
+## [3.9.1](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.9.0...@loopback/context@3.9.1) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+* **context:** cache binding value or promise as-is to avoid racing condition ([38b9b96](https://github.com/strongloop/loopback-next/commit/38b9b968e5b0c033d9a1f4a304c4cebbb345fac7))
+
+
+
+
+
+# [3.9.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.8.2...@loopback/context@3.9.0) (2020-06-11)
+
+
+### Features
+
+* **context:** add `tryCatchFinally` helper function for value or promise ([c764ac6](https://github.com/strongloop/loopback-next/commit/c764ac61c3305fba5f8c59357243507e8a940ba6))
+* **context:** add strongly typed `on` and `once` methods ([3f14bfa](https://github.com/strongloop/loopback-next/commit/3f14bfa05679fd2642221a9bba0a0e80864b706d))
+* **context:** improve error reporting with more contextual information ([2a30484](https://github.com/strongloop/loopback-next/commit/2a30484f90b08803f14669524f8eb64c35031da9))
+* **context:** use a faster UID generator ([e5e3d19](https://github.com/strongloop/loopback-next/commit/e5e3d193a182b364a0877dd223be7a0d936a91cd))
+
+
+
+
+
+## [3.8.2](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.8.1...@loopback/context@3.8.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/context
+
+
+
+
+
+## [3.8.1](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.8.0...@loopback/context@3.8.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/context
+
+
+
+
+
+# [3.8.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.7.0...@loopback/context@3.8.0) (2020-05-19)
+
+
+### Bug Fixes
+
+* **context:** check parameter design type for method injections ([7e81e10](https://github.com/strongloop/loopback-next/commit/7e81e10f8d5c5c5cd9be0e091fde9bf8c4b1e3b3))
+
+
+### Features
+
+* **context:** allow bindings to be created from dynamic value provider classes ([9e15154](https://github.com/strongloop/loopback-next/commit/9e15154dae3a3b51b5e090ecfe4052f416051332))
+* **context:** pass resolution context to the factory function for toDynamicValue() ([6513d3f](https://github.com/strongloop/loopback-next/commit/6513d3f5e36b90f58501cfbf311b2b26210d44dd))
+* **context:** use a `_source` to keep the original value provider for bindings ([90679f3](https://github.com/strongloop/loopback-next/commit/90679f3826a8cf18f06123503a9b96c763b5dc20))
+* **core:** allow extensionFilter to take a list of extension point names ([8f315eb](https://github.com/strongloop/loopback-next/commit/8f315eb46bee7365da5325a23b948df9d477bfdb))
+
+
+
+
+
+# [3.7.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.6.0...@loopback/context@3.7.0) (2020-05-07)
+
+
+### Bug Fixes
+
+* **context:** allow binding keys to be used with composeInterceptors() ([0663c04](https://github.com/strongloop/loopback-next/commit/0663c0425b77cbbfa6391e0c4bd92f56b590a548))
+
+
+### Features
+
+* **context:** add registerInterceptor helper function and app.interceptor ([c760966](https://github.com/strongloop/loopback-next/commit/c76096684771ffaf535b75b025892ccfb057bff0))
+* **context:** allow composition of intercetors ([261e9eb](https://github.com/strongloop/loopback-next/commit/261e9eb7d197fc480ab241bdd3b70b8a6e272908))
+* **context:** allows bindings with singleton/context scopes to be refreshed ([8155147](https://github.com/strongloop/loopback-next/commit/8155147ceae756b60a0c9289f94ea8be6199c6d7))
+* **context:** allows default namespace for bindings from classes ([ec2da01](https://github.com/strongloop/loopback-next/commit/ec2da01d766881da1c90dd47c50f8af319e04614))
+* **context:** consolidate uuid generation and testing ([5abe25e](https://github.com/strongloop/loopback-next/commit/5abe25ecc2632b0d25140b5e863dfee446c29a01))
+* **context:** force interceptor functions to return a value ([5663a76](https://github.com/strongloop/loopback-next/commit/5663a7642cbbb43fab08020d398393d0aabeed86))
+* **context:** relax parameter type for isProviderClass() ([aafe7d0](https://github.com/strongloop/loopback-next/commit/aafe7d002a3bc0d2a1db5aceb054f25cb4f4f11f))
+
+
+
+
+
+# [3.6.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.5.1...@loopback/context@3.6.0) (2020-04-29)
+
+
+### Features
+
+* **context:** add `BindingKey.generate` to generate unique binding keys ([9478d31](https://github.com/strongloop/loopback-next/commit/9478d319a472e1dca4122a29dbb414ce1525bdb0))
+
+
+
+
+
+## [3.5.1](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.5.0...@loopback/context@3.5.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/context
+
+
+
+
+
+# [3.5.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.4.0...@loopback/context@3.5.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+* **context:** allow explicit invocation source for proxies ([98115f2](https://github.com/strongloop/loopback-next/commit/98115f299e250f124791ff211ae686a4d8c964ce))
+* **context:** improve generic typing for binding inspection ([819fabb](https://github.com/strongloop/loopback-next/commit/819fabb04390ce8268c1dc7869253b01eafde4cb))
+
+
+
+
+
+# [3.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.3.0...@loopback/context@3.4.0) (2020-04-11)
+
+
+### Features
+
+* **context:** expose debug method to subclasses ([f651e5b](https://github.com/strongloop/loopback-next/commit/f651e5be28efe624e83a7139152ed00554580dca))
+
+
+
+
+
 # [3.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/context@3.2.0...@loopback/context@3.3.0) (2020-04-08)
 
 

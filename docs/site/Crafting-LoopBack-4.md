@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Crafting LoopBack 4'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Architecture
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Crafting-LoopBack-4.html
 ---
@@ -421,7 +421,7 @@ independent of the nature of such artifacts.
     need to have a packaging model so that extension developers can create their
     own modules as bundles and plug into a LoopBack application.
 
-### Why Express behind the scene?
+### Why Express behind the scenes?
 
 #### Background
 

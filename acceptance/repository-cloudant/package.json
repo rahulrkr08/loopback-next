@@ -1,14 +1,16 @@
 {
   "name": "@loopback/test-repository-cloudant",
-  "version": "2.0.3",
-  "description": "",
+  "version": "2.2.6",
+  "description": "Acceptance tests for `@loopback/repository` + `loopback-connector-cloudant`",
   "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "lb-tsc",
-    "clean": "lb-clean loopback-test-repository-cloudant*.tgz dist tsconfig.build.tsbuildinfo package",
+    "clean": "lb-clean loopback-test-repository-cloudant*.tgz dist *.tsbuildinfo package",
     "pretest": "npm run build",
     "test": "npm run mocha",
     "mocha": "lb-mocha \"dist/__tests__/**/*.js\"",
@@ -20,24 +22,22 @@
   "license": "MIT",
   "devDependencies": {
     "@loopback/build": "^1.7.1",
-    "@loopback/eslint-config": "^6.0.3",
-    "@loopback/repository": "^2.1.0",
-    "@loopback/repository-tests": "^0.11.3",
-    "@types/node": "^10.17.19",
+    "@loopback/eslint-config": "^8.0.4",
+    "@loopback/repository": "^2.10.0",
+    "@loopback/repository-tests": "^0.12.10",
+    "@types/node": "^10.17.28",
     "async": "^3.2.0",
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "debug": "^4.1.1",
-    "dockerode": "^3.2.0",
-    "lodash": "^4.17.15",
+    "dockerode": "^3.2.1",
+    "lodash": "^4.17.19",
     "loopback-connector-cloudant": "2.4.2",
     "ms": "2.1.2",
-    "tslib": "^1.11.1",
-    "typescript": "~3.8.3"
+    "tslib": "^2.0.0",
+    "typescript": "~3.9.7"
   },
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"

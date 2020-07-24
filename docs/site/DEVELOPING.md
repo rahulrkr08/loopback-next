@@ -1,7 +1,9 @@
 ---
 lang: en
 title: 'Contributing code in LoopBack 4'
-keywords: LoopBack 4.0, contributing, community
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, contributing,
+  community
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/code-contrib-lb4.html
 toc: false
@@ -71,9 +73,28 @@ for intra-dependencies:
 npm ci
 ```
 
+As part of `npm ci` or `npm i`, TypeScript project references are automatically
+updated for each package with in the monorepo.
+
 The next step is to compile all packages from TypeScript to JavaScript:
 
 ```sh
+npm run build
+```
+
+To force a clean build:
+
+```sh
+npm run clean && npm run build
+```
+
+Please note that `npm run clean` removes `dist`, `*.tsbuildinfo`, and other
+generated files from each package to clean the state for builds.
+
+To build an individual package:
+
+```sh
+cd <package-dir> // For example, cd `packages/context`.
 npm run build
 ```
 
@@ -121,10 +142,58 @@ npm test
 
 It does all you need:
 
-- Compile TypeScript
+- Compile TypeScript (full rebuild)
 - Run all tests
 - Check code formatting using [Prettier](https://prettier.io/)
 - Lint the code using [ESLint](https://typescript-eslint.io/)
+
+Please note some heavy tests are only run when the `CI` environment variable is
+set. Such tests are always executed with our CI builds. To run such tests
+locally:
+
+```sh
+npx cross-env CI=1 npm test
+```
+
+Or use a simpler form on Mac and Linux.
+
+```sh
+CI=1 npm test
+```
+
+Running the full test suite after each small change is not very effective. You
+can use the following commands to run a subset of checks:
+
+- `npm run build` for a fast incremental build
+- `npm run mocha` to (re)run the test suite
+
+We are running tests in parallel, use the Mocha option `-j` (`--jobs`) to
+control the number of worker processes or disable parallel execution entirely by
+using a single job only:
+
+```
+$ npm run mocha -- -j 1
+```
+
+When working in a single package, it's possible to limit the compilation to this
+package & its dependencies and then run only package tests.
+
+For example, run the following Unix command in `loopback-next` root directory to
+build and test changes made in `@loopback/rest` only:
+
+```
+$ (cd packages/rest && npm t)
+```
+
+On Windows, you have to change the working directory once and then you can
+repeatedly run `npm t` inside the package.
+
+```bat
+rem Run this only once
+cd packages/rest
+rem Run this to build & test your changes
+npm t
+```
 
 ## Coding rules
 
@@ -160,6 +229,9 @@ npm script `lint:fix`.
 npm run lint:fix
 ```
 
+Files staged for commit are linted automatically. If necessary, pre-commit
+linting can be bypassed by setting the environment variable `LINT_STAGED=0`.
+
 ## Working with dependencies
 
 We use npm's
@@ -183,8 +255,16 @@ from package-lock files.**
 If you ever end up with corrupted or out-of-date package locks, run the
 following commands to fix the problem:
 
+To rebuild `package-lock.json` for all packages.
+
 ```sh
-$ npm run update-package-locks
+npm update-package-locks
+```
+
+To update `package-lock.json` for a list of packages:
+
+```sh
+npm update-package-locks -- --scope <package-name-1> --scope <package-name-2>
 ```
 
 ### Adding dependencies
@@ -256,6 +336,69 @@ LoopBack 4 documentation is hosted inside this monorepo in the
 [/docs](https://github.com/strongloop/loopback-next/tree/master/docs) directory.
 This allows us to change both implementation and the documentation in a single
 pull request.
+
+### Organization of content
+
+LoopBack 4 has a highly modular design, the codebase is organized into dozens of
+packages. This arrangement provides great flexibility for package consumers,
+supporting many different ways how to compose individual packages into larger
+blocks. However, the growing number of packages also increases the complexity
+for LoopBack users, as they need to know which packages to choose and how to use
+them. As a result, the learning curve becomes very steep for new developers
+coming to LoopBack. Newcomers get quickly overwhelmed by the amount of concepts
+they need to understand and the different packages they need to know about.
+
+To prevent cognitive overload, we have categorized all monorepo packages into
+two groups:
+
+1. Foundation-level packages are lower-level packages that are typically not
+   consumed by LoopBack applications directly. Instead, there are higher-level
+   packages exposing the functionality and/or the public API of these building
+   blocks.
+
+   Examples:
+
+   - `@loopback/core` is re-exporting all public API provided by
+     `@loopback/context`.
+
+   - `@loopback/rest` is internally using `@loopback/http-server` to manage the
+     life cycle of an HTTP server.
+
+2. Framework-level packages are used directly by LoopBack applications and
+   provide API that LoopBack consumers use.
+
+The rule of thumb: a lower-level package is considered as foundation-level if
+
+- a higher-level package is re-exporting all public APIs of the lower-level
+  package (e.g. `@loopback/core` re-exports `@loopback/context`); or
+
+- another package is using the lower-level package as a implementation building
+  block (e.g. `@loopback/rest` uses `@loopback/express`).
+
+In our documentation, CLI templates and example applications, you should always
+refer to framework-level packages.
+
+Foundation-level packages should have their own documentation describing how to
+use the package independently of LoopBack, for example in their `README.md` file
+or in a dedicated section of [loopback.io](https://loopback.io).
+
+#### Foundation-level packages
+
+List of packages that are considered as building blocks:
+
+- [packages/context](https://github.com/strongloop/loopback-next/tree/master/packages/context)
+- [packages/express](https://github.com/strongloop/loopback-next/tree/master/packages/express)
+- [packages/http-server](https://github.com/strongloop/loopback-next/tree/master/packages/http-server)
+- [packages/metadata](https://github.com/strongloop/loopback-next/tree/master/packages/metadata)
+- [packages/openapi-v3](https://github.com/strongloop/loopback-next/tree/master/packages/openapi-v3)
+- [packages/repository-json-schema](https://github.com/strongloop/loopback-next/tree/master/packages/repository-json-schema)
+
+#### Framework-level packages
+
+All packages not listed above are considered as framework-level.
+
+We consider utilities like `@loopback/testlab` and example projects like
+`@loopback/todo` as framework-level too.
 
 ### Publishing changes
 
@@ -468,7 +611,8 @@ However, we do recognize that often a breaking change is the most sensible thing
 to do. When that time comes:
 
 - Describe incompatibilites for release notes
-- Look for more breaking changes to include in the release
+- Look for more breaking changes to include in the release: search for comments
+  containing `TODO(semver-major)` and `@deprecated`.
 - Update list of supported versions
 
 ### Describe incompatibilites for release notes
@@ -549,7 +693,50 @@ repository.
 
 ### Create a new package
 
-To add a new package, create a folder in
+Please run the following command:
+
+```sh
+cd loopback-next
+node bin/create-package.js
+```
+
+The script does the following steps:
+
+1. Determine the parentDir and package name.
+
+   The first argument can be one of the following:
+
+   - package-name
+   - @loopback/package-name
+   - extensions/package-name
+   - packages/package-name
+
+If the parentDir is not specified, it tries to guess by the current directory
+and falls back to `extensions`.
+
+2. Run `lb4 extension` to scaffold the project without `npm install`. If
+   `--interactive` or `-i` is NOT provided by the command, interactive prompts
+   are skipped.
+
+3. Fix up the project
+
+   - Remove unused files
+   - Improve `package.json`
+
+4. Run `lb4 copyright` to update `LICENSE` and copyright headers for `*.ts` and
+   `*.js`.
+
+5. Run `lerna bootstrap --scope <full-package-name>` to link its local
+   dependencies.
+
+6. Run `update-ts-project-refs` to update TypeScript project references
+
+7. Run `update-monorepo-file` to update `docs/site/MONOREPO.md`
+
+8. Remind to update `CODEOWNERS`. If you would like to do it manually, follow
+   steps below:
+
+To add a new package by hand, create a folder in
 [`packages`](https://github.com/strongloop/loopback-next/tree/master/packages)
 as the root directory of your module. For example,
 
@@ -695,9 +882,9 @@ In the [`loopback-next`](https://github.com/strongloop/loopback-next) monorepo,
 
 This is why we have two sets of `tsconfig` files:
 
-- At monorepo root, there is `tsconfig.json` used by VS Code.
-- Inside each package, there is `tsconfig.build.json` used by `npm run build`
-  command.
+- At monorepo root, there is `tsconfig.json` used by VS Code and
+  `tsconfig.build.json` used by `eslint`.
+- Inside each package, there is `tsconfig.json` used by `npm run build` command.
 
 ## Renovate bot
 

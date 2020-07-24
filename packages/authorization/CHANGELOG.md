@@ -3,6 +3,113 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.3](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.6.2...@loopback/authorization@0.6.3) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.6.2](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.6.1...@loopback/authorization@0.6.2) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.6.1](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.6.0...@loopback/authorization@0.6.1) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+# [0.6.0](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.11...@loopback/authorization@0.6.0) (2020-06-11)
+
+
+### Bug Fixes
+
+* **authorization:** set default HTTP status code for authorization error to 403 as per RFC 7231 ([0eb124b](https://github.com/strongloop/loopback-next/commit/0eb124b068ece35e0129bcdfa1bd551250fe5303))
+
+
+### BREAKING CHANGES
+
+* **authorization:** We now use http status code `403` instead of `401` to report authorization denied. The default status code can be set via `defaultStatusCodeForDeny` for the authorization options.
+
+
+
+
+
+## [0.5.11](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.10...@loopback/authorization@0.5.11) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.10](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.9...@loopback/authorization@0.5.10) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.9](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.8...@loopback/authorization@0.5.9) (2020-05-19)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.8](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.7...@loopback/authorization@0.5.8) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.7](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.6...@loopback/authorization@0.5.7) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.6](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.5...@loopback/authorization@0.5.6) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.5](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.4...@loopback/authorization@0.5.5) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
+## [0.5.4](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.3...@loopback/authorization@0.5.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/authorization
+
+
+
+
+
 ## [0.5.3](https://github.com/strongloop/loopback-next/compare/@loopback/authorization@0.5.2...@loopback/authorization@0.5.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/authorization

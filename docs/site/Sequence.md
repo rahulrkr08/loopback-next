@@ -1,7 +1,7 @@
 ---
 lang: en
 title: 'Sequence'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Sequence.html
 ---
@@ -15,21 +15,72 @@ The contract of a `Sequence` is simple: it must produce a response to a request.
 Creating your own `Sequence` gives you full control over how your `Server`
 instances handle requests and responses. The `DefaultSequence` looks like this:
 
-<!--
-  FIXME(kev): Should we be copying this logic into the docs directly?
-  What if this code changes?
--->
-
 ```ts
-class DefaultSequence {
-  async handle(context: RequestContext) {
+export class DefaultSequence implements SequenceHandler {
+  /**
+   * Optional invoker for registered middleware in a chain.
+   * To be injected via SequenceActions.INVOKE_MIDDLEWARE.
+   */
+  @inject(SequenceActions.INVOKE_MIDDLEWARE, {optional: true})
+  protected invokeMiddleware: InvokeMiddleware = () => false;
+
+  /**
+   * Constructor: Injects findRoute, invokeMethod & logError
+   * methods as promises.
+   *
+   * @param findRoute - Finds the appropriate controller method,
+   *  spec and args for invocation (injected via SequenceActions.FIND_ROUTE).
+   * @param parseParams - The parameter parsing function (injected
+   * via SequenceActions.PARSE_PARAMS).
+   * @param invoke - Invokes the method specified by the route
+   * (injected via SequenceActions.INVOKE_METHOD).
+   * @param send - The action to merge the invoke result with the response
+   * (injected via SequenceActions.SEND)
+   * @param reject - The action to take if the invoke returns a rejected
+   * promise result (injected via SequenceActions.REJECT).
+   */
+  constructor(
+    @inject(SequenceActions.FIND_ROUTE) protected findRoute: FindRoute,
+    @inject(SequenceActions.PARSE_PARAMS) protected parseParams: ParseParams,
+    @inject(SequenceActions.INVOKE_METHOD) protected invoke: InvokeMethod,
+    @inject(SequenceActions.SEND) public send: Send,
+    @inject(SequenceActions.REJECT) public reject: Reject,
+  ) {}
+
+  /**
+   * Runs the default sequence. Given a handler context (request and response),
+   * running the sequence will produce a response or an error.
+   *
+   * Default sequence executes these steps
+   *  - Executes middleware for CORS, OpenAPI spec endpoints
+   *  - Finds the appropriate controller method, swagger spec
+   *    and args for invocation
+   *  - Parses HTTP request to get API argument list
+   *  - Invokes the API which is defined in the Application Controller
+   *  - Writes the result from API into the HTTP response
+   *  - Error is caught and logged using 'logError' if any of the above steps
+   *    in the sequence fails with an error.
+   *
+   * @param context - The request context: HTTP request and response objects,
+   * per-request IoC container and more.
+   */
+  async handle(context: RequestContext): Promise<void> {
     try {
-      const route = this.findRoute(context.request);
-      const params = await this.parseParams(context.request, route);
-      const result = await this.invoke(route, params);
-      await this.send(context.response, result);
+      const {request, response} = context;
+      // Invoke registered Express middleware
+      const finished = await this.invokeMiddleware(context);
+      if (finished) {
+        // The response been produced by the middleware chain
+        return;
+      }
+      const route = this.findRoute(request);
+      const args = await this.parseParams(request, route);
+      const result = await this.invoke(route, args);
+
+      debug('%s result -', route.describe(), result);
+      this.send(response, result);
     } catch (error) {
-      await this.reject(context, error);
+      this.reject(context, error);
     }
   }
 }
@@ -40,6 +91,7 @@ class DefaultSequence {
 In the example above, `route`, `params`, and `result` are all Elements. When
 building sequences, you use LoopBack Elements to respond to a request:
 
+- [`InvokeMiddleware`](https://loopback.io/doc/en/lb4/apidocs.express.invokemiddleware.html)
 - [`FindRoute`](https://loopback.io/doc/en/lb4/apidocs.rest.findroute.html)
 - [`Request`](http://apidocs.strongloop.com/loopback-next/) - (TBD) missing API
   docs link
@@ -59,17 +111,34 @@ Actions:
 ```ts
 class MySequence extends DefaultSequence {
   async handle(context: RequestContext) {
-    // findRoute() produces an element
-    const route = this.findRoute(context.request);
-    // parseParams() uses the route element and produces the params element
-    const params = await this.parseParams(context.request, route);
-    // invoke() uses both the route and params elements to produce the result (OperationRetVal) element
-    const result = await this.invoke(route, params);
-    // send() uses the result element
-    await this.send(context.response, result);
+    try {
+      // Invoke registered Express middleware
+      const finished = await this.invokeMiddleware(context);
+      if (finished) {
+        // The response been produced by the middleware chain
+        return;
+      }
+      // findRoute() produces an element
+      const route = this.findRoute(context.request);
+      // parseParams() uses the route element and produces the params element
+      const params = await this.parseParams(context.request, route);
+      // invoke() uses both the route and params elements to produce the result (OperationRetVal) element
+      const result = await this.invoke(route, params);
+      // send() uses the result element
+      this.send(context.response, result);
+    } catch (error) {
+      this.reject(context, error);
+    }
   }
 }
 ```
+
+{% include warning.html content="Starting from v4.0.0 of `@loopback/rest`. The
+sequence adds an `InvokeMiddleware` action for CORS and OpenAPI spec endpoints
+as well as other middleware. See [Middleware](Middleware.md) and
+[Express Middleware](Express-middleware.md) for more details. For applications
+generated using old version of `lb4`, the `src/sequence.ts` needs be to manually
+updated with the code above." %}
 
 ## Custom Sequences
 
@@ -135,7 +204,7 @@ function upon injection.
 
 ```ts
 import {Send, Response} from '@loopback/rest';
-import {Provider, BoundValue, inject} from '@loopback/context';
+import {Provider, BoundValue, inject} from '@loopback/core';
 import {writeResultToResponse, RestBindings, Request} from '@loopback/rest';
 
 // Note: This is an example class; we do not provide this for you.
@@ -195,7 +264,7 @@ import {
 } from '@loopback/repository';
 import {CustomSendProvider} from './providers/custom-send.provider';
 import {Formatter} from './utils';
-import {BindingScope} from '@loopback/context';
+import {BindingScope} from '@loopback/core';
 
 export class YourApp extends RepositoryMixin(RestApplication) {
   constructor() {
@@ -287,8 +356,8 @@ default implementation of
 [invoke](https://github.com/strongloop/loopback-next/blob/6bafa0774662991199090219913c3dc77ad5b149/packages/rest/src/providers/invoke-method.provider.ts)
 action calls the handler function for the route with the request specific
 context and the arguments for the function. It is important to note that
-controller methods use `invokeMethod` from `@loopback/context` and can be used
-with global and custom interceptors. See
+controller methods use `invokeMethod` from `@loopback/core` and can be used with
+global and custom interceptors. See
 [Interceptor docs](Interceptors.md#use-invokemethod-to-apply-interceptors) for
 more details. The request flow for two route flavours is explained below.
 
@@ -425,6 +494,11 @@ request-response handling pipeline. Check out
 actions.
 
 ## Working with Express middleware
+
+{% include warning.html content="First-class support for Express middleware has
+been added to LoopBack since v4.0.0 of `@loopback/rest`. Please refer to
+[Using Express Middleware](Express-middleware.md). The following information
+only applies to earlier versions of `@loopback/rest`." %}
 
 Under the hood, LoopBack leverages [Express](https://expressjs.com) framework
 and its concept of middleware. To avoid common pitfalls, it is not possible to

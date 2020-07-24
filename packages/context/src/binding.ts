@@ -9,11 +9,14 @@ import {BindingAddress, BindingKey} from './binding-key';
 import {Context} from './context';
 import {inspectInjections} from './inject';
 import {createProxyWithInterceptors} from './interception-proxy';
+import {invokeMethod} from './invocation';
 import {JSONObject} from './json-types';
 import {ContextTags} from './keys';
 import {Provider} from './provider';
 import {
   asResolutionOptions,
+  ResolutionContext,
+  ResolutionError,
   ResolutionOptions,
   ResolutionOptionsOrSession,
   ResolutionSession,
@@ -129,6 +132,56 @@ export enum BindingType {
   ALIAS = 'Alias',
 }
 
+/**
+ * Binding source for `to`
+ */
+export type ConstantBindingSource<T> = {
+  type: BindingType.CONSTANT;
+  value: T;
+};
+
+/**
+ * Binding source for `toDynamicValue`
+ */
+export type DynamicValueBindingSource<T> = {
+  type: BindingType.DYNAMIC_VALUE;
+  value: ValueFactory<T> | DynamicValueProviderClass<T>;
+};
+
+/**
+ * Binding source for `toClass`
+ */
+export type ClassBindingSource<T> = {
+  type: BindingType.CLASS;
+  value: Constructor<T>;
+};
+
+/**
+ * Binding source for `toProvider`
+ */
+export type ProviderBindingSource<T> = {
+  type: BindingType.PROVIDER;
+  value: Constructor<Provider<T>>;
+};
+
+/**
+ * Binding source for `toAlias`
+ */
+export type AliasBindingSource<T> = {
+  type: BindingType.ALIAS;
+  value: BindingAddress<T>;
+};
+
+/**
+ * Source for the binding, including the type and value
+ */
+export type BindingSource<T> =
+  | ConstantBindingSource<T>
+  | DynamicValueBindingSource<T>
+  | ClassBindingSource<T>
+  | ProviderBindingSource<T>
+  | AliasBindingSource<T>;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type TagMap = MapObject<any>;
 
@@ -149,7 +202,7 @@ export type BindingEvent = {
   /**
    * Event type
    */
-  type: string;
+  type: 'changed' | string;
   /**
    * Source binding that emits the event
    */
@@ -157,7 +210,7 @@ export type BindingEvent = {
   /**
    * Operation that triggers the event
    */
-  operation: string;
+  operation: 'tag' | 'scope' | 'value' | string;
 };
 
 /**
@@ -170,10 +223,61 @@ export type BindingEventListener = (
   event: BindingEvent,
 ) => void;
 
-type ValueGetter<T> = (
-  ctx: Context,
-  options: ResolutionOptions,
+/**
+ * A factory function for `toDynamicValue`
+ */
+export type ValueFactory<T = unknown> = (
+  resolutionCtx: ResolutionContext,
 ) => ValueOrPromise<T | undefined>;
+
+/**
+ * A class with a static `value` method as the factory function for
+ * `toDynamicValue`.
+ *
+ * @example
+ * ```ts
+ * import {inject} from '@loopback/context';
+ *
+ * export class DynamicGreetingProvider {
+ *   static value(@inject('currentUser') user: string) {
+ *     return `Hello, ${user}`;
+ *   }
+ * }
+ * ```
+ */
+export interface DynamicValueProviderClass<T = unknown>
+  extends Constructor<unknown>,
+    Function {
+  value: (...args: BoundValue[]) => ValueOrPromise<T>;
+}
+
+/**
+ * Adapt the ValueFactoryProvider class to be a value factory
+ * @param provider - ValueFactoryProvider class
+ */
+function toValueFactory<T = unknown>(
+  provider: DynamicValueProviderClass<T>,
+): ValueFactory<T> {
+  return resolutionCtx =>
+    invokeMethod(provider, 'value', resolutionCtx.context, [], {
+      skipInterceptors: true,
+    });
+}
+
+/**
+ * Check if the factory is a value factory provider class
+ * @param factory - A factory function or a dynamic value provider class
+ */
+export function isDynamicValueProviderClass<T = unknown>(
+  factory: unknown,
+): factory is DynamicValueProviderClass<T> {
+  // Not a class
+  if (typeof factory !== 'function' || !String(factory).startsWith('class ')) {
+    return false;
+  }
+  const valueMethod = (factory as DynamicValueProviderClass).value;
+  return typeof valueMethod === 'function';
+}
 
 /**
  * Binding represents an entry in the `Context`. Each binding has a key and a
@@ -199,27 +303,34 @@ export class Binding<T = BoundValue> extends EventEmitter {
     return this._scope ?? BindingScope.TRANSIENT;
   }
 
-  private _type?: BindingType;
   /**
    * Type of the binding value getter
    */
   public get type(): BindingType | undefined {
-    return this._type;
+    return this._source?.type;
   }
 
-  private _cache: WeakMap<Context, T>;
-  private _getValue: ValueGetter<T>;
+  private _cache: WeakMap<Context, ValueOrPromise<T>>;
+  private _getValue?: ValueFactory<T>;
 
-  private _valueConstructor?: Constructor<T>;
-  private _providerConstructor?: Constructor<Provider<T>>;
-  private _alias?: BindingAddress<T>;
+  /**
+   * The original source value received from `to`, `toClass`, `toDynamicValue`,
+   * `toProvider`, or `toAlias`.
+   */
+  private _source?: BindingSource<T>;
+
+  public get source() {
+    return this._source;
+  }
 
   /**
    * For bindings bound via `toClass()`, this property contains the constructor
    * function of the class
    */
   public get valueConstructor(): Constructor<T> | undefined {
-    return this._valueConstructor;
+    return this._source?.type === BindingType.CLASS
+      ? this._source?.value
+      : undefined;
   }
 
   /**
@@ -227,7 +338,9 @@ export class Binding<T = BoundValue> extends EventEmitter {
    * constructor function of the provider class
    */
   public get providerConstructor(): Constructor<Provider<T>> | undefined {
-    return this._providerConstructor;
+    return this._source?.type === BindingType.PROVIDER
+      ? this._source?.value
+      : undefined;
   }
 
   constructor(key: BindingAddress<T>, public isLocked: boolean = false) {
@@ -246,18 +359,16 @@ export class Binding<T = BoundValue> extends EventEmitter {
     result: ValueOrPromise<T>,
   ): ValueOrPromise<T> {
     // Initialize the cache as a weakmap keyed by context
-    if (!this._cache) this._cache = new WeakMap<Context, T>();
-    return transformValueOrPromise(result, val => {
-      if (this.scope === BindingScope.SINGLETON) {
-        // Cache the value
-        this._cache.set(ctx.getOwnerContext(this.key)!, val);
-      } else if (this.scope === BindingScope.CONTEXT) {
-        // Cache the value at the current context
-        this._cache.set(ctx, val);
-      }
-      // Do not cache for `TRANSIENT`
-      return val;
-    });
+    if (!this._cache) this._cache = new WeakMap<Context, ValueOrPromise<T>>();
+    if (this.scope === BindingScope.SINGLETON) {
+      // Cache the value
+      this._cache.set(ctx.getOwnerContext(this.key)!, result);
+    } else if (this.scope === BindingScope.CONTEXT) {
+      // Cache the value at the current context
+      this._cache.set(ctx, result);
+    }
+    // Do not cache for `TRANSIENT`
+    return result;
   }
 
   /**
@@ -267,6 +378,28 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (!this._cache) return;
     // WeakMap does not have a `clear` method
     this._cache = new WeakMap();
+  }
+
+  /**
+   * Invalidate the binding cache so that its value will be reloaded next time.
+   * This is useful to force reloading a singleton when its configuration or
+   * dependencies are changed.
+   * **WARNING**: The state held in the cached value will be gone.
+   *
+   * @param ctx - Context object
+   */
+  refresh(ctx: Context) {
+    if (!this._cache) return;
+    if (this.scope === BindingScope.SINGLETON) {
+      // Cache the value
+      const ownerCtx = ctx.getOwnerContext(this.key);
+      if (ownerCtx != null) {
+        this._cache.delete(ownerCtx);
+      }
+    } else if (this.scope === BindingScope.CONTEXT) {
+      // Cache the value at the current context
+      this._cache.delete(ctx);
+    }
   }
 
   /**
@@ -331,11 +464,21 @@ export class Binding<T = BoundValue> extends EventEmitter {
       }
     }
     const options = asResolutionOptions(optionsOrSession);
-    if (this._getValue) {
+    const resolutionCtx = {
+      context: ctx,
+      binding: this,
+      options,
+    };
+    if (typeof this._getValue === 'function') {
       const result = ResolutionSession.runWithBinding(
         s => {
-          const optionsWithSession = Object.assign({}, options, {session: s});
-          return this._getValue(ctx, optionsWithSession);
+          const optionsWithSession = {...options, session: s};
+          // We already test `this._getValue` is a function. It's safe to assert
+          // that `this._getValue` is not undefined.
+          return this._getValue!({
+            ...resolutionCtx,
+            options: optionsWithSession,
+          });
         },
         this,
         options.session,
@@ -345,7 +488,10 @@ export class Binding<T = BoundValue> extends EventEmitter {
     // `@inject.binding` adds a binding without _getValue
     if (options.optional) return undefined;
     return Promise.reject(
-      new Error(`No value was configured for binding ${this.key}.`),
+      new ResolutionError(
+        `No value was configured for binding ${this.key}.`,
+        resolutionCtx,
+      ),
     );
   }
 
@@ -442,16 +588,19 @@ export class Binding<T = BoundValue> extends EventEmitter {
    * Set the `_getValue` function
    * @param getValue - getValue function
    */
-  private _setValueGetter(getValue: ValueGetter<T>) {
+  private _setValueGetter(getValue: ValueFactory<T>) {
     // Clear the cache
     this._clearCache();
-    this._getValue = (ctx: Context, options: ResolutionOptions) => {
-      if (options.asProxyWithInterceptors && this._type !== BindingType.CLASS) {
+    this._getValue = resolutionCtx => {
+      if (
+        resolutionCtx.options.asProxyWithInterceptors &&
+        this._source?.type !== BindingType.CLASS
+      ) {
         throw new Error(
-          `Binding '${this.key}' (${this._type}) does not support 'asProxyWithInterceptors'`,
+          `Binding '${this.key}' (${this._source?.type}) does not support 'asProxyWithInterceptors'`,
         );
       }
-      return getValue(ctx, options);
+      return getValue(resolutionCtx);
     };
     this.emitChangedEvent('value');
   }
@@ -494,7 +643,10 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (debug.enabled) {
       debug('Bind %s to constant:', this.key, value);
     }
-    this._type = BindingType.CONSTANT;
+    this._source = {
+      type: BindingType.CONSTANT,
+      value,
+    };
     this._setValueGetter(() => value);
     return this;
   }
@@ -517,13 +669,25 @@ export class Binding<T = BoundValue> extends EventEmitter {
    * );
    * ```
    */
-  toDynamicValue(factoryFn: () => ValueOrPromise<T>): this {
+  toDynamicValue(
+    factory: ValueFactory<T> | DynamicValueProviderClass<T>,
+  ): this {
     /* istanbul ignore if */
     if (debug.enabled) {
-      debug('Bind %s to dynamic value:', this.key, factoryFn);
+      debug('Bind %s to dynamic value:', this.key, factory);
     }
-    this._type = BindingType.DYNAMIC_VALUE;
-    this._setValueGetter(ctx => factoryFn());
+    this._source = {
+      type: BindingType.DYNAMIC_VALUE,
+      value: factory,
+    };
+
+    let factoryFn: ValueFactory<T>;
+    if (isDynamicValueProviderClass(factory)) {
+      factoryFn = toValueFactory(factory);
+    } else {
+      factoryFn = factory;
+    }
+    this._setValueGetter(resolutionCtx => factoryFn(resolutionCtx));
     return this;
   }
 
@@ -548,12 +712,14 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (debug.enabled) {
       debug('Bind %s to provider %s', this.key, providerClass.name);
     }
-    this._type = BindingType.PROVIDER;
-    this._providerConstructor = providerClass;
-    this._setValueGetter((ctx, options) => {
+    this._source = {
+      type: BindingType.PROVIDER,
+      value: providerClass,
+    };
+    this._setValueGetter(({context, options}) => {
       const providerOrPromise = instantiateClass<Provider<T>>(
         providerClass,
-        ctx,
+        context,
         options.session,
       );
       return transformValueOrPromise(providerOrPromise, p => p.value());
@@ -573,17 +739,19 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (debug.enabled) {
       debug('Bind %s to class %s', this.key, ctor.name);
     }
-    this._type = BindingType.CLASS;
-    this._setValueGetter((ctx, options) => {
-      const instOrPromise = instantiateClass(ctor, ctx, options.session);
+    this._source = {
+      type: BindingType.CLASS,
+      value: ctor,
+    };
+    this._setValueGetter(({context, options}) => {
+      const instOrPromise = instantiateClass(ctor, context, options.session);
       if (!options.asProxyWithInterceptors) return instOrPromise;
       return createInterceptionProxyFromInstance(
         instOrPromise,
-        ctx,
+        context,
         options.session,
       );
     });
-    this._valueConstructor = ctor;
     return this;
   }
 
@@ -597,10 +765,12 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (debug.enabled) {
       debug('Bind %s to alias %s', this.key, keyWithPath);
     }
-    this._type = BindingType.ALIAS;
-    this._alias = keyWithPath;
-    this._setValueGetter((ctx, options) => {
-      return ctx.getValueOrPromise(keyWithPath, options);
+    this._source = {
+      type: BindingType.ALIAS,
+      value: keyWithPath,
+    };
+    this._setValueGetter(({context, options}) => {
+      return context.getValueOrPromise(keyWithPath, options);
     });
     return this;
   }
@@ -647,14 +817,16 @@ export class Binding<T = BoundValue> extends EventEmitter {
     if (this.type != null) {
       json.type = this.type;
     }
-    if (this._valueConstructor != null) {
-      json.valueConstructor = this._valueConstructor.name;
-    }
-    if (this._providerConstructor != null) {
-      json.providerConstructor = this._providerConstructor.name;
-    }
-    if (this._alias != null) {
-      json.alias = this._alias.toString();
+    switch (this._source?.type) {
+      case BindingType.CLASS:
+        json.valueConstructor = this._source?.value.name;
+        break;
+      case BindingType.PROVIDER:
+        json.providerConstructor = this._source?.value.name;
+        break;
+      case BindingType.ALIAS:
+        json.alias = this._source?.value.toString();
+        break;
     }
     return json;
   }
@@ -704,6 +876,42 @@ export class Binding<T = BoundValue> extends EventEmitter {
     return new Binding(BindingKey.buildKeyForConfig<T>(key)).tag({
       [ContextTags.CONFIGURATION_FOR]: key.toString(),
     });
+  }
+
+  /**
+   * The "changed" event is emitted by methods such as `tag`, `inScope`, `to`,
+   * and `toClass`.
+   *
+   * @param eventName The name of the event - always `changed`.
+   * @param listener The listener function to call when the event is emitted.
+   */
+  on(eventName: 'changed', listener: BindingEventListener): this;
+
+  // The generic variant inherited from EventEmitter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(event: string | symbol, listener: (...args: any[]) => void): this {
+    return super.on(event, listener);
+  }
+
+  /**
+   * The "changed" event is emitted by methods such as `tag`, `inScope`, `to`,
+   * and `toClass`.
+   *
+   * @param eventName The name of the event - always `changed`.
+   * @param listener The listener function to call when the event is emitted.
+   */
+  once(eventName: 'changed', listener: BindingEventListener): this;
+
+  // The generic variant inherited from EventEmitter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  once(event: string | symbol, listener: (...args: any[]) => void): this {
+    return super.once(event, listener);
   }
 }
 

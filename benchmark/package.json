@@ -1,16 +1,17 @@
 {
   "name": "@loopback/benchmark",
-  "version": "2.0.3",
-  "private": true,
+  "version": "2.1.6",
   "description": "Benchmarks measuring performance of our framework.",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "keywords": [
     "loopback",
     "performance",
     "benchmark"
   ],
-  "main": "index.js",
   "engines": {
-    "node": ">=10"
+    "node": ">=10.16"
   },
   "scripts": {
     "build": "lb-tsc",
@@ -19,41 +20,43 @@
     "test": "lb-mocha \"dist/__tests__/**/*.js\"",
     "prestart": "npm run build",
     "benchmark:routing": "node ./dist/rest-routing/routing-table",
+    "benchmark:context": "node ./dist/context-binding/context-binding",
     "start": "node ."
   },
   "author": "IBM Corp.",
+  "copyright.owner": "IBM Corp.",
   "license": "MIT",
   "files": [
     "README.md",
-    "index.js",
-    "index.d.ts",
     "dist",
     "src",
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/example-todo": "^3.1.0",
-    "@loopback/openapi-spec-builder": "^2.0.3",
-    "@loopback/rest": "^3.2.0",
-    "@types/byline": "^4.2.31",
+    "@loopback/core": "^2.9.2",
+    "@loopback/example-todo": "^3.6.2",
+    "@loopback/openapi-spec-builder": "^2.1.10",
+    "@loopback/rest": "^5.2.1",
+    "@types/byline": "^4.2.32",
     "@types/debug": "^4.1.5",
     "@types/request-promise-native": "^1.0.17",
-    "autocannon": "^4.6.0",
+    "autocannon": "^5.0.1",
     "axios": "^0.19.2",
+    "benchmark": "^2.1.4",
     "byline": "^5.0.0",
     "debug": "^4.1.1",
     "path-to-regexp": "^6.1.0",
-    "tslib": "^1.11.1"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
-    "@loopback/build": "^5.0.1",
-    "@loopback/testlab": "^3.0.0",
+    "@loopback/build": "^6.1.1",
+    "@loopback/testlab": "^3.2.1",
     "@types/autocannon": "^4.1.0",
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^10.17.19",
-    "mocha": "^7.1.1",
-    "p-event": "^4.1.0",
-    "source-map-support": "^0.5.16"
+    "@types/benchmark": "^1.0.33",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^10.17.28",
+    "mocha": "^8.0.1",
+    "source-map-support": "^0.5.19"
   },
   "repository": {
     "type": "git",

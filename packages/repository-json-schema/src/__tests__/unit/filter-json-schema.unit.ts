@@ -3,13 +3,22 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Entity, Filter, hasMany, model, property} from '@loopback/repository';
+import {
+  belongsTo,
+  Entity,
+  Filter,
+  hasMany,
+  model,
+  property,
+} from '@loopback/repository';
 import {expect} from '@loopback/testlab';
 import Ajv from 'ajv';
 import {JsonSchema} from '../..';
 import {
+  AnyScopeFilterSchema,
   getFieldsJsonSchemaFor,
   getFilterJsonSchemaFor,
+  getScopeFilterJsonSchemaFor,
   getWhereJsonSchemaFor,
 } from '../../filter-json-schema';
 
@@ -17,6 +26,7 @@ describe('getFilterJsonSchemaFor', () => {
   let ajv: Ajv.Ajv;
   let customerFilterSchema: JsonSchema;
   let customerFilterExcludingWhereSchema: JsonSchema;
+  let customerFilterExcludingIncludeSchema: JsonSchema;
   let orderFilterSchema: JsonSchema;
 
   beforeEach(() => {
@@ -24,6 +34,9 @@ describe('getFilterJsonSchemaFor', () => {
     customerFilterSchema = getFilterJsonSchemaFor(Customer);
     customerFilterExcludingWhereSchema = getFilterJsonSchemaFor(Customer, {
       exclude: ['where'],
+    });
+    customerFilterExcludingIncludeSchema = getFilterJsonSchemaFor(Customer, {
+      exclude: ['include'],
     });
     orderFilterSchema = getFilterJsonSchemaFor(Order);
   });
@@ -64,6 +77,21 @@ describe('getFilterJsonSchemaFor', () => {
         dataPath: '',
         schemaPath: '#/additionalProperties',
         params: {additionalProperty: 'where'},
+        message: 'should NOT have additional properties',
+      },
+    ]);
+  });
+
+  it('disallows "include"', () => {
+    const filter = {include: 'orders'};
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ajv.validate(customerFilterExcludingIncludeSchema, filter);
+    expect(ajv.errors ?? []).to.containDeep([
+      {
+        keyword: 'additionalProperties',
+        dataPath: '',
+        schemaPath: '#/additionalProperties',
+        params: {additionalProperty: 'include'},
         message: 'should NOT have additional properties',
       },
     ]);
@@ -219,6 +247,24 @@ describe('getFilterJsonSchemaFor - excluding where', () => {
   });
 });
 
+describe('getFilterJsonSchemaFor - excluding include', () => {
+  let customerFilterSchema: JsonSchema;
+
+  it('excludes "include" using string[]', () => {
+    customerFilterSchema = getFilterJsonSchemaFor(Customer, {
+      exclude: ['include'],
+    });
+    expect(customerFilterSchema.properties).to.not.have.property('include');
+  });
+
+  it('excludes "include" using string', () => {
+    customerFilterSchema = getFilterJsonSchemaFor(Customer, {
+      exclude: 'include',
+    });
+    expect(customerFilterSchema.properties).to.not.have.property('include');
+  });
+});
+
 describe('getFilterJsonSchemaForOptionsSetTitle', () => {
   let customerFilterSchema: JsonSchema;
 
@@ -282,6 +328,49 @@ describe('getFilterJsonSchemaForOptionsUnsetTitle', () => {
     expect(customerFilterSchema.properties)
       .propertyByPath('include', 'items', 'properties', 'scope')
       .to.not.have.property('title');
+  });
+});
+
+describe('getScopeFilterJsonSchemaFor - nested inclusion', () => {
+  let todoListScopeSchema: JsonSchema;
+  @model()
+  class Todo extends Entity {
+    @property({
+      type: 'number',
+      id: true,
+      generated: false,
+    })
+    id: number;
+
+    @belongsTo(() => TodoList)
+    todoListId: number;
+  }
+
+  @model()
+  class TodoList extends Entity {
+    @property({
+      type: 'number',
+      id: true,
+      generated: false,
+    })
+    id: number;
+
+    @hasMany(() => Todo)
+    todos: Todo[];
+  }
+
+  beforeEach(() => {
+    todoListScopeSchema = getScopeFilterJsonSchemaFor(TodoList, {
+      setTitle: false,
+    });
+  });
+
+  it('does not have constraint for scope filter', () => {
+    expect(todoListScopeSchema.properties)
+      .propertyByPath('include')
+      .to.containEql({
+        ...AnyScopeFilterSchema,
+      });
   });
 });
 

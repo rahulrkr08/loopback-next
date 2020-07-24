@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {bind, Binding, BindingSpec, Constructor} from '@loopback/context';
+import {bind, Binding, BindingSpec, Constructor} from '@loopback/core';
 import {BootTags} from './keys';
 
 /**
@@ -158,4 +158,11 @@ export function booter(artifactNamespace: string, ...specs: BindingSpec[]) {
     {tags: {artifactNamespace, [BootTags.BOOTER]: BootTags.BOOTER}},
     ...specs,
   );
+}
+
+/**
+ * Interface to describe an object that may have an array of `booters`.
+ */
+export interface InstanceWithBooters {
+  booters?: Constructor<Booter>[];
 }

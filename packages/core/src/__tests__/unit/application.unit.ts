@@ -4,12 +4,17 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {
+  asGlobalInterceptor,
   bind,
   Binding,
   BindingScope,
   BindingTag,
   Context,
+  ContextTags,
   inject,
+  Interceptor,
+  InvocationContext,
+  Next,
   Provider,
 } from '@loopback/context';
 import {expect} from '@loopback/testlab';
@@ -19,6 +24,29 @@ describe('Application', () => {
   let app: Application;
 
   afterEach('clean up application', () => app.stop());
+
+  describe('app bindings', () => {
+    it('binds the application itself', () => {
+      app = new Application();
+      expect(app.getSync(CoreBindings.APPLICATION_INSTANCE)).to.equal(app);
+    });
+
+    it('binds the application config', () => {
+      const myAppConfig = {name: 'my-app', port: 3000};
+      app = new Application(myAppConfig);
+      expect(app.getSync(CoreBindings.APPLICATION_CONFIG)).to.equal(
+        myAppConfig,
+      );
+    });
+
+    it('configures the application', () => {
+      const myAppConfig = {name: 'my-app', port: 3000};
+      app = new Application(myAppConfig);
+      expect(app.getConfigSync(CoreBindings.APPLICATION_INSTANCE)).to.equal(
+        myAppConfig,
+      );
+    });
+  });
 
   describe('controller binding', () => {
     beforeEach(givenApp);
@@ -42,6 +70,14 @@ describe('Application', () => {
       expect(findKeysByTag(app, CoreTags.CONTROLLER)).to.containEql(
         binding.key,
       );
+    });
+
+    it('binds a controller with custom options', () => {
+      const binding = app.controller(MyController, {
+        name: 'my-controller',
+        namespace: 'my-controllers',
+      });
+      expect(binding.key).to.eql('my-controllers.my-controller');
     });
 
     it('binds a singleton controller', () => {
@@ -72,6 +108,14 @@ describe('Application', () => {
       expect(findKeysByTag(app, CoreTags.COMPONENT)).to.containEql(
         'components.my-component',
       );
+    });
+
+    it('binds a component with custom namespace', () => {
+      const binding = app.component(MyComponent, {
+        name: 'my-component',
+        namespace: 'my-components',
+      });
+      expect(binding.key).to.eql('my-components.my-component');
     });
 
     it('binds a transient component', () => {
@@ -150,6 +194,35 @@ describe('Application', () => {
       expect(binding.tagNames).to.containEql('foo');
     });
 
+    it('binds services from a component', () => {
+      class MyService {}
+
+      class MyComponentWithServices implements Component {
+        services = [MyService];
+      }
+
+      app.component(MyComponentWithServices);
+
+      expect(
+        app.getBinding('services.MyService').valueConstructor,
+      ).to.be.exactly(MyService);
+    });
+
+    it('binds services with @bind from a component', () => {
+      @bind({scope: BindingScope.TRANSIENT, tags: ['foo']})
+      class MyService {}
+
+      class MyComponentWithServices implements Component {
+        services = [MyService];
+      }
+
+      app.component(MyComponentWithServices);
+
+      const binding = app.getBinding('services.MyService');
+      expect(binding.scope).to.eql(BindingScope.TRANSIENT);
+      expect(binding.tagNames).to.containEql('foo');
+    });
+
     it('honors tags when binding providers from a component', () => {
       @bind({tags: ['foo']})
       class MyProvider implements Provider<string> {
@@ -207,6 +280,12 @@ describe('Application', () => {
       expect(result.constructor.name).to.equal(FakeServer.name);
     });
 
+    it('allows custom namespace', async () => {
+      const name = 'customName';
+      const binding = app.server(FakeServer, {name, namespace: 'my-servers'});
+      expect(binding.key).to.eql('my-servers.customName');
+    });
+
     it('allows binding of multiple servers as an array', async () => {
       const bindings = app.servers([FakeServer, AnotherServer]);
       expect(Array.from(bindings[0].tagNames)).to.containEql(CoreTags.SERVER);
@@ -235,6 +314,16 @@ describe('Application', () => {
       const binding = app.service(MyService, 'my-service');
       expect(Array.from(binding.tagNames)).to.containEql(CoreTags.SERVICE);
       expect(binding.key).to.equal('services.my-service');
+      expect(findKeysByTag(app, CoreTags.SERVICE)).to.containEql(binding.key);
+    });
+
+    it('binds a service with custom namespace', () => {
+      const binding = app.service(MyService, {
+        namespace: 'my-services',
+        name: 'my-service',
+      });
+      expect(Array.from(binding.tagNames)).to.containEql(CoreTags.SERVICE);
+      expect(binding.key).to.equal('my-services.my-service');
       expect(findKeysByTag(app, CoreTags.SERVICE)).to.containEql(binding.key);
     });
 
@@ -328,6 +417,98 @@ describe('Application', () => {
 
     function getListeners() {
       return process.listeners('SIGTERM');
+    }
+  });
+
+  describe('interceptor binding', () => {
+    beforeEach(givenApp);
+
+    it('registers a function as local interceptor', () => {
+      const binding = app.interceptor(logInterceptor, {
+        name: 'logInterceptor',
+      });
+      expect(binding).to.containDeep({
+        key: 'interceptors.logInterceptor',
+      });
+      expect(binding.tagMap[ContextTags.GLOBAL_INTERCEPTOR]).to.be.undefined();
+    });
+
+    it('registers a provider class as local interceptor', () => {
+      const binding = app.interceptor(LogInterceptorProviderWithoutDecoration, {
+        name: 'logInterceptor',
+      });
+      expect(binding).to.containDeep({
+        key: 'interceptors.logInterceptor',
+      });
+      expect(binding.tagMap[ContextTags.GLOBAL_INTERCEPTOR]).to.be.undefined();
+    });
+
+    it('registers a function as global interceptor', () => {
+      const binding = app.interceptor(logInterceptor, {
+        global: true,
+        group: 'log',
+        source: ['route', 'proxy'],
+        name: 'logInterceptor',
+      });
+      expect(binding).to.containDeep({
+        key: 'globalInterceptors.logInterceptor',
+        tagMap: {
+          [ContextTags.GLOBAL_INTERCEPTOR_GROUP]: 'log',
+          [ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: ['route', 'proxy'],
+          [ContextTags.GLOBAL_INTERCEPTOR]: ContextTags.GLOBAL_INTERCEPTOR,
+        },
+      });
+    });
+
+    it('registers a provider class as global interceptor', () => {
+      const binding = app.interceptor(LogInterceptorProvider, {
+        group: 'log',
+        source: ['route', 'proxy'],
+        name: 'logInterceptor',
+      });
+      expect(binding).to.containDeep({
+        key: 'globalInterceptors.logInterceptor',
+        tagMap: {
+          [ContextTags.GLOBAL_INTERCEPTOR_GROUP]: 'log',
+          [ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: ['route', 'proxy'],
+          [ContextTags.GLOBAL_INTERCEPTOR]: ContextTags.GLOBAL_INTERCEPTOR,
+        },
+      });
+    });
+
+    it('registers a provider class without decoration as global interceptor', () => {
+      const binding = app.interceptor(LogInterceptorProviderWithoutDecoration, {
+        global: true,
+        group: 'log',
+        source: ['route', 'proxy'],
+        name: 'logInterceptor',
+      });
+      expect(binding).to.containDeep({
+        key: 'globalInterceptors.logInterceptor',
+        tagMap: {
+          [ContextTags.GLOBAL_INTERCEPTOR_GROUP]: 'log',
+          [ContextTags.GLOBAL_INTERCEPTOR_SOURCE]: ['route', 'proxy'],
+          [ContextTags.GLOBAL_INTERCEPTOR]: ContextTags.GLOBAL_INTERCEPTOR,
+        },
+      });
+    });
+
+    function logInterceptor(ctx: InvocationContext, next: Next) {
+      return undefined;
+    }
+
+    @bind(asGlobalInterceptor())
+    class LogInterceptorProvider implements Provider<Interceptor> {
+      value() {
+        return logInterceptor;
+      }
+    }
+
+    class LogInterceptorProviderWithoutDecoration
+      implements Provider<Interceptor> {
+      value() {
+        return logInterceptor;
+      }
     }
   });
 

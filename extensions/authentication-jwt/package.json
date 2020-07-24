@@ -1,0 +1,61 @@
+{
+  "name": "@loopback/authentication-jwt",
+  "version": "0.4.4",
+  "description": "Extension for the prototype of JWT authentication",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10.16"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "clean": "lb-clean loopback-authentication-jwt*.tgz dist *.tsbuildinfo package",
+    "pretest": "npm run build",
+    "test": "lb-mocha \"dist/__tests__/unit/*.js\" \"dist/__tests__/acceptance/*.js\"",
+    "verify": "npm pack && tar xf loopback-authentication-jwt*.tgz && tree package && npm run clean"
+  },
+  "author": "IBM Corp.",
+  "copyright.owner": "IBM Corp.",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@loopback/authentication": "^4.2.10",
+    "@loopback/core": "^2.9.2",
+    "@loopback/rest": "^5.2.1",
+    "@loopback/rest-explorer": "^2.2.7",
+    "@loopback/security": "^0.2.15",
+    "@loopback/service-proxy": "^2.3.5",
+    "@types/bcryptjs": "2.4.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "@loopback/boot": "^2.4.0",
+    "@loopback/build": "^6.1.1",
+    "@loopback/eslint-config": "^8.0.4",
+    "@loopback/repository": "^2.10.0",
+    "@loopback/testlab": "^2.0.2",
+    "@types/lodash": "^4.14.158",
+    "@types/node": "^10.17.28",
+    "lodash": "^4.17.19",
+    "typescript": "~3.9.7"
+  },
+  "keywords": [
+    "LoopBack",
+    "Authentication",
+    "jsonwebtoken"
+  ],
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/strongloop/loopback-next.git",
+    "directory": "extensions/authentication-jwt"
+  }
+}

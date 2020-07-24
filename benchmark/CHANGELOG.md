@@ -3,6 +3,108 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.6](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.5...@loopback/benchmark@2.1.6) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.1.5](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.4...@loopback/benchmark@2.1.5) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.1.4](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.3...@loopback/benchmark@2.1.4) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+
+
+
+## [2.1.3](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.2...@loopback/benchmark@2.1.3) (2020-06-11)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.1.2](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.1...@loopback/benchmark@2.1.2) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.1.1](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.1.0...@loopback/benchmark@2.1.1) (2020-05-20)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+# [2.1.0](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.7...@loopback/benchmark@2.1.0) (2020-05-19)
+
+
+### Features
+
+* **benchmark:** add a simple benchmark for context bindings ([bdad689](https://github.com/strongloop/loopback-next/commit/bdad6891345e34c472acca967da904cc959d6c03))
+
+
+
+
+
+## [2.0.8](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.7...@loopback/benchmark@2.0.8) (2020-05-07)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.0.7](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.6...@loopback/benchmark@2.0.7) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.0.6](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.5...@loopback/benchmark@2.0.6) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.0.5](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.4...@loopback/benchmark@2.0.5) (2020-04-22)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
+## [2.0.4](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.3...@loopback/benchmark@2.0.4) (2020-04-11)
+
+**Note:** Version bump only for package @loopback/benchmark
+
+
+
+
+
 ## [2.0.3](https://github.com/strongloop/loopback-next/compare/@loopback/benchmark@2.0.2...@loopback/benchmark@2.0.3) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/benchmark

@@ -3,8 +3,15 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {AnyObject, DataObject, Options} from './common-types';
-import {RelationMetadata} from './relations';
+import {AnyObject, DataObject, Options, PrototypeOf} from './common-types';
+import {
+  BelongsToDefinition,
+  HasManyDefinition,
+  HasOneDefinition,
+  JsonSchema,
+  RelationMetadata,
+  RelationType,
+} from './index';
 import {TypeResolver} from './type-resolver';
 import {Type} from './types';
 
@@ -15,6 +22,10 @@ import {Type} from './types';
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+export interface JsonSchemaWithExtensions extends JsonSchema {
+  [attributes: string]: any;
+}
 
 export type PropertyType =
   | string
@@ -30,7 +41,7 @@ export interface PropertyDefinition {
   type: PropertyType; // For example, 'string', String, or {}
   id?: boolean | number;
   json?: PropertyForm;
-  jsonSchema?: {[attribute: string]: any};
+  jsonSchema?: JsonSchemaWithExtensions;
   store?: PropertyForm;
   itemType?: PropertyType; // type of array
   [attribute: string]: any; // Other attributes
@@ -61,6 +72,7 @@ export interface ModelDefinitionSyntax {
   properties?: {[name: string]: PropertyDefinition | PropertyType};
   settings?: {[name: string]: any};
   relations?: RelationDefinitionMap;
+  jsonSchema?: JsonSchemaWithExtensions;
   [attribute: string]: any;
 }
 
@@ -140,6 +152,60 @@ export class ModelDefinition {
   }
 
   /**
+   * Define a new belongsTo relation.
+   * @param name - The name of the belongsTo relation.
+   * @param definition - The definition of the belongsTo relation.
+   */
+  belongsTo(
+    name: string,
+    definition: Omit<BelongsToDefinition, 'name' | 'type' | 'targetsMany'>,
+  ): this {
+    const meta: BelongsToDefinition = {
+      ...definition,
+      name,
+      type: RelationType.belongsTo,
+      targetsMany: false,
+    };
+    return this.addRelation(meta);
+  }
+
+  /**
+   * Define a new hasOne relation.
+   * @param name - The name of the hasOne relation.
+   * @param definition - The definition of the hasOne relation.
+   */
+  hasOne(
+    name: string,
+    definition: Omit<HasOneDefinition, 'name' | 'type' | 'targetsMany'>,
+  ): this {
+    const meta: HasOneDefinition = {
+      ...definition,
+      name,
+      type: RelationType.hasOne,
+      targetsMany: false,
+    };
+    return this.addRelation(meta);
+  }
+
+  /**
+   * Define a new hasMany relation.
+   * @param name - The name of the hasMany relation.
+   * @param definition - The definition of the hasMany relation.
+   */
+  hasMany(
+    name: string,
+    definition: Omit<HasManyDefinition, 'name' | 'type' | 'targetsMany'>,
+  ): this {
+    const meta: HasManyDefinition = {
+      ...definition,
+      name,
+      type: RelationType.hasMany,
+      targetsMany: true,
+    };
+    return this.addRelation(meta);
+  }
+
+  /**
    * Get an array of names of ID properties, which are specified in
    * the model settings or properties with `id` attribute.
    *
@@ -183,13 +249,21 @@ function asJSON(value: any): any {
   return value;
 }
 
+/**
+ * Convert a value to a plain object as DTO.
+ *
+ * - The prototype of the value in primitive types are preserved,
+ *   like `Date`, `ObjectId`.
+ * - If the value is an instance of custom model, call `toObject` to convert.
+ * - If the value is an array, convert each element recursively.
+ *
+ * @param value the value to convert
+ * @param options the options
+ */
 function asObject(value: any, options?: Options): any {
   if (value == null) return value;
   if (typeof value.toObject === 'function') {
     return value.toObject(options);
-  }
-  if (typeof value.toJSON === 'function') {
-    return value.toJSON();
   }
   if (Array.isArray(value)) {
     return value.map(item => asObject(item, options));
@@ -202,7 +276,7 @@ function asObject(value: any, options?: Options): any {
  */
 export abstract class Model {
   static get modelName(): string {
-    return (this.definition && this.definition.name) || this.name;
+    return this.definition?.name || this.name;
   }
 
   static definition: ModelDefinition;
@@ -211,7 +285,7 @@ export abstract class Model {
    * Serialize into a plain JSON object
    */
   toJSON(): Object {
-    const def = (<typeof Model>this.constructor).definition;
+    const def = (this.constructor as typeof Model).definition;
     if (def == null || def.settings.strict === false) {
       return this.toObject({ignoreUnknownProperties: false});
     }
@@ -243,18 +317,51 @@ export abstract class Model {
 
   /**
    * Convert to a plain object as DTO
+   *
+   * If `ignoreUnknownProperty` is set to false, convert all properties in the
+   * model instance, otherwise only convert the ones defined in the model
+   * definitions.
+   *
+   * See function `asObject` for each property's conversion rules.
    */
   toObject(options?: Options): Object {
-    let obj: AnyObject;
-    if (options && options.ignoreUnknownProperties === false) {
-      obj = {};
+    const def = (this.constructor as typeof Model).definition;
+    const obj: AnyObject = {};
+
+    if (options?.ignoreUnknownProperties === false) {
+      const hiddenProperties: string[] = def?.settings.hiddenProperties || [];
       for (const p in this) {
-        const val = (this as AnyObject)[p];
-        obj[p] = asObject(val, options);
+        if (!hiddenProperties.includes(p)) {
+          const val = (this as AnyObject)[p];
+          obj[p] = asObject(val, options);
+        }
       }
-    } else {
-      obj = this.toJSON();
+      return obj;
     }
+
+    if (def?.relations) {
+      for (const r in def.relations) {
+        const relName = def.relations[r].name;
+        if (relName in this) {
+          obj[relName] = asObject((this as AnyObject)[relName], {
+            ...options,
+            ignoreUnknownProperties: false,
+          });
+        }
+      }
+    }
+
+    const props = def.properties;
+    const keys = Object.keys(props);
+
+    for (const i in keys) {
+      const propertyName = keys[i];
+      const val = (this as AnyObject)[propertyName];
+
+      if (val === undefined) continue;
+      obj[propertyName] = asObject(val, options);
+    }
+
     return obj;
   }
 
@@ -361,3 +468,37 @@ export class Event {
 export type EntityData = DataObject<Entity>;
 
 export type EntityResolver<T extends Entity> = TypeResolver<T, typeof Entity>;
+
+/**
+ * Check model data for navigational properties linking to related models.
+ * Throw a descriptive error if any such property is found.
+ *
+ * @param modelClass Model constructor, e.g. `Product`.
+ * @param entityData  Model instance or a plain-data object,
+ * e.g. `{name: 'pen'}`.
+ */
+export function rejectNavigationalPropertiesInData<M extends typeof Entity>(
+  modelClass: M,
+  data: DataObject<PrototypeOf<M>>,
+) {
+  const def = modelClass.definition;
+  const props = def.properties;
+
+  for (const r in def.relations) {
+    const relName = def.relations[r].name;
+    if (!(relName in data)) continue;
+
+    let msg =
+      'Navigational properties are not allowed in model data ' +
+      `(model "${modelClass.modelName}" property "${relName}"), ` +
+      'please remove it.';
+
+    if (relName in props) {
+      msg +=
+        ' The error might be invoked by belongsTo relations, please make' +
+        ' sure the relation name is not the same as the property name.';
+    }
+
+    throw new Error(msg);
+  }
+}

@@ -3,6 +3,131 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.2](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.9.1...@loopback/core@2.9.2) (2020-07-20)
+
+**Note:** Version bump only for package @loopback/core
+
+
+
+
+
+## [2.9.1](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.9.0...@loopback/core@2.9.1) (2020-06-30)
+
+**Note:** Version bump only for package @loopback/core
+
+
+
+
+
+# [2.9.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.8.0...@loopback/core@2.9.0) (2020-06-23)
+
+
+### Bug Fixes
+
+* set node version to >=10.16 to support events.once ([e39da1c](https://github.com/strongloop/loopback-next/commit/e39da1ca47728eafaf83c10ce35b09b03b6a4edc))
+
+
+### Features
+
+* **core:** enable application config with configure/getConfig/[@config](https://github.com/config) ([3a74ee1](https://github.com/strongloop/loopback-next/commit/3a74ee180633754ecd369b07454a104e731129f1))
+
+
+
+
+
+# [2.8.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.7.1...@loopback/core@2.8.0) (2020-06-11)
+
+
+### Features
+
+* **core:** add services to component artifacts ([5545345](https://github.com/strongloop/loopback-next/commit/5545345a7a1a51333d518d5a5cb8580d74ff2492))
+
+
+
+
+
+## [2.7.1](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.7.0...@loopback/core@2.7.1) (2020-05-28)
+
+**Note:** Version bump only for package @loopback/core
+
+
+
+
+
+# [2.7.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.6.0...@loopback/core@2.7.0) (2020-05-20)
+
+
+### Features
+
+* **service-proxy:** refine service mixin ([a6d0e2a](https://github.com/strongloop/loopback-next/commit/a6d0e2a457751568faffc1e733dc15f2e7232d2c))
+
+
+
+
+
+# [2.6.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.5.0...@loopback/core@2.6.0) (2020-05-19)
+
+
+### Features
+
+* **core:** allow extensionFilter to take a list of extension point names ([8f315eb](https://github.com/strongloop/loopback-next/commit/8f315eb46bee7365da5325a23b948df9d477bfdb))
+
+
+
+
+
+# [2.5.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.4.2...@loopback/core@2.5.0) (2020-05-07)
+
+
+### Features
+
+* **context:** add registerInterceptor helper function and app.interceptor ([c760966](https://github.com/strongloop/loopback-next/commit/c76096684771ffaf535b75b025892ccfb057bff0))
+* **context:** force interceptor functions to return a value ([5663a76](https://github.com/strongloop/loopback-next/commit/5663a7642cbbb43fab08020d398393d0aabeed86))
+* **core:** allow options for artifact registration on an application ([f3fdc3b](https://github.com/strongloop/loopback-next/commit/f3fdc3b94e34610dd1bebb600a497c77a2794019))
+
+
+
+
+
+## [2.4.2](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.4.1...@loopback/core@2.4.2) (2020-04-29)
+
+**Note:** Version bump only for package @loopback/core
+
+
+
+
+
+## [2.4.1](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.4.0...@loopback/core@2.4.1) (2020-04-23)
+
+**Note:** Version bump only for package @loopback/core
+
+
+
+
+
+# [2.4.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.3.0...@loopback/core@2.4.0) (2020-04-22)
+
+
+### Features
+
+* update package.json and .travis.yml for builds ([cb2b8e6](https://github.com/strongloop/loopback-next/commit/cb2b8e6a18616dda7783c0193091039d4e608131))
+* **core:** improve typing for `app.controller` and `app.component` ([ac4b1ea](https://github.com/strongloop/loopback-next/commit/ac4b1eac8c3643087b64a5d3a98b701c92e15cf1))
+
+
+
+
+
+# [2.3.0](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.2.1...@loopback/core@2.3.0) (2020-04-11)
+
+
+### Features
+
+* **core:** improve application signal handler registration ([8086932](https://github.com/strongloop/loopback-next/commit/8086932b66a3aaad2fff6023231f983a43e1791a))
+
+
+
+
+
 ## [2.2.1](https://github.com/strongloop/loopback-next/compare/@loopback/core@2.2.0...@loopback/core@2.2.1) (2020-04-08)
 
 **Note:** Version bump only for package @loopback/core

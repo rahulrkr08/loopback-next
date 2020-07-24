@@ -1,7 +1,9 @@
 ---
 lang: en
 title: 'Testing your application'
-keywords: LoopBack 4.0, LoopBack 4
+keywords:
+  LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Node.js, TypeScript,
+  OpenAPI
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Testing-your-application.html
 ---
@@ -144,7 +146,7 @@ belongs to Category, include it in the repository call, for example:
 {% include code-caption.html content="src/__tests__/helpers/database.helpers.ts" %}
 
 ```ts
-import {Getter} from '@loopback/context';
+import {Getter} from '@loopback/core';
 import {ProductRepository, CategoryRepository} from '../../repositories';
 import {testdb} from '../fixtures/datasources/testdb.datasource';
 
@@ -740,10 +742,10 @@ instance:
 
 ```ts
 import {merge} from 'lodash';
-import GEO_CODER_CONFIG from '../datasources/geo.datasource.config.json';
+import {GeocoderDataSource} from '../datasources/geocoder.datasource';
 
 function givenGeoService() {
-  const config = merge({}, GEO_CODER_CONFIG, {
+  const config = merge({}, GeocoderDataSource.defaultConfig, {
     // your config overrides
   });
   const dataSource = new GeoDataSource(config);
@@ -751,7 +753,7 @@ function givenGeoService() {
 }
 ```
 
-#### Test invidivudal service methods
+#### Test individual service methods
 
 With the service proxy instance available, integration tests can focus on
 executing individual methods with the right set of input parameters; and
@@ -1006,8 +1008,8 @@ To set up code coverage:
   "precoverage": "npm test",
   "coverage": "open coverage/index.html",
   "coverage:ci": "lb-nyc report --reporter=text-lcov | coveralls",
-  "test": "lb-nyc npm run mocha --scripts-prepend-node-path",
-  "test:ci": "lb-nyc npm run mocha --scripts-prepend-node-path"
+  "test": "lb-nyc npm run mocha",
+  "test:ci": "lb-nyc npm run mocha"
   ```
 
   `converage:ci` sets up integration with [Coveralls](https://coveralls.io/).

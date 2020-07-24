@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Binding, BoundValue} from '@loopback/context';
+import {HandlerContext, Request, Response} from '@loopback/express';
 import {ReferenceObject, SchemaObject} from '@loopback/openapi-v3';
 import ajv, {Ajv, FormatDefinition, KeywordDefinition} from 'ajv';
 import {
@@ -12,19 +12,12 @@ import {
   OptionsText,
   OptionsUrlencoded,
 } from 'body-parser';
-import {Request, Response} from 'express';
 import {ResolvedRoute, RouteEntry} from './router';
 
-export {Request, Response};
-
 /**
- * An object holding HTTP request, response and other data
- * needed to handle an incoming HTTP request.
+ * Re-export types from `./middleware`
  */
-export interface HandlerContext {
-  readonly request: Request;
-  readonly response: Response;
-}
+export * from '@loopback/express';
 
 /**
  * Find a route matching the incoming request.
@@ -116,9 +109,20 @@ export type AjvKeyword = KeywordDefinition & {name: string};
 export type AjvFormat = FormatDefinition & {name: string};
 
 /**
+ * Options for any value validation using AJV
+ */
+export interface ValueValidationOptions extends ValidationOptions {
+  /**
+   * Where the data comes from. It can be 'body', 'path', 'header',
+   * 'query', 'cookie', etc...
+   */
+  source?: string;
+}
+
+/**
  * Options for request body validation using AJV
  */
-export interface RequestBodyValidationOptions extends ajv.Options {
+export interface ValidationOptions extends ajv.Options {
   /**
    * Custom cache for compiled schemas by AJV. This setting makes it possible
    * to skip the default cache.
@@ -180,7 +184,7 @@ export interface RequestBodyParserOptions extends Options {
    * This setting is global for all request body parsers and it cannot be
    * overridden inside parser specific properties such as `json` or `text`.
    */
-  validation?: RequestBodyValidationOptions;
+  validation?: ValidationOptions;
   /**
    * Common options for all parsers
    */
@@ -197,5 +201,31 @@ export type OperationArgs = any[];
  */
 export type OperationRetval = any;
 
-export type GetFromContext = (key: string) => Promise<BoundValue>;
-export type BindElement = (key: string) => Binding;
+/**
+ * user profile to add in session
+ */
+export interface SessionUserProfile {
+  provider: string;
+  token: string;
+  email: string;
+  [attribute: string]: any;
+}
+
+/**
+ * interface to set variables in user session
+ */
+export interface Session {
+  profile: SessionUserProfile;
+  [key: string]: any;
+}
+
+/**
+ * extending express request type with a session field
+ */
+export interface RequestWithSession extends Request {
+  session: Session;
+}
+
+// For backwards compatibility
+// TODO(SEMVER-MAJOR)
+export type RequestBodyValidationOptions = ValidationOptions;

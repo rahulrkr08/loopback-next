@@ -1,13 +1,13 @@
 ---
 lang: en
 title: 'Creating components'
-keywords: LoopBack 4.0, LoopBack 4
+keywords: LoopBack 4.0, LoopBack 4, Node.js, TypeScript, OpenAPI, Components
 sidebar: lb4_sidebar
 permalink: /doc/en/lb4/Creating-components.html
 ---
 
-As explained in [Using Components](Using-components.md), a typical LoopBack
-component is an npm package exporting a Component class.
+As explained in [Using Components](Components.md), a typical LoopBack component
+is an npm package exporting a Component class.
 
 ```ts
 import {MyController} from './controllers/my.controller';
@@ -36,6 +36,8 @@ export class MyComponent implements Component {
 }
 ```
 
+## Injecting the target application instance
+
 You can inject anything from the context and access them from a component. In
 the following example, the REST application instance is made available in the
 component via dependency injection.
@@ -52,6 +54,8 @@ export class MyComponent implements Component {
   }
 }
 ```
+
+## Registration of component artifacts
 
 When a component is mounted to an application, a new instance of the component
 class is created and then:
@@ -78,6 +82,30 @@ create the following bindings in the application context:
 - `my-server` -> `MyServer` (server)
 - `lifeCycleObservers.MyObserver` -> `MyObserver` (life cycle observer)
 
+### Supported component artifacts
+
+When a component is mounted using `App.component()`, certain properties in a
+component are checked to mount certain artifacts. While some artifacts can be
+mounted using a bare LoopBack 4 application, others require the application to
+be extended by a mixin.
+
+The table below describes the supported properties in the core LoopBack 4
+packages, and the required mixin (if applicable).
+
+{% include important.html content="If an app is not extended with the required Mixin(s), the dependent artifact(s) will be silently disregarded." %}
+
+| Artifact           | Property             | Mixins            |
+| ------------------ | -------------------- | ----------------- |
+| Binding            | `bindings`           | N/A               |
+| Class              | `classes`            | N/A               |
+| Lifecycle Observer | `lifeCycleObservers` | N/A               |
+| Controller         | `controllers`        | N/A               |
+| Model              | `models`             | `RepositoryMixin` |
+| Provider           | `providers`          | N/A               |
+| Repository         | `repositories`       | `RepositoryMixin` |
+| Server             | `servers`            | N/A               |
+| Service            | `services`           | N/A               |
+
 ## Providers
 
 Providers enable components to export values that can be used by the target
@@ -86,7 +114,7 @@ function called by [Context](Context.md) when another entity requests a value to
 be injected.
 
 ```ts
-import {Provider} from '@loopback/context';
+import {Provider} from '@loopback/core';
 
 export class MyValueProvider implements Provider<string> {
   value() {
@@ -164,7 +192,7 @@ the list of keys reserved for the framework use.
 Provider's `value()` method can be asynchronous too:
 
 ```ts
-import {Provider} from '@loopback/context';
+import {Provider} from '@loopback/core';
 const request = require('request-promise-native');
 const weatherUrl =
   'http://samples.openweathermap.org/data/2.5/weather?appid=b1b15e88fa797225412429c1c50c122a1';
@@ -188,7 +216,7 @@ dependencies annotated with `@inject` keyword, so that LoopBack runtime can
 resolve them automatically.
 
 ```ts
-import {Provider} from '@loopback/context';
+import {Provider} from '@loopback/core';
 import {Request, RestBindings} from '@loopback/rest';
 import {v4 as uuid} from 'uuid';
 
@@ -364,7 +392,7 @@ The following snippet is an abbreviated function
 {% include code-caption.html content="src/mixins/repository.mixin.ts" %}
 
 ```ts
-export function RepositoryMixin<T extends Class<any>>(superClass: T) {
+export function RepositoryMixin<T extends MixinTarget<Application>>(superClass: T) {
   return class extends superClass {
     constructor(...args: any[]) {
       super(...args);

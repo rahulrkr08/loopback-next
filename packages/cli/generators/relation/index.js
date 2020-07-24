@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+// no translation: HasMany, BelongsTo, HasOne
 'use strict';
 
 const ArtifactGenerator = require('../../lib/artifact-generator');
@@ -15,6 +16,7 @@ const relationUtils = require('./utils.generator');
 
 const BelongsToRelationGenerator = require('./belongs-to-relation.generator');
 const HasManyRelationGenerator = require('./has-many-relation.generator');
+const HasManyThroughRelationGenerator = require('./has-many-through-relation.generator');
 const HasOneRelationGenerator = require('./has-one-relation.generator');
 
 const g = require('../../lib/globalize');
@@ -28,6 +30,9 @@ const ERROR_SOURCE_MODEL_PRIMARY_KEY_DOES_NOT_EXIST = g.f(
 const ERROR_DESTINATION_MODEL_PRIMARY_KEY_DOES_NOT_EXIST = g.f(
   'Target model primary key does not exist.',
 );
+const ERROR_THROUGH_MODEL_PRIMARY_KEY_DOES_NOT_EXIST = g.f(
+  'Through model primary key does not exist.',
+);
 const ERROR_REPOSITORY_DOES_NOT_EXIST = g.f(
   'class does not exist. Please create repository first with "lb4 repository" command.',
 );
@@ -35,6 +40,7 @@ const ERROR_REPOSITORY_DOES_NOT_EXIST = g.f(
 const PROMPT_BASE_RELATION_CLASS = g.f('Please select the relation type');
 const PROMPT_MESSAGE_SOURCE_MODEL = g.f('Please select source model');
 const PROMPT_MESSAGE_TARGET_MODEL = g.f('Please select target model');
+const PROMPT_MESSAGE_THROUGH_MODEL = g.f('Please select through model');
 const PROMPT_MESSAGE_PROPERTY_NAME = g.f(
   'Source property name for the relation getter (will be the relation name)',
 );
@@ -74,6 +80,24 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       type: String,
       required: false,
       description: g.f('Destination model'),
+    });
+
+    this.option('throughModel', {
+      type: String,
+      required: false,
+      description: g.f('Through model'),
+    });
+
+    this.option('sourceKeyOnThrough', {
+      type: String,
+      required: false,
+      description: g.f('Foreign key references source model on through model'),
+    });
+
+    this.option('targetKeyOnThrough', {
+      type: String,
+      required: false,
+      description: g.f('Foreign key references target model on through model'),
     });
 
     this.option('defaultForeignKeyName', {
@@ -151,6 +175,11 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
           utils.camelCase(this.artifactInfo.destinationModel),
         );
         break;
+      case relationUtils.relationType.hasManyThrough:
+        defaultRelationName = utils.pluralize(
+          utils.camelCase(this.artifactInfo.destinationModel),
+        );
+        break;
       case relationUtils.relationType.hasOne:
         defaultRelationName = utils.camelCase(
           this.artifactInfo.destinationModel,
@@ -161,7 +190,7 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
     return defaultRelationName;
   }
 
-  async _promptModelList(message, parameter) {
+  async _promptModelList(message, parameter, toRemove = []) {
     let modelList;
     try {
       debug(`model list dir ${this.artifactInfo.modelDir}`);
@@ -212,6 +241,16 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
         `${parameter} received from command line: ${this.options[parameter]}`,
       );
       this.artifactInfo[parameter] = this.options[parameter];
+    }
+    // remove source & target models from the selections of through model
+    if (toRemove.length > 0) {
+      const updateAry = [];
+      modelList.forEach(ele => {
+        if (!toRemove.includes(ele)) {
+          updateAry.push(ele);
+        }
+      });
+      modelList = updateAry;
     }
 
     // Prompt a user for model.
@@ -305,6 +344,18 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
     );
   }
 
+  // Get model list for through model.
+  async promptThroughModels() {
+    if (this.shouldExit()) return false;
+    if (this.artifactInfo.relationType === 'hasManyThrough') {
+      return this._promptModelList(
+        PROMPT_MESSAGE_THROUGH_MODEL,
+        'throughModel',
+        [this.artifactInfo.destinationModel, this.artifactInfo.sourceModel],
+      );
+    }
+  }
+
   /**
    * Prompt foreign key if not exist:
    *  1. From source model get primary key. If primary key does not exist -
@@ -329,9 +380,7 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       return this.exit(
         new Error(ERROR_SOURCE_MODEL_PRIMARY_KEY_DOES_NOT_EXIST),
       );
-    }
-
-    if (this.artifactInfo.sourceModelPrimaryKey) {
+    } else {
       this.artifactInfo.sourceModelPrimaryKeyType = relationUtils.getModelPropertyType(
         this.artifactInfo.modelDir,
         this.artifactInfo.sourceModel,
@@ -349,9 +398,7 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       return this.exit(
         new Error(ERROR_DESTINATION_MODEL_PRIMARY_KEY_DOES_NOT_EXIST),
       );
-    }
-
-    if (this.artifactInfo.destinationModelPrimaryKey) {
+    } else {
       this.artifactInfo.destinationModelPrimaryKeyType = relationUtils.getModelPropertyType(
         this.artifactInfo.modelDir,
         this.artifactInfo.destinationModel,
@@ -365,6 +412,33 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
       this.artifactInfo.modelDir,
       this.artifactInfo.destinationModel,
     );
+
+    // checks fks for hasManyThrough
+    if (this.artifactInfo.relationType === 'hasManyThrough') {
+      this.artifactInfo.throughModelPrimaryKey = await relationUtils.getModelPrimaryKeyProperty(
+        this.fs,
+        this.artifactInfo.modelDir,
+        this.artifactInfo.throughModel,
+      );
+      if (this.artifactInfo.throughModelPrimaryKey) {
+        this.artifactInfo.throughModelPrimaryKeyType = relationUtils.getModelPropertyType(
+          this.artifactInfo.modelDir,
+          this.artifactInfo.throughModel,
+          this.artifactInfo.throughModelPrimaryKey,
+        );
+        // type: sourceModelPrimaryKeyType
+        this.artifactInfo.defaultSourceKeyOnThrough =
+          utils.camelCase(this.artifactInfo.sourceModel) + 'Id';
+        this.artifactInfo.defaultTargetKeyOnThrough =
+          utils.camelCase(this.artifactInfo.destinationModel) + 'Id';
+        return this._promptKeyFromOnThroughModel();
+      } else {
+        /* istanbul ignore next */
+        return this.exit(
+          new Error(ERROR_THROUGH_MODEL_PRIMARY_KEY_DOES_NOT_EXIST),
+        );
+      }
+    }
 
     if (this.options.foreignKeyName) {
       debug(
@@ -424,6 +498,53 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
         }
       }
       return props;
+    });
+  }
+
+  async _promptKeyFromOnThroughModel() {
+    if (this.shouldExit()) return false;
+    return this.prompt([
+      {
+        type: 'string',
+        name: 'sourceKeyOnThrough',
+        message: g.f(
+          `Foreign key name that references the ${chalk.yellow(
+            'source model',
+          )} to define on the through model`,
+        ),
+        default: this.artifactInfo.defaultSourceKeyOnThrough,
+        when: !this.options.sourceKeyOnThrough,
+        validate: utils.validateKeyName,
+      },
+    ]).then(props => {
+      debug(`props after foreign key name prompt: ${inspect(props)}`);
+      Object.assign(this.artifactInfo, props);
+      return this._promptKeyToOnThroughModel();
+    });
+  }
+
+  async _promptKeyToOnThroughModel() {
+    if (this.shouldExit()) return false;
+    return this.prompt([
+      {
+        type: 'string',
+        name: 'targetKeyOnThrough',
+        message: g.f(
+          `Foreign key name that references the ${chalk.yellow(
+            'target model',
+          )} to define on the through model`,
+        ),
+        default: this.artifactInfo.defaultTargetKeyOnThrough,
+        when: !this.options.targetKeyOnThrough,
+        validate: input =>
+          utils.validateKeyToKeyFrom(
+            input,
+            this.artifactInfo.sourceKeyOnThrough,
+          ),
+      },
+    ]).then(props => {
+      debug(`props after foreign key name prompt: ${inspect(props)}`);
+      Object.assign(this.artifactInfo, props);
     });
   }
 
@@ -494,15 +615,16 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
 
   async promptRegisterInclusionResolver() {
     if (this.shouldExit()) return false;
+    if (this.artifactInfo.relationType === 'hasManyThrough') return;
     const props = await this.prompt([
       {
         type: 'confirm',
         name: 'registerInclusionResolver',
-        message: `Allow ${chalk.yellow(
-          this.artifactInfo.sourceModel,
-        )} queries to include data from related ${chalk.yellow(
-          this.artifactInfo.destinationModel,
-        )} instances?`,
+        message: g.f(
+          'Allow %s queries to include data from related %s instances? ',
+          chalk.yellow(this.artifactInfo.sourceModel),
+          chalk.yellow(this.artifactInfo.destinationModel),
+        ),
         default: true,
       },
     ]);
@@ -529,6 +651,12 @@ module.exports = class RelationGenerator extends ArtifactGenerator {
         break;
       case relationUtils.relationType.hasMany:
         relationGenerator = new HasManyRelationGenerator(this.args, this.opts);
+        break;
+      case relationUtils.relationType.hasManyThrough:
+        relationGenerator = new HasManyThroughRelationGenerator(
+          this.args,
+          this.opts,
+        );
         break;
       case relationUtils.relationType.hasOne:
         relationGenerator = new HasOneRelationGenerator(this.args, this.opts);

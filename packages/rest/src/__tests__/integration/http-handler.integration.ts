@@ -1,9 +1,9 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/rest
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Context} from '@loopback/context';
+import {Context} from '@loopback/core';
 import {anOpenApiSpec, anOperationSpec} from '@loopback/openapi-spec-builder';
 import {
   ControllerSpec,
@@ -405,7 +405,7 @@ describe('HttpHandler', () => {
       // is called before all request data has been processed due
       // to size limit.
       // On Windows, ECONNRESET is sometimes emitted instead of EPIPE.
-      if (err && err.code !== 'EPIPE' && err.code !== 'ECONNRESET') throw err;
+      if (err?.code !== 'EPIPE' && err?.code !== 'ECONNRESET') throw err;
     }
 
     function givenLargeRequest() {

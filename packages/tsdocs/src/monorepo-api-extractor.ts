@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2019. All Rights Reserved.
+// Copyright IBM Corp. 2019,2020. All Rights Reserved.
 // Node module: @loopback/tsdocs
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
@@ -43,7 +43,7 @@ export async function runExtractorForMonorepo(options: ExtractorOptions = {}) {
       rootDir: process.cwd(),
       apiDocsExtractionPath: DEFAULT_APIDOCS_EXTRACTION_PATH,
       typescriptCompilerFolder: typeScriptPath,
-      tsconfigFilePath: 'tsconfig.build.json',
+      tsconfigFilePath: 'tsconfig.json',
       mainEntryPointFilePath: 'dist/index.d.ts',
     },
     options,
@@ -63,10 +63,32 @@ export async function runExtractorForMonorepo(options: ExtractorOptions = {}) {
 
   setupApiDocsDirs(lernaRootDir, options);
 
+  const errors: Record<string, unknown> = {};
+
   for (const pkg of packages) {
     /* istanbul ignore if  */
-    invokeExtractorForPackage(pkg, options);
+    const err = invokeExtractorForPackage(pkg, options);
+    if (err != null) {
+      if (options.ignoreErrors) {
+        errors[pkg.name] = err;
+      } else {
+        throw err;
+      }
+    }
   }
+  if (Object.keys(errors).length === 0) return;
+  console.error(
+    '****************************************' +
+      '****************************************',
+  );
+  for (const p in errors) {
+    const err = errors[p] as {message: string};
+    console.error('%s: %s', p, err?.message ?? err);
+  }
+  console.error(
+    '****************************************' +
+      '****************************************',
+  );
 }
 
 export function runExtractorForPackage(
@@ -78,7 +100,7 @@ export function runExtractorForPackage(
       rootDir: pkgDir,
       apiDocsExtractionPath: DEFAULT_APIDOCS_EXTRACTION_PATH,
       typescriptCompilerFolder: typeScriptPath,
-      tsconfigFilePath: 'tsconfig.build.json',
+      tsconfigFilePath: 'tsconfig.json',
       mainEntryPointFilePath: 'dist/index.d.ts',
     },
     options,
@@ -92,7 +114,12 @@ export function runExtractorForPackage(
     manifestLocation: path.join(pkgDir, 'package.json'),
     rootPath: pkgDir,
   };
-  invokeExtractorForPackage(pkg, options);
+  const err = invokeExtractorForPackage(pkg, options);
+  if (err == null) return;
+  if (!options.ignoreErrors) {
+    throw err;
+  }
+  console.error(err);
 }
 
 /**
@@ -111,7 +138,12 @@ function invokeExtractorForPackage(
   process.chdir(pkg.location);
   const extractorConfig = buildExtractorConfig(pkg, options);
   debug('Resolved extractor config:', extractorConfig);
-  invokeExtractor(extractorConfig, options);
+  try {
+    invokeExtractor(extractorConfig, options);
+  } catch (err) {
+    debug('Error in extracting API docs for %s', pkg.name, err);
+    return err;
+  }
 }
 
 /**
